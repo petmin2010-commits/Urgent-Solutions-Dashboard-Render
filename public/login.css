@@ -466,3 +466,20 @@ body.is-ready .login-card{opacity:1;transform:translateY(0) scale(1)}.login-card
 @media(min-width:981px){
   .login-vd-brand-overlay{height:15.1vh!important;max-height:140px!important}
 }
+
+
+/* Mouse-driven background parallax — preserve current approved login artwork */
+@media(min-width:981px) and (pointer:fine){
+  .login-page:before{
+    transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.018)!important;
+    transform-origin:center center!important;
+    transition:transform .24s cubic-bezier(.2,.72,.22,1)!important;
+    will-change:transform!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .login-page:before{
+    transform:none!important;
+    transition:none!important;
+  }
+}

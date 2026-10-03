@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/login.css?v=vision-logo-makkah-20261004-1">
+  <link rel="stylesheet" href="/login.css?v=mouse-parallax-20261004-1">
 </head>
 <body>
 <div class="login-page">
@@ -180,12 +180,25 @@ form.addEventListener('submit',async(e)=>{
   }
 });
 
-window.addEventListener('pointermove',(e)=>{
-  const x=(e.clientX/window.innerWidth-.5)*18;
-  const y=(e.clientY/window.innerHeight-.5)*14;
-  document.documentElement.style.setProperty('--mx',x+'px');
-  document.documentElement.style.setProperty('--my',y+'px');
-},{passive:true});
+const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+if(!reduceMotion && window.matchMedia?.('(pointer:fine)').matches){
+  let bgRaf=0,lastPointer=null;
+  window.addEventListener('pointermove',(e)=>{
+    lastPointer=e;
+    if(bgRaf)return;
+    bgRaf=requestAnimationFrame(()=>{
+      const x=(lastPointer.clientX/window.innerWidth-.5)*28;
+      const y=(lastPointer.clientY/window.innerHeight-.5)*20;
+      document.documentElement.style.setProperty('--mx',x+'px');
+      document.documentElement.style.setProperty('--my',y+'px');
+      bgRaf=0;
+    });
+  },{passive:true});
+  document.addEventListener('pointerleave',()=>{
+    document.documentElement.style.setProperty('--mx','0px');
+    document.documentElement.style.setProperty('--my','0px');
+  });
+}
 
 requestAnimationFrame(()=>document.body.classList.add('is-ready'));
 </script>

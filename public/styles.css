@@ -64,3 +64,71 @@ body.theme-soft{--bg:#edf7fa;--panel:#fff}body.theme-sand{--bg:#f5f1e9;--line:#e
 .report-card-actions{display:flex;gap:7px;margin-top:10px}.report-card-actions button{flex:1}.report-card-actions .report-preview{background:#eef7fa!important;color:#146580!important;border:1px solid #cee4ec!important}.report-card-actions .report-export{background:linear-gradient(135deg,#075f89,#0b88ae)!important;color:#fff!important}
 @media(max-width:720px){.filter-summary{grid-template-columns:1fr}.result-count{justify-self:start}.vd-info-row{grid-template-columns:1fr;gap:3px}}
 @media print{.vd-info-btn,.vd-info-modal,.filter-summary{display:none!important}}
+
+
+/* Vision Dimensions logo — exact Makkah asset + proximity effects */
+.vd-proximity-logo{
+  --vd-rot-x:0deg;--vd-rot-y:0deg;--vd-shift-x:0px;--vd-shift-y:0px;--vd-glow:0;
+  transform:perspective(620px) translate3d(var(--vd-shift-x),var(--vd-shift-y),0) rotateX(var(--vd-rot-x)) rotateY(var(--vd-rot-y));
+  transform-style:preserve-3d;
+  transition:transform .18s ease,filter .22s ease,box-shadow .22s ease,border-color .22s ease;
+  will-change:transform,filter;
+}
+.brand.vd-brand-proximity{padding-top:2px;padding-bottom:15px}
+.brand-logo-shell{
+  position:relative;
+  width:58px;height:58px;min-width:58px;
+  border-radius:17px;
+  display:grid;place-items:center;
+  background:#fff;
+  padding:6px;
+  overflow:hidden;
+  border:1px solid rgba(255,205,92,.46);
+  box-shadow:0 10px 24px rgba(0,0,0,.19),0 0 0 1px rgba(255,255,255,.05);
+}
+.brand-logo-img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  border-radius:11px;
+  filter:saturate(1.04) contrast(1.02);
+  transform:translateZ(18px);
+  transition:transform .28s ease,filter .28s ease;
+}
+.brand-logo-shine{
+  position:absolute;inset:-35% auto -35% -70%;
+  width:42%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.76),transparent);
+  transform:skewX(-18deg);
+  opacity:0;
+  pointer-events:none;
+}
+.brand-logo-shell.is-near,
+.brand-logo-shell:hover{
+  border-color:rgba(255,213,103,.9);
+  box-shadow:
+    0 15px 34px rgba(0,0,0,.25),
+    0 0 calc(18px + 24px * var(--vd-glow)) rgba(62,199,235,.34),
+    0 0 0 3px rgba(255,255,255,.07);
+  filter:brightness(1.035);
+}
+.brand-logo-shell.is-near .brand-logo-img,
+.brand-logo-shell:hover .brand-logo-img{
+  transform:translateZ(24px) scale(1.055);
+  filter:saturate(1.12) contrast(1.05);
+}
+.brand-logo-shell.is-near .brand-logo-shine,
+.brand-logo-shell:hover .brand-logo-shine{
+  opacity:.72;
+  animation:vdLogoSweep 1.15s ease both;
+}
+@keyframes vdLogoSweep{
+  from{left:-70%}
+  to{left:135%}
+}
+.brand-copy{transition:transform .22s ease,text-shadow .22s ease}
+.brand:hover .brand-copy{transform:translateX(-2px);text-shadow:0 0 13px rgba(102,221,247,.24)}
+@media(max-width:720px){
+  .brand-logo-shell{width:50px;height:50px;min-width:50px;padding:5px;border-radius:15px}
+}
+@media(prefers-reduced-motion:reduce){
+  .vd-proximity-logo,.brand-logo-img,.brand-logo-shine{transition:none!important;animation:none!important}
+}

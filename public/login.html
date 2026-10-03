@@ -1,89 +1,166 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>إدارة الحلول العاجلة | أبعاد الرؤية</title>
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--water:#075b87;--water2:#0b7fa8;--aqua:#70d5ef;--ink:#0d2d3d}
-*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Cairo,Arial,sans-serif}
-body{overflow:hidden;background:#061f31;color:#fff}
-.scene{position:fixed;inset:0;background:
-linear-gradient(105deg,rgba(3,24,40,.92) 0%,rgba(4,51,78,.72) 42%,rgba(5,92,126,.26) 72%,rgba(3,47,70,.36) 100%),
-url('/assets/jeddah-water-bg.jpg') center/cover no-repeat}
-.scene:after{content:"";position:absolute;inset:0;background:url('/assets/water-pattern.svg') center/cover no-repeat;opacity:.72;mix-blend-mode:screen;pointer-events:none}
-.grid{position:absolute;inset:-20%;background-image:
-linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),
-linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
-background-size:52px 52px;transform:perspective(700px) rotateX(64deg) translateY(25%);
-animation:flow 16s linear infinite;opacity:.19}
-@keyframes flow{to{background-position:0 104px,104px 0}}
-.pipe{position:absolute;border:1px solid rgba(153,226,255,.22);border-radius:999px;filter:drop-shadow(0 0 14px rgba(56,183,229,.18))}
-.p1{width:620px;height:620px;right:-240px;top:-180px}.p2{width:420px;height:420px;right:70px;bottom:-250px}
-.glow{position:absolute;width:12px;height:12px;border-radius:50%;background:#bceeff;box-shadow:0 0 18px #9ae6ff,0 0 38px #37bde8;animation:orbit 6s ease-in-out infinite alternate}
-.g1{right:18%;top:22%}.g2{right:42%;bottom:18%;animation-delay:-2s}
-@keyframes orbit{to{transform:translate(85px,35px) scale(1.4);opacity:.45}}
-.shell{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;height:100%}
-.hero{padding:7vh 7vw;display:flex;flex-direction:column;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:14px}.mark{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-weight:800;font-size:21px;background:linear-gradient(135deg,#0876a7,#0a3d61);border:1px solid rgba(255,255,255,.24);box-shadow:0 18px 45px rgba(0,36,61,.30)}
-.brand b{font-size:18px;text-shadow:0 2px 14px rgba(0,24,45,.55)}.brand span{display:block;font-size:12px;color:#c3e9f4;margin-top:3px}
-.copy{max-width:650px;text-shadow:0 2px 18px rgba(0,28,48,.45)}.copy .eyebrow{color:#9de9ff;font-weight:700;font-size:13px;letter-spacing:.06em}.copy h1{font-size:clamp(36px,5vw,70px);line-height:1.12;margin:16px 0 18px}.copy p{color:#d7edf4;font-size:16px;line-height:2;max-width:570px}
-.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.badge{padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.12);font-size:12px;color:#d9ece6}
-.formzone{display:flex;align-items:center;justify-content:center;padding:40px}
-.card{width:min(440px,92vw);background:rgba(255,255,255,.95);color:var(--ink);border-radius:30px;padding:34px;box-shadow:0 30px 90px rgba(0,0,0,.36);backdrop-filter:blur(20px)}
-.card h2{margin:0 0 5px;font-size:25px}.sub{color:#697d83;font-size:13px;margin-bottom:25px}
-label{font-size:12px;font-weight:700;display:block;margin:14px 0 7px}.field{position:relative}
-input{width:100%;height:51px;border:1px solid #dce6e2;border-radius:15px;padding:0 15px;font-family:inherit;font-size:14px;outline:none;background:#fbfdfc;transition:.2s}
-input:focus{border-color:#2b9fc8;box-shadow:0 0 0 4px rgba(43,159,200,.12);background:#fff}
-button{width:100%;height:52px;border:0;border-radius:15px;margin-top:22px;background:linear-gradient(135deg,#075b87,#0b87ad);color:white;font:700 14px Cairo;cursor:pointer;box-shadow:0 14px 30px rgba(4,94,135,.25);transition:.2s}
-button:hover{transform:translateY(-1px);box-shadow:0 18px 35px rgba(4,94,135,.34)}
-button:disabled{opacity:.65;cursor:wait}.msg{height:24px;margin-top:12px;text-align:center;font-size:12px;color:#b42318}
-.secure{display:flex;align-items:center;gap:7px;justify-content:center;color:#718b95;font-size:11px;margin-top:13px}.dot{width:7px;height:7px;border-radius:50%;background:#20a6cf;box-shadow:0 0 0 4px rgba(32,166,207,.1)}
-.footer{font-size:11px;color:#add5df}
-@media(max-width:900px){.shell{grid-template-columns:1fr}.hero{display:none}.formzone{background:linear-gradient(135deg,rgba(3,37,59,.86),rgba(5,104,139,.63)),url('/assets/jeddah-water-bg.jpg') center/cover no-repeat}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>تسجيل الدخول | إدارة الحلول العاجلة</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/login.css?v=urgent-jeddah-20261003-1">
 </head>
 <body>
-<div class="scene"><div class="grid"></div><div class="pipe p1"></div><div class="pipe p2"></div><i class="glow g1"></i><i class="glow g2"></i></div>
-<main class="shell">
-<section class="hero">
-  <div class="brand"><div class="mark">VD</div><div><b>أبعاد الرؤية للاستشارات الهندسية</b><span>Vision Dimensions Engineering Consultancy</span></div></div>
-  <div class="copy">
-    <div class="eyebrow">JEDDAH WATER PROJECTS • URGENT SOLUTIONS MANAGEMENT</div>
-    <h1>إدارة الحلول العاجلة</h1>
-    <p>منصة تشغيلية موحدة لمتابعة المشاريع والتصاريح والخطوط البديلة والأمتار والضمانات والتسويات، مع مؤشرات لحظية وتدقيق ذكي لجودة البيانات.</p>
-    <div class="badges"><span class="badge">متابعة المشاريع</span><span class="badge">التصاريح والضمانات</span><span class="badge">الخطوط البديلة</span><span class="badge">التقارير الذكية</span></div>
-  </div>
-  <div class="footer">Vision Dimensions • Secure Project Dashboard</div>
-</section>
-<section class="formzone">
-<form class="card" id="loginForm">
-  <h2>تسجيل الدخول</h2>
-  <div class="sub">أدخل بيانات المستخدم للوصول إلى لوحة إدارة الحلول العاجلة</div>
-  <label for="username">اسم المستخدم / البريد الإلكتروني</label>
-  <input id="username" name="username" autocomplete="username" required autofocus>
-  <label for="password">كلمة المرور</label>
-  <input id="password" name="password" type="password" autocomplete="current-password" required>
-  <button id="loginBtn" type="submit">دخول إلى لوحة التحكم</button>
-  <div id="msg" class="msg"></div>
-  <div class="secure"><span class="dot"></span> اتصال محمي وصلاحيات مستخدم</div>
-</form>
-</section>
-</main>
+<div class="login-page">
+  <section class="city-visual" aria-label="هوية مشروع إدارة الحلول العاجلة">
+    <div class="city-photo" aria-hidden="true"></div>
+    <div class="city-shade" aria-hidden="true"></div>
+    <div class="electric-sweep electric-sweep-a" aria-hidden="true"></div>
+    <div class="electric-sweep electric-sweep-b" aria-hidden="true"></div>
+    <svg class="power-grid" viewBox="0 0 1200 900" preserveAspectRatio="none" aria-hidden="true">
+      <path class="power-line line-a" d="M-40 175 C180 105 300 245 505 174 S810 95 1240 190"/>
+      <path class="power-line line-b" d="M-60 665 C170 565 350 735 555 635 S865 560 1240 690"/>
+      <path class="power-line line-c" d="M120 0 C205 190 90 340 230 475 S480 620 420 900"/>
+      <circle class="power-node n1" cx="285" cy="191" r="7"/>
+      <circle class="power-node n2" cx="695" cy="143" r="7"/>
+      <circle class="power-node n3" cx="470" cy="672" r="7"/>
+      <circle class="power-node n4" cx="935" cy="612" r="7"/>
+    </svg>
+    <div class="city-project">
+      <div class="city-project-icon">⚡</div>
+      <div>
+        <span>URGENT SOLUTIONS • JEDDAH MUNICIPALITY</span>
+        <strong>إدارة الحلول العاجلة</strong>
+        <small>Operational Control & Smart Reporting</small>
+      </div>
+    </div>
+  </section>
+
+  <main class="login-side">
+    <section class="login-card">
+      <div class="login-card-glow" aria-hidden="true"></div>
+
+      <div class="brand-row">
+        <div class="vision-brand">
+          <div class="logo-box"><img src="/assets/vision-dimensions-logo.png" alt="شركة أبعاد الرؤية للاستشارات الهندسية"></div>
+          <div class="brand-copy">
+            <strong>أبعاد الرؤية</strong>
+            <span>للاستشارات الهندسية</span>
+            <em>VISION DIMENSIONS</em>
+          </div>
+        </div>
+        <div class="brand-divider"></div>
+        <div class="pdc-brand municipality-brand" aria-label="أمانة محافظة جدة">
+          <img class="pdc-logo municipality-logo" src="/assets/jeddah-municipality.png" alt="أمانة محافظة جدة">
+        </div>
+      </div>
+
+      <div class="login-heading">
+        <span class="login-kicker">URGENT SOLUTIONS CONTROL CENTER</span>
+        <h1>إدارة الحلول العاجلة</h1>
+        <p>منصة المتابعة التشغيلية — <b>أمانة محافظة جدة</b></p>
+        <div class="contract-chip"><span>تشغيل ومتابعة</span><strong>JEDDAH</strong></div>
+      </div>
+
+      <form id="loginForm" autocomplete="on">
+        <label for="username">اسم المستخدم / البريد الإلكتروني</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+          <input id="username" name="username" type="text" autocomplete="username" placeholder="اسم المستخدم أو البريد الإلكتروني" required autofocus>
+        </div>
+
+        <label for="password">كلمة المرور</label>
+        <div class="input-wrap">
+          <span class="input-icon">●</span>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور" required>
+          <button type="button" id="togglePassword" class="password-toggle" aria-label="إظهار كلمة المرور">👁</button>
+        </div>
+
+        <div id="loginMessage" class="login-message" aria-live="polite"></div>
+
+        <button id="loginButton" class="login-button" type="submit">
+          <span class="button-energy" aria-hidden="true"></span>
+          <span class="button-text">دخول إلى لوحة التحكم <b>←</b></span>
+          <span class="button-loader" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <div class="secure-access">
+        <span class="secure-dot"></span>
+        <span>دخول آمن للمستخدمين المصرح لهم فقط</span>
+      </div>
+
+      <footer class="login-footer-note">
+        <span>شركة أبعاد الرؤية للاستشارات الهندسية</span>
+        <b>Urgent Solutions Dashboard</b>
+      </footer>
+    </section>
+  </main>
+
+  <footer class="login-corporate-footer" aria-label="بيانات الشركة">
+    <div class="login-corporate-center">
+      <span>VISION DIMENSIONS FOR ENGINEERING CONSULTANCY</span>
+      <b>جميع الحقوق محفوظة © 2026</b>
+    </div>
+    <div class="login-corporate-credit">إدارة الحلول العاجلة • أمانة محافظة جدة</div>
+  </footer>
+</div>
 <script>
-(async()=>{try{const r=await fetch('/api/auth/me',{cache:'no-store'});if(r.ok)location.replace('/')}catch(e){}})();
-document.getElementById('loginForm').addEventListener('submit',async e=>{
- e.preventDefault();const btn=document.getElementById('loginBtn'),msg=document.getElementById('msg');
- btn.disabled=true;btn.textContent='جاري التحقق...';msg.textContent='';
- try{
-  const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.value,password:password.value})});
-  const j=await r.json();
-  if(!r.ok)throw new Error(j.error||'LOGIN_FAILED');
-  location.replace('/');
- }catch(err){msg.textContent='بيانات الدخول غير صحيحة أو الحساب غير مفعل';btn.disabled=false;btn.textContent='دخول إلى لوحة التحكم'}
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/me',{cache:'no-store'});
+    if(r.ok) location.replace('/');
+  }catch(e){}
+})();
+
+const form=document.getElementById('loginForm');
+const btn=document.getElementById('loginButton');
+const msg=document.getElementById('loginMessage');
+const password=document.getElementById('password');
+const toggle=document.getElementById('togglePassword');
+
+toggle.addEventListener('click',()=>{
+  const show=password.type==='password';
+  password.type=show?'text':'password';
+  toggle.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور');
 });
+
+form.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  btn.disabled=true;
+  btn.classList.add('loading');
+  msg.className='login-message';
+  msg.textContent='';
+  try{
+    const r=await fetch('/api/auth/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        username:document.getElementById('username').value.trim(),
+        password:password.value
+      })
+    });
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error||'LOGIN_FAILED');
+    msg.className='login-message success';
+    msg.textContent='تم تسجيل الدخول بنجاح، جاري فتح لوحة التحكم...';
+    setTimeout(()=>location.replace('/'),300);
+  }catch(err){
+    msg.className='login-message error';
+    msg.textContent='بيانات الدخول غير صحيحة أو الحساب غير مفعل';
+    btn.disabled=false;
+    btn.classList.remove('loading');
+  }
+});
+
+window.addEventListener('pointermove',(e)=>{
+  const x=(e.clientX/window.innerWidth-.5)*18;
+  const y=(e.clientY/window.innerHeight-.5)*14;
+  document.documentElement.style.setProperty('--mx',x+'px');
+  document.documentElement.style.setProperty('--my',y+'px');
+},{passive:true});
+
+requestAnimationFrame(()=>document.body.classList.add('is-ready'));
 </script>
 </body>
 </html>

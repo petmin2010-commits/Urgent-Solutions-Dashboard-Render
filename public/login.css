@@ -607,3 +607,169 @@ body.is-ready .login-card{opacity:1;transform:translateY(0) scale(1)}.login-card
     width:clamp(132px,8.2vw,158px)!important;
   }
 }
+
+
+/* JEDDAH TECHNIQUES PARITY — Urgent Solutions — 2026-10-04
+   Preserve the approved artwork; add real motion/interactivity above it. */
+@media(min-width:981px){
+  .login-page:before{
+    inset:-1.8%!important;
+    background-size:103.6% 103.6%!important;
+    transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.018)!important;
+    transform-origin:center center!important;
+    transition:transform .24s cubic-bezier(.2,.72,.22,1)!important;
+    animation:urgentCityBreath 16s ease-in-out infinite alternate!important;
+    will-change:transform!important;
+  }
+
+  /* Reactivate the existing smart-water layer that was hidden by the artwork mode. */
+  .city-visual{
+    display:block!important;
+    position:absolute!important;
+    inset:0!important;
+    z-index:3!important;
+    width:100vw!important;
+    height:100vh!important;
+    min-height:100vh!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    background:transparent!important;
+    isolation:isolate!important;
+  }
+  .city-visual .city-photo,
+  .city-visual .city-shade,
+  .city-visual .city-project,
+  .city-visual:before,
+  .city-visual:after{display:none!important}
+
+  .water-grid{
+    display:block!important;
+    inset:-1.5%!important;
+    width:103%!important;
+    height:103%!important;
+    opacity:.28!important;
+    mix-blend-mode:screen!important;
+    transform:translate3d(calc(var(--mx,0px)*.08),calc(var(--my,0px)*.055),0) scale(1.015)!important;
+    transition:transform .28s cubic-bezier(.2,.72,.22,1)!important;
+    will-change:transform!important;
+  }
+  .pipe-line{
+    stroke:rgba(116,226,250,.62)!important;
+    stroke-width:1.65!important;
+    stroke-dasharray:10 18!important;
+    filter:drop-shadow(0 0 6px rgba(74,204,238,.60))!important;
+    animation:waterPipeFlow 6.2s linear infinite!important;
+  }
+  .pipe-b{animation-duration:7.8s!important;animation-direction:reverse!important}
+  .pipe-c{animation-duration:9.4s!important}
+  .pipe-d{animation-duration:8.5s!important;animation-direction:reverse!important}
+  .flow-node{
+    fill:#ecfdff!important;
+    stroke:#63d7f2!important;
+    stroke-width:2.2!important;
+    filter:drop-shadow(0 0 11px rgba(92,220,248,.95))!important;
+    animation:waterNodePulse 2.35s ease-in-out infinite!important;
+  }
+  .water-flow{
+    display:block!important;
+    opacity:.14!important;
+    mix-blend-mode:screen!important;
+    filter:drop-shadow(0 0 14px rgba(77,205,240,.34))!important;
+  }
+  .water-flow:before,.water-flow:after{
+    border-top-width:1.35px!important;
+    border-top-color:rgba(126,229,252,.56)!important;
+  }
+  .water-badge{display:none!important}
+
+  /* Real Jeddah-style focus/hover feedback on the transparent form hit areas. */
+  .input-wrap{
+    transition:background .22s ease,box-shadow .22s ease,transform .22s ease!important;
+  }
+  .input-wrap:focus-within{
+    background:rgba(77,198,231,.055)!important;
+    box-shadow:inset 0 0 0 1px rgba(126,231,252,.25),0 0 22px rgba(54,182,220,.08)!important;
+    transform:translateY(-1px)!important;
+  }
+  .login-button{
+    transition:background .2s ease,box-shadow .2s ease,transform .2s ease!important;
+  }
+  .login-button:hover{
+    transform:translateY(-1px)!important;
+    background:rgba(84,211,242,.045)!important;
+    box-shadow:inset 0 0 0 1px rgba(123,229,252,.20),0 8px 24px rgba(0,30,52,.10)!important;
+  }
+  .login-button:active{transform:translateY(0) scale(.995)!important}
+
+  /* Make the proximity variables from logo-effects.js actually drive 3D motion. */
+  .login-vd-brand-overlay{
+    --vd-rot-x:0deg;--vd-rot-y:0deg;--vd-shift-x:0px;--vd-shift-y:0px;--vd-glow:0;
+    transform:
+      perspective(900px)
+      translate3d(var(--vd-shift-x),var(--vd-shift-y),0)
+      rotateX(var(--vd-rot-x))
+      rotateY(var(--vd-rot-y))!important;
+    transform-style:preserve-3d!important;
+    transition:transform .22s cubic-bezier(.2,.75,.25,1),filter .24s ease,box-shadow .24s ease!important;
+    will-change:transform,filter!important;
+  }
+
+  /* Invisible interaction surface over the municipality logo already baked into the approved artwork. */
+  .login-municipality-hotspot{
+    --vd-rot-x:0deg;--vd-rot-y:0deg;--vd-shift-x:0px;--vd-shift-y:0px;--vd-glow:0;
+    position:absolute!important;
+    display:block!important;
+    left:5.8vw!important;
+    top:8.2vh!important;
+    width:11.8vw!important;
+    height:13.2vh!important;
+    min-width:145px!important;
+    min-height:92px!important;
+    z-index:23!important;
+    border-radius:20px!important;
+    pointer-events:auto!important;
+    background:transparent!important;
+    border:1px solid transparent!important;
+    transform:
+      perspective(850px)
+      translate3d(var(--vd-shift-x),var(--vd-shift-y),0)
+      rotateX(var(--vd-rot-x))
+      rotateY(var(--vd-rot-y))!important;
+    transition:transform .22s cubic-bezier(.2,.75,.25,1),box-shadow .24s ease,border-color .24s ease!important;
+    will-change:transform,box-shadow!important;
+  }
+  .login-municipality-hotspot.is-near,
+  .login-municipality-hotspot:hover{
+    border-color:rgba(105,222,248,.20)!important;
+    box-shadow:0 0 calc(16px + 32px * var(--vd-glow)) rgba(74,203,237,.22),inset 0 0 24px rgba(95,218,247,.04)!important;
+  }
+
+  /* Restore Jeddah-style transparent corporate footer and social controls. */
+  .login-corporate-footer{
+    display:grid!important;
+    grid-template-columns:1fr auto 1fr!important;
+    position:absolute!important;
+    z-index:32!important;
+    left:0!important;right:0!important;bottom:0!important;
+    height:58px!important;
+    padding:0 20px!important;
+    align-items:center!important;
+    gap:18px!important;
+    background:transparent!important;
+    pointer-events:none!important;
+  }
+  .login-socials{display:flex!important;justify-self:start!important;pointer-events:auto!important}
+  .login-corporate-center{display:flex!important;justify-self:center!important;pointer-events:none!important}
+  .login-corporate-credit{display:block!important;justify-self:end!important;pointer-events:none!important}
+}
+
+@keyframes urgentCityBreath{
+  0%{transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.018)}
+  100%{transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.032)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .login-page:before{animation:none!important;transform:none!important;transition:none!important}
+  .water-grid,.pipe-line,.flow-node,.water-flow{animation:none!important;transform:none!important;transition:none!important}
+  .login-vd-brand-overlay,.login-municipality-hotspot{transform:none!important;transition:none!important}
+}

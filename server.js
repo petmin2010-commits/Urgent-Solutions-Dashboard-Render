@@ -196,33 +196,36 @@ function projectRow(r,rowNumber){
     clean(r[34])||'غير محدد';
   return {
     row:rowNumber,
-    no:clean(r[0]),name:clean(r[1]),contractStatus:clean(r[3]),
-    department:clean(r[6]),projectType:clean(r[7]),branch:clean(r[8]),
-    owner:clean(r[18]),contractor:clean(r[19]),municipality:clean(r[21]),district:clean(r[22]),street:clean(r[23]),locationLink:clean(r[24]),
+    no:clean(r[0]),name:clean(r[1]),contractStatus:clean(r[3]),company:clean(r[4]),contractNo:clean(r[5]),
+    department:clean(r[6]),projectType:clean(r[7]),branch:clean(r[8]),startDate:clean(r[9]),endDate:clean(r[10]),
+    owner:clean(r[18]),contractor:clean(r[19]),lab:clean(r[20]),municipality:clean(r[21]),district:clean(r[22]),street:clean(r[23]),locationLink:clean(r[24]),
     lat:num(r[25]),lon:num(r[26]),transactionNo:clean(r[27]),
     permitRefs,permitCount:num(r[30]),permitDuration:clean(r[31]),
     permitExpiry:clean(r[32]),permitDays:num(r[33]),permitStatus:derivedPermitStatus,
     permitStatusSheet:clean(r[34]),permitMeters:num(r[35]),
-    guaranteeRef:clean(r[36]),guaranteeExpiry:clean(r[38]),guaranteeDays:num(r[39]),
-    guaranteeStatus:clean(r[40])
+    guaranteeRef:clean(r[36]),guaranteeLink:clean(r[37]),guaranteeExpiry:clean(r[38]),guaranteeDays:num(r[39]),
+    guaranteeStatus:clean(r[40]),handoverNo:clean(r[41]),handoverDate:clean(r[42]),handoverLink:clean(r[43]),
+    clearance:clean(r[44]),pumpReportLink:clean(r[45])
   };
 }
 function permitRow(r,rowNumber){
   return {
     row:rowNumber,id:clean(r[0]),start:clean(r[1]),end:clean(r[2]),
-    duration:clean(r[3]),meters:num(r[4]),owner:clean(r[5]),year:clean(r[7]),
-    municipality:clean(r[8]),district:clean(r[9]),street:clean(r[10]),
-    consultant:clean(r[11]),contractor:clean(r[12])
+    duration:clean(r[3]),meters:num(r[4]),owner:clean(r[5]),permitLink:clean(r[6]),year:clean(r[7]),
+    helperMunicipality:clean(r[8]),helperDistrict:clean(r[9]),helperStreet:clean(r[10]),
+    helperConsultant:clean(r[11]),helperContractor:clean(r[12])
   };
 }
 function lineRow(r,rowNumber){
   return {
     row:rowNumber,ref:clean(r[0]),name:clean(r[1]),municipality:clean(r[2]),
-    district:clean(r[3]),street:clean(r[4]),contractor:clean(r[11]),
-    owner:clean(r[12]),designer:clean(r[13]),type:clean(r[14]),length:num(r[15]),
-    diameter:clean(r[17]),designStatus:clean(r[19]),executionStatus:clean(r[25]),
-    completion:clean(r[26]),completionReport:clean(r[27]),handoverLetter:clean(r[28]),
-    handoverDate:clean(r[29]),ownerDue:num(r[31]),remaining:num(r[32]),year:clean(r[33])
+    district:clean(r[3]),street:clean(r[4]),locationLink:clean(r[5]),lat:num(r[6]),lon:num(r[7]),
+    assignmentNo:clean(r[8]),assignmentLink:clean(r[9]),assignmentDate:clean(r[10]),contractor:clean(r[11]),
+    owner:clean(r[12]),designer:clean(r[13]),type:clean(r[14]),length:num(r[15]),designLength:num(r[16]),
+    diameter:clean(r[17]),designLink:clean(r[18]),designStatus:clean(r[19]),transactionNo:clean(r[20]),
+    submissionDate:clean(r[21]),approvalDate:clean(r[22]),approvalLink:clean(r[23]),rev:clean(r[24]),
+    executionStatus:clean(r[25]),completion:clean(r[26]),completionReport:clean(r[27]),handoverLetter:clean(r[28]),
+    handoverDate:clean(r[29]),notes:clean(r[30]),ownerDue:num(r[31]),remaining:num(r[32]),year:clean(r[33])
   };
 }
 function refLineRow(r,rowNumber){
@@ -261,7 +264,112 @@ function buildSettlements(projects,lines){
   }).sort((a,b)=>Math.abs(b.balance)-Math.abs(a.balance));
 }
 
-function qualityChecks(projects,permits,lines,refLines){
+
+function splitPermitRefs(v){
+  return clean(v).split(/[,،]+/).map(clean).filter(x=>x&&norm(x)!==norm('تحت الاصدار')&&norm(x)!==norm('مشروع ملغي'));
+}
+function enrichPermitsWithProjects(permits,projects){
+  const index=new Map();
+  for(const p of projects){
+    for(const id of splitPermitRefs(p.permitRefs)){
+      if(!index.has(norm(id)))index.set(norm(id),p);
+    }
+  }
+  const today=DateTime.now().setZone('Asia/Riyadh').startOf('day');
+  return permits.map(x=>{
+    const p=index.get(norm(x.id)),end=parseDate(x.end);
+    const expiryDays=end?Math.floor(end.diff(today,'days').days):null;
+    const expiryBand=expiryDays===null?'غير محدد':expiryDays<0?'منتهي':expiryDays<=7?'0–7 أيام':expiryDays<=30?'8–30 يوم':expiryDays<=60?'31–60 يوم':'>60 يوم';
+    return {
+      ...x,
+      projectNo:p?.no||'',projectName:p?.name||'',
+      municipality:p?.municipality||'',district:p?.district||'',street:p?.street||'',
+      contractor:p?.contractor||'',consultant:'أبعاد الرؤية',
+      projectOwner:p?.owner||'',contractStatus:p?.contractStatus||'',
+      permitStatus:p?.permitStatus||'',guaranteeStatus:p?.guaranteeStatus||'',
+      expiryDays,expiryBand
+    };
+  });
+}
+function enrichLines(lines,today){
+  return lines.map(l=>{
+    const submission=parseDate(l.submissionDate),approval=parseDate(l.approvalDate),assignment=parseDate(l.assignmentDate);
+    const approvalDays=submission&&approval?Math.round(approval.diff(submission,'days').days):null;
+    const assignmentToSubmissionDays=assignment&&submission?Math.round(submission.diff(assignment,'days').days):null;
+    const designAgeDays=submission&&!approval?Math.max(0,Math.round(today.diff(submission,'days').days)):0;
+    const designLengthDiff=l.designLength&&l.length?Math.round((l.designLength-l.length)*100)/100:null;
+    const designAgeBand=designAgeDays<=0?'غير نشط':designAgeDays<=30?'0–30 يوم':designAgeDays<=60?'31–60 يوم':designAgeDays<=180?'61–180 يوم':'>180 يوم';
+    const approvalBand=approvalDays===null?'غير محدد':approvalDays<=7?'0–7 أيام':approvalDays<=30?'8–30 يوم':approvalDays<=60?'31–60 يوم':'>60 يوم';
+    return {...l,approvalDays,assignmentToSubmissionDays,designAgeDays,designAgeBand,approvalBand,designLengthDiff,
+      chronologyIssue:assignmentToSubmissionDays!==null&&assignmentToSubmissionDays<0};
+  });
+}
+function enrichSettlements(rows){
+  return rows.map(x=>{
+    const coveragePct=x.dueMeters?Math.round((x.executedMeters/x.dueMeters)*1000)/10:null;
+    const coverageBand=coveragePct===null?'بدون مستحق':coveragePct===0?'0%':coveragePct<50?'<50%':coveragePct<80?'50–79%':coveragePct<100?'80–99%':'≥100%';
+    return {...x,coveragePct,coverageBand,balanceAbs:Math.abs(x.balance)};
+  });
+}
+function projectRisk(project,pair){
+  let score=0;const reasons=[];
+  const permitDays=parseDate(project.permitExpiry)?.diff(DateTime.now().setZone('Asia/Riyadh').startOf('day'),'days').days;
+  if(norm(project.permitRefs)===norm('تحت الاصدار')){score+=15;reasons.push('التصريح تحت الإصدار')}
+  else if(permitDays!=null&&permitDays<0){score+=30;reasons.push('التصريح منتهي')}
+  else if(permitDays!=null&&permitDays<=7){score+=25;reasons.push('التصريح خلال 7 أيام')}
+  else if(permitDays!=null&&permitDays<=30){score+=18;reasons.push('التصريح خلال 30 يوم')}
+  else if(permitDays!=null&&permitDays<=60){score+=10;reasons.push('التصريح خلال 60 يوم')}
+  else if(!project.permitRefs){score+=12;reasons.push('لا توجد بيانات تصريح')}
+  const gs=norm(project.guaranteeStatus);
+  if(gs.includes(norm('منتهي'))){score+=25;reasons.push('الضمان منتهي')}
+  else if(gs.includes(norm('أوشك'))){score+=15;reasons.push('الضمان يوشك على الانتهاء')}
+  else if(gs.includes(norm('بانتظار'))){score+=15;reasons.push('بانتظار ضمان/تعهد')}
+  else if(gs.includes(norm('تعهد'))){score+=4;reasons.push('يوجد تعهد بدل الضمان')}
+  const cov=pair?.coveragePct;
+  if(pair&&pair.dueMeters>0){
+    if(cov===0){score+=20;reasons.push('لا توجد تغطية أمتار مطابقة')}
+    else if(cov<50){score+=15;reasons.push('تغطية الأمتار أقل من 50%')}
+    else if(cov<80){score+=10;reasons.push('تغطية الأمتار أقل من 80%')}
+    else if(cov<100){score+=5;reasons.push('تغطية الأمتار أقل من 100%')}
+  }
+  if(!project.contractStatus){score+=8;reasons.push('حالة العقد غير محددة')}
+  else if(norm(project.contractStatus).includes(norm('متوقف'))){score+=8;reasons.push('العقد متوقف')}
+  const validCoords=Number(project.lat)>20&&Number(project.lat)<23&&Number(project.lon)>38&&Number(project.lon)<41;
+  if(!validCoords){score+=5;reasons.push('إحداثيات غير مكتملة')}
+  if(project.permitCount>=10){score+=7;reasons.push('ضغط تمديدات مرتفع جدًا')}
+  else if(project.permitCount>=5){score+=5;reasons.push('ضغط تمديدات مرتفع')}
+  else if(project.permitCount>=2){score+=3;reasons.push('تصاريح/تمديدات متعددة')}
+  score=Math.min(100,score);
+  const riskLevel=score>=60?'حرج':score>=40?'مرتفع':score>=20?'متوسط':'طبيعي';
+  const extensionPressure=project.permitCount>=10?'مرتفع جدًا':project.permitCount>=5?'مرتفع':project.permitCount>=2?'متوسط':project.permitCount===1?'منخفض':'لا يوجد';
+  return {score,riskLevel,reasons,extensionPressure,matchedCoveragePct:pair?.coveragePct??null,matchedBalance:pair?.balance??null};
+}
+function buildMunicipalitySummary(projects,lines){
+  const map=new Map();
+  const get=k=>{const key=clean(k)||'غير محدد';if(!map.has(key))map.set(key,{municipality:key,projects:0,permitMeters:0,lines:0,lineMeters:0,criticalProjects:0,pendingDesign:0});return map.get(key)};
+  for(const p of projects){const x=get(p.municipality);x.projects++;x.permitMeters+=p.permitMeters;if(['حرج','مرتفع'].includes(p.riskLevel))x.criticalProjects++}
+  for(const l of lines){const x=get(l.municipality);x.lines++;x.lineMeters+=l.length;if(!l.designStatus||/جاري|قيد/i.test(l.designStatus))x.pendingDesign++}
+  return [...map.values()].map(x=>({...x,grossCoveragePct:x.permitMeters?Math.round((x.lineMeters/x.permitMeters)*1000)/10:null})).sort((a,b)=>b.permitMeters-a.permitMeters);
+}
+function buildTraceability(projects,lines){
+  const byPair=new Map();
+  for(const l of lines){const k=pairKey(l.owner,l.contractor);if(!byPair.has(k))byPair.set(k,[]);byPair.get(k).push(l)}
+  return projects.map(p=>{
+    const linked=byPair.get(pairKey(p.owner,p.contractor))||[];
+    return {
+      no:p.no,name:p.name,contractStatus:p.contractStatus,owner:p.owner,contractor:p.contractor,municipality:p.municipality,
+      permitRefs:p.permitRefs,permitCount:p.permitCount,permitStatus:p.permitStatus,permitMeters:p.permitMeters,guaranteeStatus:p.guaranteeStatus,
+      lineCount:linked.length,lineRefs:linked.map(x=>x.ref).filter(Boolean).join('، '),
+      lineMeters:Math.round(linked.reduce((a,x)=>a+x.length,0)*100)/100,
+      designStatuses:[...new Set(linked.map(x=>x.designStatus||'غير محدد'))].join('، '),
+      executionStatuses:[...new Set(linked.map(x=>x.executionStatus||'غير محدد'))].join('، '),
+      riskScore:p.riskScore,riskLevel:p.riskLevel,
+      matchMethod:linked.length?'المالك + المقاول':'لا يوجد ربط مطابق'
+    };
+  });
+}
+
+function qualityChecks(projects,permits,lines,refLines,complaints){
   const issues=[];
   const permitPattern=/^(?:\d+|\d+-\d+)$/;
   for(const p of permits){
@@ -276,6 +384,10 @@ function qualityChecks(projects,permits,lines,refLines){
     if(p.permitRefs==='تحت الاصدار' && norm(p.permitStatusSheet)!==norm('تحت الاصدار')){
       issues.push({severity:'medium',category:'منطق الحالة',source:'vd projects',row:p.row,message:'التصريح تحت الإصدار لكن حالة الشيت الحالية: '+(p.permitStatusSheet||'فارغة')});
     }
+    if(!p.contractStatus)issues.push({severity:'medium',category:'حالة العقد',source:'vd projects',row:p.row,message:'حالة العقد غير محددة'});
+    if(!p.owner)issues.push({severity:'medium',category:'بيانات المشروع',source:'vd projects',row:p.row,message:'المشروع بدون مالك'});
+    if(!p.contractor)issues.push({severity:'medium',category:'بيانات المشروع',source:'vd projects',row:p.row,message:'المشروع بدون مقاول تصريح'});
+    if(!p.municipality)issues.push({severity:'low',category:'البلدية',source:'vd projects',row:p.row,message:'البلدية غير محددة'});
     const validCoords=Number.isFinite(Number(p.lat))&&Number.isFinite(Number(p.lon))&&Number(p.lat)>20&&Number(p.lat)<23&&Number(p.lon)>38&&Number(p.lon)<41;
     if(!validCoords){
       issues.push({severity:'medium',category:'الإحداثيات',source:'vd projects',row:p.row,message:'إحداثيات E/N مفقودة أو غير صالحة للرسم على خريطة جدة'});
@@ -290,7 +402,15 @@ function qualityChecks(projects,permits,lines,refLines){
   for(const l of lines){
     if(!l.contractor) issues.push({severity:'medium',category:'بيانات الخط',source:'Alternative lines',row:l.row,message:'خط بدون مقاول'});
     if(!l.owner) issues.push({severity:'medium',category:'بيانات الخط',source:'Alternative lines',row:l.row,message:'خط بدون مالك'});
+    if(!l.designer) issues.push({severity:'low',category:'التصميم',source:'Alternative lines',row:l.row,message:'المصمم غير مسجل'});
     if(!l.designStatus) issues.push({severity:'low',category:'التصميم',source:'Alternative lines',row:l.row,message:'حالة التصميم غير مسجلة'});
+    if(l.chronologyIssue) issues.push({severity:'high',category:'تسلسل زمني',source:'Alternative lines',row:l.row,message:'تاريخ رفع التصميم يسبق تاريخ التكليف'});
+    if(l.designStatus&&/جاري|قيد/i.test(l.designStatus)&&l.approvalDate)issues.push({severity:'high',category:'تعارض حالة التصميم',source:'Alternative lines',row:l.row,message:'الحالة تشير إلى اعتماد جارٍ رغم وجود تاريخ اعتماد: '+l.approvalDate});
+    if(l.designStatus&&/جاري|قيد/i.test(l.designStatus)&&!l.approvalDate&&l.designAgeDays>60)issues.push({severity:'high',category:'اعتماد التصميم',source:'Alternative lines',row:l.row,message:'تصميم تحت المتابعة منذ '+l.designAgeDays+' يوم'});
+  }
+  for(const c of complaints||[]){
+    if(!c.status)issues.push({severity:'medium',category:'الشكاوى',source:'info. new',row:c.row,message:'شكوى بدون حالة متابعة'});
+    if(!c.link)issues.push({severity:'low',category:'الشكاوى',source:'info. new',row:c.row,message:'شكوى بدون ربط بخط بديل/حل'});
   }
   return issues;
 }
@@ -320,17 +440,19 @@ async function buildData(force=false){
   });
   const [projectValues=[],lineValues=[],infoValues=[],ownerValues=[]]=(result.data.valueRanges||[]).map(x=>x.values||[]);
 
-  const projects=projectValues.slice(1).map((r,i)=>projectRow(r,i+2)).filter(x=>x.no||x.name);
-  const lines=lineValues.slice(1).map((r,i)=>lineRow(r,i+2)).filter(x=>x.ref||x.name);
-  const permits=infoValues.slice(1).map((r,i)=>permitRow(r,i+2)).filter(x=>x.id);
+  let projects=projectValues.slice(1).map((r,i)=>projectRow(r,i+2)).filter(x=>x.no||x.name);
+  let lines=lineValues.slice(1).map((r,i)=>lineRow(r,i+2)).filter(x=>x.ref||x.name);
+  let permits=infoValues.slice(1).map((r,i)=>permitRow(r,i+2)).filter(x=>x.id);
   const refLines=infoValues.slice(1).map((r,i)=>refLineRow(r,i+2)).filter(x=>x.ref||x.name);
   const complaints=infoValues.slice(1).map((r,i)=>complaintRow(r,i+2)).filter(x=>x.text);
   const owners=ownerValues.slice(1).map((r,i)=>({row:i+2,owner:clean(r[6]),meters:num(r[7])})).filter(x=>x.owner);
 
+  const today=DateTime.now().setZone('Asia/Riyadh').startOf('day');
+  lines=enrichLines(lines,today);
+  permits=enrichPermitsWithProjects(permits,projects);
   const actualPermits=permits.filter(x=>x.start&&x.end);
   const underIssue=permits.filter(x=>norm(x.id)===norm('تحت الاصدار'));
   const cancelledPermits=permits.filter(x=>norm(x.id)===norm('مشروع ملغي'));
-  const today=DateTime.now().setZone('Asia/Riyadh').startOf('day');
   const permitTiming={expired:0,expiring:0,valid:0,unknown:0};
   actualPermits.forEach(x=>{
     const d=parseDate(x.end);
@@ -341,8 +463,18 @@ async function buildData(force=false){
     else permitTiming.valid++;
   });
 
-  const settlements=buildSettlements(projects,lines);
-  const quality=qualityChecks(projects,permits,lines,refLines);
+  let settlements=enrichSettlements(buildSettlements(projects,lines));
+  const settlementMap=new Map(settlements.map(x=>[pairKey(x.owner,x.contractor),x]));
+  projects=projects.map(p=>({...p,...projectRisk(p,settlementMap.get(pairKey(p.owner,p.contractor)))}));
+  const municipalitySummary=buildMunicipalitySummary(projects,lines);
+  const traceability=buildTraceability(projects,lines);
+  const quality=qualityChecks(projects,permits,lines,refLines,complaints);
+  const matchedDue=sum(settlements,'dueMeters'),matchedDone=sum(settlements,'executedMeters');
+  const grossPermitMeters=sum(actualPermits,'meters'),grossLineMeters=sum(lines,'length');
+  const riskCounts=countBy(projects,'riskLevel');
+  const extensionPressure=countBy(projects,'extensionPressure');
+  const designApprovalDays=lines.filter(x=>Number.isFinite(x.approvalDays)&&x.approvalDays>=0);
+  const pendingDesignAging=lines.filter(x=>x.designAgeDays>0).sort((a,b)=>b.designAgeDays-a.designAgeDays);
   const data={
     updatedAt:DateTime.now().setZone('Asia/Riyadh').toISO(),
     projectTitle:'إدارة الحلول العاجلة',
@@ -351,26 +483,51 @@ async function buildData(force=false){
       actualPermits:actualPermits.length,
       underIssue:underIssue.length,
       cancelledPermits:cancelledPermits.length,
-      permitMeters:sum(actualPermits,'meters'),
+      permitMeters:grossPermitMeters,
       lines:lines.length,
-      lineMeters:sum(lines,'length'),
+      lineMeters:grossLineMeters,
+      grossCoveragePct:grossPermitMeters?Math.round(grossLineMeters/grossPermitMeters*1000)/10:0,
+      matchedCoveragePct:matchedDue?Math.round(matchedDone/matchedDue*1000)/10:0,
+      matchedGap:Math.round((matchedDue-matchedDone)*100)/100,
+      highRiskProjects:(riskCounts['حرج']||0)+(riskCounts['مرتفع']||0),
+      mappedProjects:projects.filter(p=>Number(p.lat)>20&&Number(p.lat)<23&&Number(p.lon)>38&&Number(p.lon)<41).length,
       complaints:complaints.length,
-      qualityIssues:quality.length
+      qualityIssues:quality.length,
+      designApproved:lines.filter(x=>/معتمد|حزمة مصممة/i.test(x.designStatus)).length,
+      designPending:lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!x.approvalDate).length,
+      designStatusConflict:lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!!x.approvalDate).length,
+      designMissing:lines.filter(x=>!x.designStatus).length,
+      executionReady:lines.filter(x=>!!x.executionStatus).length
     },
     permitTiming,
+    management:{
+      riskCounts,extensionPressure,
+      matchedDue,matchedDone,
+      designApprovalAvgDays:designApprovalDays.length?Math.round(designApprovalDays.reduce((a,x)=>a+x.approvalDays,0)/designApprovalDays.length*10)/10:null,
+      designApprovalMedianDays:designApprovalDays.length?[...designApprovalDays].sort((a,b)=>a.approvalDays-b.approvalDays)[Math.floor(designApprovalDays.length/2)].approvalDays:null,
+      pendingDesignAging:pendingDesignAging.slice(0,20),
+      handoverReadiness:{
+        projectHandoverLetters:projects.filter(x=>x.handoverNo).length,
+        projectClearances:projects.filter(x=>x.clearance).length,
+        linesWithExecution:lines.filter(x=>x.executionStatus).length,
+        linesWithHandover:lines.filter(x=>x.handoverDate||x.handoverLetter||x.completion||x.completionReport).length
+      }
+    },
     distributions:{
       projectStatus:countBy(projects,'contractStatus'),
       projectType:countBy(projects,'projectType'),
       municipalities:countBy(projects,'municipality'),
       permitStatus:countBy(projects,'permitStatus'),
       guaranteeStatus:countBy(projects,'guaranteeStatus'),
+      riskLevel:riskCounts,
+      extensionPressure,
       lineType:countBy(lines,'type'),
       designStatus:countBy(lines,'designStatus'),
       executionStatus:countBy(lines,'executionStatus'),
       permitYears:countBy(actualPermits,'year'),
       settlementStatus:countBy(settlements,'status')
     },
-    projects,permits,actualPermits,lines,refLines,complaints,owners,settlements,quality,
+    projects,permits,actualPermits,lines,refLines,complaints,owners,settlements,municipalitySummary,traceability,quality,
     sourceHeaders:{
       projects:projectValues[0]||[],lines:lineValues[0]||[],info:infoValues[0]||[],owners:ownerValues[0]||[]
     }

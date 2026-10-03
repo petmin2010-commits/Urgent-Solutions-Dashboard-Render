@@ -20,7 +20,10 @@ const PAGE_META={
  complaints:{title:'الشكاوى',sub:'متابعة سجل الشكاوى وربطها بالحلول والخطوط البديلة.',icon:'!',eye:'COMPLAINTS'},
  execution:{title:'التنفيذ والتسليم',sub:'متابعة حالة التنفيذ وتقارير الإتمام وخطابات التسليم.',icon:'✓',eye:'EXECUTION & HANDOVER'},
  parties:{title:'المقاولون والملاك',sub:'تحليل أحجام الأعمال والعلاقات بين المقاولين والملاك.',icon:'♙',eye:'PARTIES ANALYTICS'},
+ municipalities:{title:'تحليل البلديات',sub:'قراءة جغرافية للأمتار والمشاريع والخطوط والمخاطر حسب البلدية.',icon:'⌂',eye:'MUNICIPALITY ANALYTICS'},
+ traceability:{title:'التتبع الشامل',sub:'ربط المشروع بالتصاريح والملاك والمقاولين والخطوط والتصميم والتنفيذ.',icon:'⛓',eye:'END-TO-END TRACEABILITY'},
  quality:{title:'جودة البيانات',sub:'تدقيق ذكي للتعارضات والمراجع المفقودة والقيم غير الطبيعية.',icon:'◎',eye:'DATA QUALITY'},
+ risks:{title:'مخاطر المشاريع',sub:'مؤشر مركب للمخاطر النظامية والتعاقدية وفجوات الأمتار وجودة البيانات.',icon:'⚠',eye:'PROJECT RISK CONTROL'},
  analytics:{title:'التحليل التنفيذي',sub:'قراءة إدارية مركزة لأبرز مؤشرات الأداء والمخاطر التشغيلية.',icon:'⌁',eye:'EXECUTIVE ANALYTICS'},
  reports:{title:'مركز التقارير',sub:'تصدير تقارير PDF وExcel بأسماء منظمة وفق الشاشة والفلاتر الحالية.',icon:'⇩',eye:'REPORTS CENTER'},
  excelExport:{title:'تصدير تقرير Excel',sub:'اختيار قاعدة البيانات والأعمدة والفلاتر ثم تصدير القيم النهائية فقط.',icon:'▧',eye:'EXCEL EXPORT'}
@@ -34,7 +37,8 @@ const FILTERS={
   {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},
   {field:'owner',label:'المالك'},{field:'projectType',label:'نوع المشروع'},
   {field:'contractStatus',label:'حالة العقد'},{field:'permitStatus',label:'حالة التصريح'},
-  {field:'guaranteeStatus',label:'حالة الضمان'}
+  {field:'guaranteeStatus',label:'حالة الضمان'},{field:'riskLevel',label:'مستوى المخاطر'},
+  {field:'extensionPressure',label:'ضغط التمديدات'}
  ],
  map:[
   {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},
@@ -43,16 +47,20 @@ const FILTERS={
  ],
  permits:[
   {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},
-  {field:'owner',label:'المالك'},{field:'year',label:'السنة'}
+  {field:'owner',label:'المالك'},{field:'year',label:'السنة'},
+  {field:'expiryBand',label:'نافذة الانتهاء'},{field:'contractStatus',label:'حالة العقد'},
+  {field:'guaranteeStatus',label:'حالة الضمان'}
  ],
  lines:[
   {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},
   {field:'owner',label:'المالك'},{field:'designer',label:'المصمم'},
   {field:'type',label:'نوع الخط'},{field:'designStatus',label:'حالة التصميم'},
-  {field:'year',label:'سنة التكليف'}
+  {field:'year',label:'سنة التكليف'},{field:'diameter',label:'قطر التصميم'},
+  {field:'approvalBand',label:'مدة الاعتماد'},{field:'designAgeBand',label:'عمر المتابعة'}
  ],
  settlements:[
-  {field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},{field:'status',label:'حالة التسوية'}
+  {field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},{field:'status',label:'حالة التسوية'},
+  {field:'coverageBand',label:'نسبة التغطية'}
  ],
  guarantees:[
   {field:'guaranteeStatus',label:'حالة الضمان'},{field:'contractor',label:'المقاول'},
@@ -64,11 +72,24 @@ const FILTERS={
   {field:'owner',label:'المالك'},{field:'type',label:'نوع الخط'}
  ],
  parties:[{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'}],
+ municipalities:[{field:'municipality',label:'البلدية'}],
+ traceability:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'},{field:'contractStatus',label:'حالة العقد'},
+  {field:'permitStatus',label:'حالة التصريح'},{field:'matchMethod',label:'طريقة الربط'}
+ ],
  quality:[
   {field:'severity',label:'الأهمية'},{field:'category',label:'التصنيف'},{field:'source',label:'المصدر'}
  ],
+ risks:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'},{field:'extensionPressure',label:'ضغط التمديدات'},
+  {field:'contractStatus',label:'حالة العقد'},{field:'permitStatus',label:'حالة التصريح'},
+  {field:'guaranteeStatus',label:'حالة الضمان'}
+ ],
  analytics:[
-  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'}
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'}
  ]
 };
 
@@ -83,23 +104,29 @@ const PAGE_SOURCES={
  complaints:'info. new — شكاوى المواطنين',
  execution:'Alternative lines — حالة التنفيذ والتسليم',
  parties:'vd projects + Alternative lines',
+ municipalities:'vd projects + Alternative lines — تجميع حسب البلدية',
+ traceability:'vd projects + Alternative lines — ربط تشغيلي بالمالك + المقاول',
  quality:'تدقيق مشتق من vd projects + info. new + Alternative lines',
+ risks:'مؤشر مشتق من التصريح والضمان والتسوية والعقد والإحداثيات والتمديدات',
  analytics:'مؤشرات مجمعة من المشاريع والتصاريح والخطوط والتسويات',
  reports:'شاشات الداشبورد الحالية وفق الفلاتر النشطة',
  excelExport:'القيم النهائية من Google Sheets'
 };
 const CHART_FILTERS={
- master:{cPermitStatus:['permitStatus','حالة التصريح'],cLineType:['type','نوع الخط'],cDesign:['designStatus','حالة التصميم'],cGuarantee:['guaranteeStatus','حالة الضمان'],cYears:['year','السنة'],cMun:['municipality','البلدية']},
- projects:{pStatus:['contractStatus','حالة العقد'],pType:['projectType','نوع المشروع'],pPermit:['permitStatus','حالة التصريح'],pMun:['municipality','البلدية']},
- permits:{peYear:['year','السنة'],peMun:['municipality','البلدية'],peCon:['contractor','المقاول'],peOwner:['owner','المالك']},
- lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم']},
- settlements:{sStatus:['status','حالة التسوية'],sContractor:['contractor','المقاول']},
+ master:{cPermitStatus:['permitStatus','حالة التصريح'],cLineType:['type','نوع الخط'],cDesign:['designStatus','حالة التصميم'],cGuarantee:['guaranteeStatus','حالة الضمان'],cYears:['year','السنة'],cMun:['municipality','البلدية'],cRisk:['riskLevel','مستوى المخاطر'],cExt:['extensionPressure','ضغط التمديدات']},
+ projects:{pStatus:['contractStatus','حالة العقد'],pType:['projectType','نوع المشروع'],pPermit:['permitStatus','حالة التصريح'],pMun:['municipality','البلدية'],pRisk:['riskLevel','مستوى المخاطر'],pExt:['extensionPressure','ضغط التمديدات']},
+ permits:{peYear:['year','السنة'],peMun:['municipality','البلدية'],peCon:['contractor','المقاول'],peOwner:['owner','المالك'],peExpiry:['expiryBand','نافذة الانتهاء']},
+ lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم'],lApproval:['approvalBand','مدة الاعتماد'],lAging:['designAgeBand','عمر المتابعة'],lDiameter:['diameter','قطر التصميم']},
+ settlements:{sStatus:['status','حالة التسوية'],sContractor:['contractor','المقاول'],sCoverage:['coverageBand','نسبة التغطية']},
  guarantees:{gStatus:['guaranteeStatus','حالة الضمان'],gContractor:['contractor','المقاول']},
  complaints:{coStatus:['status','حالة الشكوى']},
  execution:{exStatus:['executionStatus','حالة التنفيذ'],exType:['type','نوع الخط']},
  parties:{paCon:['contractor','المقاول'],paOwner:['owner','المالك']},
+ municipalities:{muProjects:['municipality','البلدية'],muPermit:['municipality','البلدية'],muLines:['municipality','البلدية'],muRisk:['municipality','البلدية']},
+ traceability:{trRisk:['riskLevel','مستوى المخاطر'],trMatch:['matchMethod','طريقة الربط']},
  quality:{qCat:['category','التصنيف'],qSource:['source','المصدر']},
- analytics:{anMun:['municipality','البلدية'],anSet:['status','حالة التسوية'],anGuarantee:['guaranteeStatus','حالة الضمان']}
+ risks:{rLevel:['riskLevel','مستوى المخاطر'],rExt:['extensionPressure','ضغط التمديدات'],rMun:['municipality','البلدية']},
+ analytics:{anMun:['municipality','البلدية'],anSet:['status','حالة التسوية'],anGuarantee:['guaranteeStatus','حالة الضمان'],anRisk:['riskLevel','مستوى المخاطر']}
 };
 const CARD_RULES={
  master:{
@@ -160,8 +187,8 @@ function sum(rows,field){return rows.reduce((a,r)=>a+n(r[field]),0)}
 function topEntries(obj,limit=10){return Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]).slice(0,limit)}
 function pill(text){
  const t=clean(text);let c='pill';
- if(/منتهي|عليه|عاجل|مرتفع|غير موجود|خطأ/i.test(t))c+=' danger';
- else if(/اوشك|أوشك|بانتظار|جاري|قيد|غير محدد/i.test(t))c+=' warn';
+ if(/منتهي|عليه|عاجل|مرتفع|حرج|غير موجود|خطأ/i.test(t))c+=' danger';
+ else if(/اوشك|أوشك|بانتظار|جاري|قيد|غير محدد|متوسط/i.test(t))c+=' warn';
  else if(/ساري|معتمد|مستوفي|منجز/i.test(t))c+=' ';
  else c+=' info';
  return '<span class="'+c+'">'+esc(t||'غير محدد')+'</span>';
@@ -175,12 +202,14 @@ function interactiveStore(){
 function filterSource(){
  const d=state.data||{};
  if(state.page==='master'||state.page==='analytics')return [...(d.projects||[]),...(d.actualPermits||[]),...(d.lines||[])];
- if(state.page==='projects'||state.page==='map'||state.page==='guarantees')return d.projects||[];
+ if(state.page==='projects'||state.page==='map'||state.page==='guarantees'||state.page==='risks')return d.projects||[];
  if(state.page==='permits')return d.actualPermits||[];
  if(state.page==='lines'||state.page==='execution')return d.lines||[];
  if(state.page==='settlements')return d.settlements||[];
  if(state.page==='complaints')return d.complaints||[];
  if(state.page==='parties')return [...(d.projects||[]),...(d.lines||[])];
+ if(state.page==='municipalities')return d.municipalitySummary||[];
+ if(state.page==='traceability')return d.traceability||[];
  if(state.page==='quality')return d.quality||[];
  return [];
 }
@@ -191,7 +220,9 @@ function primaryRows(){
  if(state.page==='settlements')return d.settlements||[];
  if(state.page==='complaints')return d.complaints||[];
  if(state.page==='quality')return d.quality||[];
- if(state.page==='parties')return d.projects||[];
+ if(state.page==='municipalities')return d.municipalitySummary||[];
+ if(state.page==='traceability')return d.traceability||[];
+ if(state.page==='parties'||state.page==='risks')return d.projects||[];
  return d.projects||[];
 }
 function optionsFor(field){
@@ -369,6 +400,26 @@ function makeChart(id,type,labels,values,opts={}){
  const panel=canvas.closest('.panel'),active=interactiveStore().get('chart:'+id);
  if(panel)panel.classList.toggle('vd-filtered',!!active);
 }
+
+function makeMultiBar(id,labels,datasets,opts={}){
+ if(!window.Chart)return;
+ const canvas=document.getElementById(id);if(!canvas)return;
+ const chart=new Chart(canvas,{
+  type:'bar',
+  data:{labels,datasets:datasets.map((ds,i)=>({label:ds.label,data:ds.data,backgroundColor:COLORS[(i*2)%COLORS.length],borderColor:COLORS[(i*2)%COLORS.length],borderWidth:1}))},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:opts.horizontal?'y':'x',
+   plugins:{legend:{display:true,position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
+   scales:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
+  plugins:[valuePlugin]
+ });
+ state.charts.push(chart);
+}
+function avg(rows,field){
+ const vals=(rows||[]).map(r=>n(r[field])).filter(v=>Number.isFinite(v));
+ return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+}
+function pct(a,b){return b?Math.round((a/b)*1000)/10:0}
+
 function chartPanel(id,title,sub=''){
  return '<section class="panel"><div class="panel-head"><b>'+esc(title)+'</b><span>'+esc(sub)+'</span></div><div class="chart-wrap"><canvas id="'+id+'"></canvas></div></section>';
 }
@@ -537,7 +588,7 @@ function renderMap(){
   kpi('بدون إحداثيات',missing,'تحتاج استكمال بيانات الموقع',missing?'warn':'')+
   kpi('البلديات الممثلة',new Set(rows.map(x=>x.municipality).filter(Boolean)).size)+
  '</div>'+
- '<section class="map-panel"><div class="map-legend"><span><i class="map-dot"></i> موقع مشروع حلول عاجلة</span><span>الإحداثيات من حقلي E وN في الشيت</span></div><div id="projectMap" class="map-canvas"></div></section>'+
+ '<section class="map-panel"><div class="map-legend"><span><i class="map-dot" style="background:#b93737"></i> حرج</span><span><i class="map-dot" style="background:#d86d45"></i> مرتفع</span><span><i class="map-dot" style="background:#d0a351"></i> متوسط</span><span><i class="map-dot" style="background:#168a72"></i> طبيعي</span><span>الإحداثيات من حقلي E وN</span></div><div id="projectMap" class="map-canvas"></div></section>'+
  tablePanel('المشروعات الظاهرة على الخريطة',[
   {key:'no',label:'م'},{key:'name',label:'اسم المشروع'},{key:'municipality',label:'البلدية'},
   {key:'district',label:'الحي'},{key:'street',label:'الشارع'},{key:'owner',label:'المالك'},
@@ -552,12 +603,14 @@ function renderMap(){
  const bounds=[];
  rows.forEach(r=>{
   const lat=Number(r.lat),lon=Number(r.lon);bounds.push([lat,lon]);
-  const marker=L.circleMarker([lat,lon],{radius:6,color:'#075f89',weight:2,fillColor:'#19a5c8',fillOpacity:.82});
+  const riskColor=r.riskLevel==='حرج'?'#b93737':r.riskLevel==='مرتفع'?'#d86d45':r.riskLevel==='متوسط'?'#d0a351':'#168a72';
+  const marker=L.circleMarker([lat,lon],{radius:7,color:riskColor,weight:2,fillColor:riskColor,fillOpacity:.78});
   marker.bindPopup('<b>'+esc(r.no||'')+' — '+esc(r.name||'مشروع')+'</b><br>'+
    '<span>'+esc(r.municipality||'')+' • '+esc(r.district||'')+'</span><br>'+
    '<span>المقاول: '+esc(r.contractor||'—')+'</span><br>'+
    '<span>المالك: '+esc(r.owner||'—')+'</span><br>'+
-   '<span>حالة التصريح: '+esc(r.permitStatus||'—')+'</span>');
+   '<span>حالة التصريح: '+esc(r.permitStatus||'—')+'</span><br>'+
+   '<span>المخاطر: '+esc(r.riskLevel||'—')+' ('+esc(r.riskScore??'—')+')</span>');
   marker.addTo(state.map);
  });
  if(bounds.length)state.map.fitBounds(bounds,{padding:[28,28],maxZoom:14});
@@ -684,9 +737,336 @@ function renderAnalytics(){
  x=topEntries(countBy(sett,'status'));makeChart('anSet','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(projects,'guaranteeStatus'));makeChart('anGuarantee','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
 }
+
+function renderMasterV2(){
+ const d=state.data,projects=commonFiltered(d.projects),permits=commonFiltered(d.actualPermits),lines=commonFiltered(d.lines),sett=commonFiltered(d.settlements||[]);
+ const permitMeters=sum(permits,'meters'),lineMeters=sum(lines,'length'),gross=pct(lineMeters,permitMeters);
+ const matchedDue=sum(sett,'dueMeters'),matchedDone=sum(sett,'executedMeters'),matched=pct(matchedDone,matchedDue),matchedGap=Math.round((matchedDue-matchedDone)*10)/10;
+ const risks=countBy(projects,'riskLevel'),high=(risks['حرج']||0)+(risks['مرتفع']||0);
+ const mapped=projects.filter(r=>Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41).length;
+ const designApproved=lines.filter(x=>/معتمد|حزمة مصممة/i.test(x.designStatus)).length;
+ const designPending=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!x.approvalDate).length;
+ const designConflict=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!!x.approvalDate).length;
+ const designMissing=lines.filter(x=>!x.designStatus).length;
+ const alerts=buildOperationalAlerts(projects,permits,lines);
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+
+  kpi('المشاريع',projects.length,'مشروع ضمن نطاق الفلاتر')+
+  kpi('المخاطر المرتفعة/الحرجة',high,'مشاريع تحتاج تدخلًا إداريًا',high?'danger':'')+
+  kpi('التصاريح الفعلية',permits.length,'تصاريح مؤرخة فعليًا')+
+  kpi('أمتار التصاريح',fmt(permitMeters),'متر مستحق')+
+  kpi('الخطوط البديلة',lines.length,'خط تشغيلي')+
+  kpi('أطوال الخطوط',fmt(lineMeters),'متر خطوط بديلة')+
+  kpi('التغطية الإجمالية',gross,'% = إجمالي الخطوط ÷ إجمالي أمتار التصاريح','info')+
+  kpi('التغطية المطابقة',matched,'% وفق تطابق المالك + المقاول',matched<80?'warn':'info')+
+  kpi('فجوة التسوية المطابقة',fmt(matchedGap),'متر غير مغطى بالمطابقة',matchedGap>0?'danger':'')+
+  kpi('تغطية الخريطة',pct(mapped,projects.length),'% مشاريع بإحداثيات صحيحة','info')+
+  kpi('تصاميم معتمدة',designApproved,'حزم/تصاميم معتمدة')+
+  kpi('تصاميم تحتاج مراجعة',designPending+designConflict+designMissing,'قيد اعتماد أو تعارض أو حالة مفقودة',(designPending+designConflict+designMissing)?'warn':'')+
+ '</div><div class="chart-grid">'+
+  chartPanel('cRisk','مستوى مخاطر المشاريع','مؤشر مركب للتصريح والضمان والتسوية والعقد والبيانات')+
+  chartPanel('cPermitStatus','حالة التصاريح','مفصولة عن حالة الضمان')+
+  chartPanel('cGuarantee','حالة الضمانات والتعهدات')+
+  chartPanel('cExt','ضغط تمديدات التصاريح')+
+  chartPanel('cLineType','أنواع الخطوط البديلة')+
+  chartPanel('cDesign','حالة التصميم والاعتماد')+
+  chartPanel('cYears','التصاريح حسب السنة')+
+  chartPanel('cMun','المشاريع حسب البلدية')+
+ '</div>'+tablePanel('تنبيهات المتابعة الذكية',[
+  {key:'severity',label:'الأهمية',html:r=>pill(r.severity==='high'?'مرتفعة':r.severity==='medium'?'متوسطة':'منخفضة')},
+  {key:'type',label:'نوع التنبيه'},{key:'item',label:'المرجع'},{key:'details',label:'التفاصيل'}
+ ],alerts);
+ let x=topEntries(risks);makeChart('cRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(projects,'permitStatus'));makeChart('cPermitStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(projects,'guaranteeStatus'));makeChart('cGuarantee','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(projects,'extensionPressure'));makeChart('cExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(lines,'type'));makeChart('cLineType','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(lines,'designStatus'));makeChart('cDesign','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(permits,'year'));makeChart('cYears','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(projects,'municipality'),12);makeChart('cMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+}
+function renderProjectsV2(){
+ const rows=filtered(state.data.projects),meters=sum(rows,'permitMeters'),risks=countBy(rows,'riskLevel');
+ const multi=rows.filter(x=>n(x.permitCount)>1).length,avgExt=rows.length?Math.round(rows.reduce((a,x)=>a+n(x.permitCount),0)/rows.length*100)/100:0;
+ const high=(risks['حرج']||0)+(risks['مرتفع']||0);
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+
+  kpi('إجمالي المشاريع',rows.length)+kpi('أمتار التصاريح',fmt(meters),'متر')+
+  kpi('مخاطر مرتفعة/حرجة',high,'حسب مؤشر المخاطر المركب',high?'danger':'')+
+  kpi('متعدد التصاريح/التمديدات',multi,'أكثر من تصريح واحد','warn')+
+  kpi('متوسط التصاريح للمشروع',avgExt,'تصريح/تمديد')+
+  kpi('أعلى عدد تمديدات',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+
+ '</div><div class="chart-grid">'+
+  chartPanel('pRisk','مستوى المخاطر')+chartPanel('pExt','ضغط التمديدات')+
+  chartPanel('pStatus','حالة العقود')+chartPanel('pPermit','حالة التصاريح')+
+  chartPanel('pMun','المشاريع حسب البلدية')+chartPanel('pMeters','أعلى المشاريع في أمتار التصاريح')+
+ '</div>'+tablePanel('تفاصيل المشاريع ومؤشر المخاطر',[
+  {key:'no',label:'م'},{key:'name',label:'اسم المشروع'},{key:'riskLevel',label:'المخاطر',html:r=>pill(r.riskLevel)},
+  {key:'riskScore',label:'درجة المخاطر'},{key:'contractStatus',label:'حالة العقد',html:r=>pill(r.contractStatus)},
+  {key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},{key:'municipality',label:'البلدية'},
+  {key:'permitCount',label:'عدد التصاريح'},{key:'extensionPressure',label:'ضغط التمديدات',html:r=>pill(r.extensionPressure)},
+  {key:'permitStatus',label:'حالة التصريح',html:r=>pill(r.permitStatus)},{key:'permitMeters',label:'الأمتار'},
+  {key:'matchedCoveragePct',label:'تغطية مطابقة %'},{key:'matchedBalance',label:'فجوة مطابقة'},
+  {key:'riskReasons',label:'أسباب المخاطر',html:r=>esc((r.reasons||[]).join(' • '))}
+ ],rows.sort((a,b)=>n(b.riskScore)-n(a.riskScore)));
+ let x=topEntries(countBy(rows,'riskLevel'));makeChart('pRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'extensionPressure'));makeChart('pExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'contractStatus'));makeChart('pStatus','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'permitStatus'));makeChart('pPermit','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'municipality'),12);makeChart('pMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ const top=[...rows].sort((a,b)=>n(b.permitMeters)-n(a.permitMeters)).slice(0,12);makeChart('pMeters','bar',top.map(x=>x.no||x.name),top.map(x=>x.permitMeters),{horizontal:true});
+}
+function renderPermitsV2(){
+ const rows=filtered(state.data.actualPermits),expired=rows.filter(x=>x.expiryBand==='منتهي').length,soon=rows.filter(x=>['0–7 أيام','8–30 يوم'].includes(x.expiryBand)).length;
+ const linked=new Set(rows.map(x=>x.projectNo).filter(Boolean)).size;
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+
+  kpi('التصاريح الفعلية',rows.length,'بعد استبعاد تحت الإصدار والملغي')+
+  kpi('إجمالي الأمتار',fmt(sum(rows,'meters')),'متر')+
+  kpi('منتهية',expired,'تحتاج مراجعة/إغلاق','danger')+
+  kpi('تنتهي خلال 30 يوم',soon,'نافذة تدخل قريبة',soon?'warn':'')+
+  kpi('مشاريع مرتبطة',linked,'تم الربط برقم التصريح')+
+  kpi('غير مرتبطة بمشروع',rows.filter(x=>!x.projectNo).length,'مراجعة الربط','warn')+
+ '</div><div class="chart-grid">'+
+  chartPanel('peExpiry','نافذة انتهاء التصاريح','منتهي / 7 / 30 / 60 يوم')+
+  chartPanel('peYear','التصاريح حسب السنة')+
+  chartPanel('peMun','التصاريح حسب بلدية المشروع','البلدية من vd projects بعد الربط')+
+  chartPanel('peCon','التصاريح حسب مقاول المشروع','المقاول من vd projects بعد الربط')+
+  chartPanel('peOwner','أعلى الملاك بالأمتار')+
+  chartPanel('peMetersYear','الأمتار حسب سنة التصريح')+
+ '</div>'+tablePanel('سجل التصاريح المربوط بالمشروعات',[
+  {key:'id',label:'رقم التصريح'},{key:'projectNo',label:'المشروع'},{key:'projectName',label:'اسم المشروع'},
+  {key:'start',label:'البداية'},{key:'end',label:'النهاية'},{key:'expiryDays',label:'الأيام المتبقية'},
+  {key:'expiryBand',label:'نافذة الانتهاء',html:r=>pill(r.expiryBand)},{key:'meters',label:'الأمتار'},
+  {key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},{key:'municipality',label:'البلدية'},
+  {key:'contractStatus',label:'حالة العقد',html:r=>pill(r.contractStatus)}
+ ],rows);
+ let x=topEntries(countBy(rows,'expiryBand'));makeChart('peExpiry','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'year'));makeChart('peYear','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'municipality'),12);makeChart('peMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ x=topEntries(countBy(rows,'contractor'),12);makeChart('peCon','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ const om={};rows.forEach(r=>{const k=r.owner||'غير محدد';om[k]=(om[k]||0)+n(r.meters)});x=topEntries(om,12);makeChart('peOwner','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ const ym={};rows.forEach(r=>{const k=r.year||'غير محدد';ym[k]=(ym[k]||0)+n(r.meters)});x=Object.entries(ym).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));makeChart('peMetersYear','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+}
+function renderLinesV2(){
+ const rows=filtered(state.data.lines),approved=rows.filter(x=>/معتمد|حزمة مصممة/i.test(x.designStatus)).length,pending=rows.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!x.approvalDate).length,conflicts=rows.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!!x.approvalDate).length,missing=rows.filter(x=>!x.designStatus).length;
+ const validApproval=rows.filter(x=>Number.isFinite(x.approvalDays)&&x.approvalDays>=0);
+ const avgApproval=validApproval.length?Math.round(avg(validApproval,'approvalDays')*10)/10:0;
+ const chronology=rows.filter(x=>x.chronologyIssue).length;
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+
+  kpi('الخطوط المسجلة',rows.length)+kpi('إجمالي الأطوال',fmt(sum(rows,'length')),'متر')+
+  kpi('تصميم معتمد',approved,'معتمد/حزمة PMO')+kpi('قيد الاعتماد فعليًا',pending,'بدون تاريخ اعتماد',pending?'warn':'')+
+  kpi('تعارض حالة/تاريخ',conflicts,'حالة جاري الاعتماد مع وجود تاريخ اعتماد',conflicts?'danger':'')+
+  kpi('بدون حالة تصميم',missing,'فجوة بيانات',missing?'warn':'')+
+  kpi('متوسط مدة الاعتماد',avgApproval,'يوم للحالات ذات تسلسل صالح','info')+
+  kpi('مشاكل تسلسل زمني',chronology,'رفع التصميم قبل التكليف',chronology?'danger':'')+
+ '</div><div class="chart-grid">'+
+  chartPanel('lType','أنواع الخطوط')+chartPanel('lDesign','حالة التصميم')+
+  chartPanel('lApproval','مدة اعتماد التصميم')+chartPanel('lAging','عمر التصاميم غير المعتمدة')+
+  chartPanel('lContractor','أطوال الخطوط حسب المقاول')+chartPanel('lDesigner','الخطوط حسب المصمم')+
+  chartPanel('lDiameter','توزيع أقطار التصميم')+chartPanel('lDiff','أكبر فروقات طول التصميم مقابل الخط')+
+ '</div>'+tablePanel('تفاصيل الخطوط ودورة التصميم',[
+  {key:'ref',label:'المرجع'},{key:'name',label:'الخط/الموقع'},{key:'type',label:'النوع',html:r=>pill(r.type)},
+  {key:'length',label:'طول الخط'},{key:'designLength',label:'طول التصميم'},{key:'designLengthDiff',label:'فرق التصميم'},
+  {key:'diameter',label:'القطر'},{key:'contractor',label:'المقاول'},{key:'owner',label:'المالك'},
+  {key:'designer',label:'المصمم'},{key:'designStatus',label:'حالة التصميم',html:r=>pill(r.designStatus)},
+  {key:'submissionDate',label:'تاريخ الرفع'},{key:'approvalDate',label:'تاريخ الاعتماد'},
+  {key:'approvalDays',label:'مدة الاعتماد'},{key:'designAgeDays',label:'عمر المتابعة'},
+  {key:'chronologyIssue',label:'التسلسل الزمني',html:r=>r.chronologyIssue?pill('خطأ زمني'):pill('سليم')}
+ ],rows);
+ let x=topEntries(countBy(rows,'type'));makeChart('lType','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'designStatus'));makeChart('lDesign','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'approvalBand'));makeChart('lApproval','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows.filter(r=>r.designAgeDays>0),'designAgeBand'));makeChart('lAging','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ const cm={};rows.forEach(r=>{const k=r.contractor||'غير محدد';cm[k]=(cm[k]||0)+n(r.length)});x=topEntries(cm,12);makeChart('lContractor','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ x=topEntries(countBy(rows,'designer'),10);makeChart('lDesigner','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ x=topEntries(countBy(rows,'diameter'),12);makeChart('lDiameter','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ const diffs=rows.filter(r=>r.designLengthDiff!==null).sort((a,b)=>Math.abs(n(b.designLengthDiff))-Math.abs(n(a.designLengthDiff))).slice(0,12);makeChart('lDiff','bar',diffs.map(x=>x.ref),diffs.map(x=>x.designLengthDiff),{horizontal:true});
+}
+function renderSettlementsV2(){
+ const rows=filtered(state.data.settlements),due=sum(rows,'dueMeters'),done=sum(rows,'executedMeters'),gap=Math.round((due-done)*10)/10,coverage=pct(done,due);
+ const owed=rows.filter(x=>x.balance>0),credit=rows.filter(x=>x.balance<0),settled=rows.filter(x=>x.balance===0);
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+
+  kpi('علاقات التسوية',rows.length)+kpi('المستحق المطابق',fmt(due),'متر')+
+  kpi('الخطوط المطابقة',fmt(done),'متر')+kpi('نسبة التغطية المطابقة',coverage,'% بالمالك + المقاول',coverage<80?'warn':'info')+
+  kpi('فجوة الأمتار',fmt(gap),'المستحق - المنفذ',gap>0?'danger':'')+
+  kpi('عليه أمتار',owed.length,fmt(sum(owed,'balance'))+' م','danger')+
+  kpi('له أمتار',credit.length,fmt(Math.abs(sum(credit,'balance')))+' م','info')+
+  kpi('مستوفي',settled.length,'رصيد صفر')+
+ '</div><div class="chart-grid">'+
+  chartPanel('sStatus','حالة التسويات')+chartPanel('sCoverage','نطاق نسبة التغطية')+
+  chartPanel('sContractor','صافي الرصيد حسب المقاول')+chartPanel('sDueDone','المستحق مقابل الخطوط حسب المقاول')+
+  chartPanel('sGaps','أكبر فجوات المالك + المقاول')+
+ '</div>'+tablePanel('تسويات الملاك والمقاولين',[
+  {key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},{key:'dueMeters',label:'المستحق'},
+  {key:'executedMeters',label:'الخطوط'},{key:'coveragePct',label:'التغطية %'},{key:'coverageBand',label:'نطاق التغطية',html:r=>pill(r.coverageBand)},
+  {key:'balance',label:'الرصيد النهائي'},{key:'status',label:'الحالة',html:r=>pill(r.status)}
+ ],rows);
+ let x=topEntries(countBy(rows,'status'));makeChart('sStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'coverageBand'));makeChart('sCoverage','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ const cm={};rows.forEach(r=>{const k=r.contractor||'غير محدد';cm[k]=(cm[k]||0)+n(r.balance)});x=Object.entries(cm).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,12);makeChart('sContractor','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ const ag={};rows.forEach(r=>{const k=r.contractor||'غير محدد';ag[k]??={due:0,done:0};ag[k].due+=n(r.dueMeters);ag[k].done+=n(r.executedMeters)});const aa=Object.entries(ag).sort((a,b)=>b[1].due-a[1].due).slice(0,10);makeMultiBar('sDueDone',aa.map(x=>x[0]),[{label:'المستحق',data:aa.map(x=>x[1].due)},{label:'الخطوط',data:aa.map(x=>x[1].done)}],{horizontal:true});
+ const gaps=[...rows].sort((a,b)=>Math.abs(b.balance)-Math.abs(a.balance)).slice(0,12);makeChart('sGaps','bar',gaps.map(x=>(x.owner||'')+' / '+(x.contractor||'')),gaps.map(x=>x.balance),{horizontal:true});
+}
+function renderGuaranteesV2(){
+ const rows=filtered(state.data.projects),expired=rows.filter(x=>/منتهي/i.test(x.guaranteeStatus)).length,soon=rows.filter(x=>/أوشك/i.test(x.guaranteeStatus)).length,waiting=rows.filter(x=>/بانتظار/i.test(x.guaranteeStatus)).length,undertaking=rows.filter(x=>/تعهد/i.test(x.guaranteeStatus)).length;
+ const valid=rows.filter(x=>/ساري/i.test(x.guaranteeStatus)).length;
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('المشاريع',rows.length)+
+  kpi('ضمان منتهي',expired,'تدخل تعاقدي','danger')+kpi('أوشك على الانتهاء',soon,'متابعة عاجلة','warn')+
+  kpi('بانتظار إصدار',waiting,'ضمان أو تعهد','warn')+kpi('تعهدات قائمة',undertaking,'بديل الضمان','info')+
+  kpi('ضمانات سارية',valid,'سارية حاليًا')+
+ '</div><div class="chart-grid">'+chartPanel('gStatus','حالة الضمانات والتعهدات')+chartPanel('gContractor','المشاريع حسب المقاول')+chartPanel('gWindow','نافذة الأيام المتبقية')+'</div>'+
+ tablePanel('سجل الضمانات والتعهدات',[
+  {key:'no',label:'المشروع'},{key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},
+  {key:'guaranteeRef',label:'رقم الضمان/التعهد'},{key:'guaranteeExpiry',label:'الانتهاء'},
+  {key:'guaranteeDays',label:'الأيام المتبقية'},{key:'guaranteeStatus',label:'الحالة',html:r=>pill(r.guaranteeStatus)},
+  {key:'riskLevel',label:'مخاطر المشروع',html:r=>pill(r.riskLevel)}
+ ],rows);
+ let x=topEntries(countBy(rows,'guaranteeStatus'));makeChart('gStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'contractor'),12);makeChart('gContractor','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ const bands={'منتهي':0,'0–14 يوم':0,'15–30 يوم':0,'31–60 يوم':0,'>60 يوم':0,'تعهد/بدون تاريخ':0};rows.forEach(r=>{if(/تعهد/i.test(r.guaranteeStatus)||!r.guaranteeExpiry)bands['تعهد/بدون تاريخ']++;else if(n(r.guaranteeDays)<=0)bands['منتهي']++;else if(n(r.guaranteeDays)<=14)bands['0–14 يوم']++;else if(n(r.guaranteeDays)<=30)bands['15–30 يوم']++;else if(n(r.guaranteeDays)<=60)bands['31–60 يوم']++;else bands['>60 يوم']++});x=Object.entries(bands);makeChart('gWindow','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+}
+function renderComplaintsV2(){
+ const rows=filtered(state.data.complaints),withStatus=rows.filter(x=>x.status).length,withLink=rows.filter(x=>x.link).length;
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('إجمالي الشكاوى',rows.length)+
+  kpi('بحالة مسجلة',withStatus,'اكتمال المتابعة')+kpi('بدون حالة',rows.length-withStatus,'فجوة متابعة','warn')+
+  kpi('مرتبطة بحل/خط',withLink,'اكتمال الربط')+kpi('بدون ربط',rows.length-withLink,'تحتاج تحديد الحل','warn')+
+  kpi('جاهزية بيانات الشكاوى',pct(withStatus+withLink,rows.length*2),'% من حقول الحالة والربط','info')+
+ '</div><div class="chart-grid">'+chartPanel('coStatus','حالة الشكاوى')+
+ '<section class="panel"><div class="panel-head"><b>قراءة استشارية</b></div><div class="empty"><b>الشكوى يجب أن تكون قابلة للتتبع حتى الحل</b><span>الحالة والربط بالخط البديل حقول أساسية قبل احتساب مؤشرات زمن الاستجابة أو الإغلاق.</span></div></section></div>'+
+ tablePanel('سجل الشكاوى',[
+  {key:'text',label:'الشكوى'},{key:'status',label:'الحالة',html:r=>pill(r.status)},{key:'link',label:'الخط/الحل المقابل'}
+ ],rows);
+ const x=topEntries(countBy(rows,'status'));makeChart('coStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+}
+function renderExecutionV2(){
+ const rows=filtered(state.data.lines),started=rows.filter(x=>x.executionStatus).length,completion=rows.filter(x=>x.completion||x.completionReport).length,handover=rows.filter(x=>x.handoverDate||x.handoverLetter).length;
+ const ready=pct(started+completion+handover,rows.length*3);
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('الخطوط',rows.length)+
+  kpi('حالة تنفيذ مسجلة',started,'جاهزية الحقل')+kpi('بيانات إتمام',completion,'تاريخ/تقرير')+
+  kpi('بيانات تسليم',handover,'خطاب/تاريخ')+kpi('جاهزية بيانات التنفيذ',ready,'% من الحقول الأساسية','info')+
+  kpi('بدون حالة تنفيذ',rows.length-started,'لا يعني عدم التنفيذ','warn')+
+ '</div>'+
+ (started?'<div class="chart-grid">'+chartPanel('exStatus','حالة التنفيذ')+chartPanel('exType','التنفيذ حسب نوع الخط')+'</div>':
+ '<section class="panel wide"><div class="panel-head"><b>مؤشر الجاهزية</b><span>لا يتم عرض نسبة إنجاز تنفيذية وهمية</span></div><div class="empty"><b>لا توجد حالات تنفيذ مدخلة حاليًا</b><span>عند تعبئة حالة التنفيذ وتواريخ الإتمام والتسليم ستظهر مؤشرات الإنجاز تلقائيًا.</span></div></section>')+
+ tablePanel('التنفيذ والتسليم',[
+  {key:'ref',label:'المرجع'},{key:'name',label:'الخط'},{key:'contractor',label:'المقاول'},{key:'type',label:'النوع'},
+  {key:'executionStatus',label:'حالة التنفيذ',html:r=>pill(r.executionStatus)},{key:'completion',label:'انتهاء التنفيذ'},
+  {key:'completionReport',label:'تقرير الإتمام'},{key:'handoverLetter',label:'خطاب التسليم'},{key:'handoverDate',label:'تاريخ التسليم'}
+ ],rows);
+ if(started){let x=topEntries(countBy(rows,'executionStatus'));makeChart('exStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));const typeRows=rows.filter(r=>r.executionStatus);x=topEntries(countBy(typeRows,'type'));makeChart('exType','bar',x.map(a=>a[0]),x.map(a=>a[1]))}
+}
+function renderPartiesV2(){
+ const projects=commonFiltered(state.data.projects),lines=commonFiltered(state.data.lines);
+ const contractors={},owners={};
+ projects.forEach(r=>{const k=r.contractor||'غير محدد';contractors[k]??={name:k,projects:0,permitMeters:0,lineMeters:0,lines:0};contractors[k].projects++;contractors[k].permitMeters+=n(r.permitMeters);const o=r.owner||'غير محدد';owners[o]??={name:o,projects:0,permitMeters:0,lineMeters:0,lines:0};owners[o].projects++;owners[o].permitMeters+=n(r.permitMeters)});
+ lines.forEach(r=>{const k=r.contractor||'غير محدد';contractors[k]??={name:k,projects:0,permitMeters:0,lineMeters:0,lines:0};contractors[k].lines++;contractors[k].lineMeters+=n(r.length);const o=r.owner||'غير محدد';owners[o]??={name:o,projects:0,permitMeters:0,lineMeters:0,lines:0};owners[o].lines++;owners[o].lineMeters+=n(r.length)});
+ const cr=Object.values(contractors).map(x=>({...x,coveragePct:pct(x.lineMeters,x.permitMeters)})).sort((a,b)=>b.permitMeters-a.permitMeters);
+ const or=Object.values(owners).map(x=>({...x,coveragePct:pct(x.lineMeters,x.permitMeters)})).sort((a,b)=>b.permitMeters-a.permitMeters);
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('المقاولون',cr.length)+kpi('الملاك',or.length)+kpi('أمتار التصاريح',fmt(sum(projects,'permitMeters')))+kpi('أمتار الخطوط',fmt(sum(lines,'length')))+'</div>'+
+ '<div class="chart-grid">'+chartPanel('paCon','المقاولون: المستحق مقابل الخطوط')+chartPanel('paOwner','الملاك: المستحق مقابل الخطوط')+'</div>'+
+ tablePanel('ملخص المقاولين',[
+  {key:'name',label:'المقاول'},{key:'projects',label:'المشاريع'},{key:'lines',label:'الخطوط'},{key:'permitMeters',label:'أمتار التصاريح'},{key:'lineMeters',label:'أمتار الخطوط'},{key:'coveragePct',label:'التغطية الإجمالية %'}
+ ],cr)+tablePanel('ملخص الملاك',[
+  {key:'name',label:'المالك'},{key:'projects',label:'المشاريع'},{key:'lines',label:'الخطوط'},{key:'permitMeters',label:'أمتار التصاريح'},{key:'lineMeters',label:'أمتار الخطوط'},{key:'coveragePct',label:'التغطية الإجمالية %'}
+ ],or);
+ let x=cr.slice(0,10);makeMultiBar('paCon',x.map(a=>a.name),[{label:'أمتار التصاريح',data:x.map(a=>a.permitMeters)},{label:'أمتار الخطوط',data:x.map(a=>a.lineMeters)}],{horizontal:true});
+ x=or.slice(0,10);makeMultiBar('paOwner',x.map(a=>a.name),[{label:'أمتار التصاريح',data:x.map(a=>a.permitMeters)},{label:'أمتار الخطوط',data:x.map(a=>a.lineMeters)}],{horizontal:true});
+}
+function renderRisks(){
+ const rows=filtered(state.data.projects),counts=countBy(rows,'riskLevel'),avgScore=rows.length?Math.round(avg(rows,'riskScore')*10)/10:0;
+ const high=(counts['حرج']||0)+(counts['مرتفع']||0),extHigh=rows.filter(x=>['مرتفع','مرتفع جدًا'].includes(x.extensionPressure)).length;
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+
+  kpi('المشاريع',rows.length)+kpi('متوسط درجة المخاطر',avgScore,'من 100','info')+
+  kpi('حرج',counts['حرج']||0,'أولوية قصوى','danger')+kpi('مرتفع',counts['مرتفع']||0,'أولوية عالية','danger')+
+  kpi('متوسط',counts['متوسط']||0,'متابعة','warn')+kpi('طبيعي',counts['طبيعي']||0,'مخاطر أقل')+
+  kpi('ضغط تمديدات مرتفع',extHigh,'5 تصاريح/تمديدات فأكثر',extHigh?'warn':'')+
+ '</div><div class="chart-grid">'+
+  chartPanel('rLevel','توزيع مستوى المخاطر')+chartPanel('rExt','ضغط تمديدات التصاريح')+
+  chartPanel('rMun','المخاطر حسب البلدية')+chartPanel('rTop','أعلى المشاريع في درجة المخاطر')+
+ '</div>'+tablePanel('سجل مخاطر المشاريع',[
+  {key:'riskLevel',label:'المستوى',html:r=>pill(r.riskLevel)},{key:'riskScore',label:'الدرجة'},
+  {key:'no',label:'المشروع'},{key:'name',label:'اسم المشروع'},{key:'municipality',label:'البلدية'},
+  {key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},{key:'contractStatus',label:'حالة العقد',html:r=>pill(r.contractStatus)},
+  {key:'permitStatus',label:'التصريح',html:r=>pill(r.permitStatus)},{key:'guaranteeStatus',label:'الضمان',html:r=>pill(r.guaranteeStatus)},
+  {key:'extensionPressure',label:'ضغط التمديدات',html:r=>pill(r.extensionPressure)},
+  {key:'matchedCoveragePct',label:'تغطية مطابقة %'},{key:'matchedBalance',label:'فجوة مطابقة'},
+  {key:'riskReasons',label:'أسباب المخاطر',html:r=>esc((r.reasons||[]).join(' • '))}
+ ],rows.sort((a,b)=>n(b.riskScore)-n(a.riskScore)));
+ let x=topEntries(counts);makeChart('rLevel','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'extensionPressure'));makeChart('rExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ const mg={};rows.forEach(r=>{const k=r.municipality||'غير محدد';mg[k]??={sum:0,count:0};mg[k].sum+=n(r.riskScore);mg[k].count++});x=Object.entries(mg).map(([k,v])=>[k,Math.round(v.sum/v.count*10)/10]).sort((a,b)=>b[1]-a[1]).slice(0,12);makeChart('rMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+ const top=[...rows].sort((a,b)=>n(b.riskScore)-n(a.riskScore)).slice(0,12);makeChart('rTop','bar',top.map(x=>x.no||x.name),top.map(x=>x.riskScore),{horizontal:true});
+}
+function renderMunicipalities(){
+ const rows=filtered(state.data.municipalitySummary||[]);
+ const projects=sum(rows,'projects'),permitMeters=sum(rows,'permitMeters'),lines=sum(rows,'lines'),lineMeters=sum(rows,'lineMeters'),critical=sum(rows,'criticalProjects'),pending=sum(rows,'pendingDesign');
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('البلديات',rows.length)+kpi('المشاريع',projects)+
+  kpi('أمتار التصاريح',fmt(permitMeters),'متر')+kpi('الخطوط',lines)+kpi('أمتار الخطوط',fmt(lineMeters),'متر')+
+  kpi('مخاطر مرتفعة/حرجة',critical,'مشروعات')+kpi('تصاميم تحتاج متابعة',pending,'خطوط','warn')+
+ '</div><div class="chart-grid">'+
+  chartPanel('muProjects','عدد المشاريع حسب البلدية')+chartPanel('muPermit','أمتار التصاريح حسب البلدية')+
+  chartPanel('muLines','أمتار الخطوط حسب البلدية')+chartPanel('muRisk','المشاريع مرتفعة/حرجة المخاطر')+
+  chartPanel('muCoverage','التغطية الإجمالية حسب البلدية','للقراءة المقارنة فقط؛ ليست تسوية مطابقة')+
+ '</div>'+tablePanel('ملخص البلديات',[
+  {key:'municipality',label:'البلدية'},{key:'projects',label:'المشاريع'},{key:'permitMeters',label:'أمتار التصاريح'},
+  {key:'lines',label:'الخطوط'},{key:'lineMeters',label:'أمتار الخطوط'},{key:'grossCoveragePct',label:'تغطية إجمالية %'},
+  {key:'criticalProjects',label:'مخاطر مرتفعة/حرجة'},{key:'pendingDesign',label:'تصاميم تحتاج متابعة'}
+ ],rows);
+ let x=[...rows].sort((a,b)=>b.projects-a.projects);makeChart('muProjects','bar',x.map(a=>a.municipality),x.map(a=>a.projects),{horizontal:true});
+ x=[...rows].sort((a,b)=>b.permitMeters-a.permitMeters);makeChart('muPermit','bar',x.map(a=>a.municipality),x.map(a=>a.permitMeters),{horizontal:true});
+ x=[...rows].sort((a,b)=>b.lineMeters-a.lineMeters);makeChart('muLines','bar',x.map(a=>a.municipality),x.map(a=>a.lineMeters),{horizontal:true});
+ x=[...rows].sort((a,b)=>b.criticalProjects-a.criticalProjects);makeChart('muRisk','bar',x.map(a=>a.municipality),x.map(a=>a.criticalProjects),{horizontal:true});
+ x=rows.filter(a=>a.grossCoveragePct!==null).sort((a,b)=>b.grossCoveragePct-a.grossCoveragePct);makeChart('muCoverage','bar',x.map(a=>a.municipality),x.map(a=>a.grossCoveragePct),{horizontal:true});
+}
+function renderTraceability(){
+ const rows=filtered(state.data.traceability||[]),linked=rows.filter(x=>x.matchMethod!=='لا يوجد ربط مطابق').length,unlinked=rows.length-linked,high=rows.filter(x=>['حرج','مرتفع'].includes(x.riskLevel)).length;
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('المشاريع',rows.length)+kpi('مرتبطة بخطوط',linked,'بمطابقة المالك + المقاول')+
+  kpi('بدون ربط مطابق',unlinked,'تحتاج مراجعة العلاقة','warn')+kpi('مخاطر مرتفعة/حرجة',high,'مشاريع')+
+  kpi('أمتار التصاريح',fmt(sum(rows,'permitMeters')),'متر')+kpi('أمتار الخطوط المرتبطة',fmt(sum(rows,'lineMeters')),'متر')+
+ '</div><div class="chart-grid">'+chartPanel('trRisk','المخاطر في سلسلة التتبع')+chartPanel('trMatch','حالة الربط التشغيلي')+chartPanel('trLines','أعلى المشروعات في أمتار الخطوط المرتبطة')+'</div>'+
+ '<section class="panel wide"><div class="panel-head"><b>منهجية الربط</b><span>لا يتم ادعاء ربط مباشر غير موجود بالشيت</span></div><div class="empty"><b>الربط الحالي تحليلي على مستوى المالك + المقاول</b><span>يظهر بوضوح في الجدول كـ "طريقة الربط". عند إضافة مرجع مشروع مباشر للخط يمكن تحويله إلى تتبع قطعي.</span></div></section>'+
+ tablePanel('مصفوفة التتبع الشامل',[
+  {key:'no',label:'المشروع'},{key:'name',label:'اسم المشروع'},{key:'riskLevel',label:'المخاطر',html:r=>pill(r.riskLevel)},
+  {key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},{key:'municipality',label:'البلدية'},
+  {key:'permitRefs',label:'التصاريح'},{key:'permitCount',label:'عدد التصاريح'},{key:'permitMeters',label:'أمتار التصاريح'},
+  {key:'lineCount',label:'عدد الخطوط'},{key:'lineRefs',label:'مراجع الخطوط'},{key:'lineMeters',label:'أمتار الخطوط'},
+  {key:'designStatuses',label:'حالات التصميم'},{key:'executionStatuses',label:'حالات التنفيذ'},
+  {key:'matchMethod',label:'طريقة الربط',html:r=>pill(r.matchMethod)}
+ ],rows);
+ let x=topEntries(countBy(rows,'riskLevel'));makeChart('trRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(rows,'matchMethod'));makeChart('trMatch','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ const top=[...rows].sort((a,b)=>n(b.lineMeters)-n(a.lineMeters)).slice(0,12);makeChart('trLines','bar',top.map(x=>x.no||x.name),top.map(x=>x.lineMeters),{horizontal:true});
+}
+function renderAnalyticsV2(){
+ const projects=commonFiltered(state.data.projects),permits=commonFiltered(state.data.actualPermits),lines=commonFiltered(state.data.lines),sett=commonFiltered(state.data.settlements||[]);
+ const permitMeters=sum(permits,'meters'),lineMeters=sum(lines,'length'),gross=pct(lineMeters,permitMeters),matched=pct(sum(sett,'executedMeters'),sum(sett,'dueMeters'));
+ const risk=countBy(projects,'riskLevel'),high=(risk['حرج']||0)+(risk['مرتفع']||0),expired=permits.filter(x=>x.expiryBand==='منتهي').length;
+ const oldDesign=lines.filter(x=>n(x.designAgeDays)>60).length;
+ const topRisk=[...projects].sort((a,b)=>n(b.riskScore)-n(a.riskScore)).slice(0,15);
+ $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('المشاريع بالنطاق',projects.length)+
+  kpi('التغطية الإجمالية',gross,'% إجمالي')+kpi('التغطية المطابقة',matched,'% مالك + مقاول',matched<80?'warn':'info')+
+  kpi('مشاريع عالية المخاطر',high,'حرج + مرتفع',high?'danger':'')+kpi('تصاريح منتهية',expired,'من التصاريح المفلترة','danger')+
+  kpi('تصاميم متقادمة >60 يوم',oldDesign,'غير معتمدة','warn')+
+ '</div><div class="insight-grid">'+
+  '<article class="insight-card"><b>المخاطر</b><strong>'+fmt(high)+'</strong><span>مشروع يحتاج تدخلًا ذا أولوية.</span></article>'+
+  '<article class="insight-card"><b>التسويات</b><strong>'+fmt(matched)+'%</strong><span>تغطية مطابقة بالمالك والمقاول.</span></article>'+
+  '<article class="insight-card"><b>التصاريح</b><strong>'+fmt(expired)+'</strong><span>تصريح منتهي داخل نطاق الفلاتر.</span></article>'+
+  '<article class="insight-card"><b>التصميم</b><strong>'+fmt(oldDesign)+'</strong><span>تصميم غير معتمد عمره أكبر من 60 يومًا.</span></article>'+
+ '</div><div class="chart-grid">'+chartPanel('anRisk','مستوى المخاطر')+chartPanel('anSet','حالة التسويات')+
+  chartPanel('anGuarantee','حالة الضمانات')+chartPanel('anMun','المشاريع حسب البلدية')+
+ '</div>'+tablePanel('أعلى أولويات التدخل الإداري',[
+  {key:'riskLevel',label:'المستوى',html:r=>pill(r.riskLevel)},{key:'riskScore',label:'الدرجة'},{key:'no',label:'المشروع'},
+  {key:'municipality',label:'البلدية'},{key:'owner',label:'المالك'},{key:'contractor',label:'المقاول'},
+  {key:'permitStatus',label:'التصريح',html:r=>pill(r.permitStatus)},{key:'guaranteeStatus',label:'الضمان',html:r=>pill(r.guaranteeStatus)},
+  {key:'matchedCoveragePct',label:'تغطية مطابقة %'},{key:'riskReasons',label:'أسباب المخاطر',html:r=>esc((r.reasons||[]).join(' • '))}
+ ],topRisk);
+ let x=topEntries(risk);makeChart('anRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(sett,'status'));makeChart('anSet','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(projects,'guaranteeStatus'));makeChart('anGuarantee','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ x=topEntries(countBy(projects,'municipality'),12);makeChart('anMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
+}
+
 function renderReports(){
  $('#pageHost').innerHTML='<div class="report-actions">'+
- ['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','quality','analytics'].map(key=>{
+ ['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','risks','quality','analytics'].map(key=>{
   const m=PAGE_META[key];return '<article class="report-card"><b>'+esc(m.title)+'</b><p>'+esc(m.sub)+'</p><div class="report-card-actions"><button class="report-preview" type="button" data-preview="'+key+'">معاينة</button><button class="report-export" type="button" data-report="'+key+'">تصدير PDF</button></div></article>'
  }).join('')+'</div>';
  $$('[data-preview]','#pageHost').forEach(btn=>btn.addEventListener('click',()=>{openPage(btn.dataset.preview);toast('تم فتح معاينة التقرير — استخدم زر تصدير التقرير PDF بالأعلى')}));
@@ -806,7 +1186,7 @@ function renderPage(){
  destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[state.page]||PAGE_META.master;
  $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • JEDDAH WATER PROJECTS';
  renderFilters();
- const fn={master:renderMaster,projects:renderProjects,map:renderMap,permits:renderPermits,lines:renderLines,settlements:renderSettlements,guarantees:renderGuarantees,complaints:renderComplaints,execution:renderExecution,parties:renderParties,quality:renderQuality,analytics:renderAnalytics,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMaster;
+ const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMasterV2;
  fn();wireTableSearch();wireInteractiveCards();decorateInfo();renderFilterSummary();animateCounts();
 }
 function canAccess(item){

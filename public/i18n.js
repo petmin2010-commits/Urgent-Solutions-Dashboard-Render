@@ -5,7 +5,7 @@ const PAIRS=[
 ['المتابعة التشغيلية','Operational Monitoring'],['المتابعة الادارية','Administrative Monitoring'],['التحليل الذكي و التقارير','Smart Analytics & Reports'],
 ['الرئيسية','Dashboard'],['المشاريع','Projects'],['الخريطة الجغرافية','Geographic Map'],['التصاريح','Permits'],['الخطوط البديلة والتصميم','Alternative Lines & Design'],
 ['الأمتار والتسويات','Meter Settlements'],['الضمانات','Guarantees'],['الشكاوى','Complaints'],['التنفيذ والتسليم','Execution & Handover'],
-['المقاولون والملاك','Contractors & Owners'],['جودة البيانات','Data Quality'],['التحليل التنفيذي','Executive Analytics'],['مركز التقارير','Report Center'],['تصدير تقرير Excel','Export Excel Report'],
+['المقاولون والملاك','Contractors & Owners'],['تحليل البلديات','Municipality Analytics'],['التتبع الشامل','End-to-End Traceability'],['مخاطر المشاريع','Project Risks'],['جودة البيانات','Data Quality'],['التحليل التنفيذي','Executive Analytics'],['مركز التقارير','Report Center'],['تصدير تقرير Excel','Export Excel Report'],
 ['إدارة الحلول العاجلة','Urgent Solutions Management'],['أبعاد الرؤية للاستشارات الهندسية','Vision Dimensions Engineering Consultancy'],
 ['تحديث البيانات','Refresh Data'],['تغيير مظهر الصفحة','Change Theme'],['تصدير التقرير PDF','Export PDF Report'],['تسجيل الخروج','Sign Out'],['آخر تحديث','Last Update'],
 ['الفلاتر التفاعلية','Interactive Filters'],['تطبق على الكروت والشارتات والجداول • ويمكن الفلترة بالضغط على الكروت والشارتات','Filters apply to cards, charts and tables • click cards or charts to filter'],

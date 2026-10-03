@@ -142,3 +142,169 @@ body.is-ready .login-card{opacity:1;transform:translateY(0) scale(1)}.login-card
 .water-main-badge svg{width:58px;height:58px}
 @media(max-width:980px){.water-main-badge{top:4%;left:40%;width:86px;height:86px}.water-main-badge svg{width:44px;height:44px}}
 @media(max-width:560px){.water-main-badge{width:58px;height:58px;left:40%}.water-main-badge svg{width:32px;height:32px}}
+
+/* FINAL AGREED LOGIN ARTWORK — exact approved water design
+   The artwork itself is preserved; form controls are transparent hit/typing layers. */
+@media(min-width:981px){
+  html,body{width:100%;height:100%;overflow:hidden!important;background:#041c30!important}
+  .login-page{
+    display:block!important;
+    position:relative!important;
+    width:100vw!important;
+    height:100vh!important;
+    min-height:100vh!important;
+    overflow:hidden!important;
+    background:#041c30!important;
+    isolation:isolate!important;
+  }
+  .login-page:before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    z-index:-1!important;
+    background-image:url("/assets/agreed-water-login.webp?v=agreed-20261003-1")!important;
+    background-repeat:no-repeat!important;
+    background-position:center center!important;
+    background-size:100% 100%!important;
+    transform:none!important;
+    filter:none!important;
+    animation:none!important;
+    transition:none!important;
+  }
+  .login-page:after{display:none!important}
+  .city-visual{display:none!important}
+  .login-side{
+    position:absolute!important;
+    inset:0!important;
+    z-index:10!important;
+    display:block!important;
+    min-height:0!important;
+    height:100vh!important;
+    width:100vw!important;
+    padding:0!important;
+    margin:0!important;
+    background:transparent!important;
+  }
+  .login-side:before,.login-side:after{display:none!important}
+  .login-card{
+    position:absolute!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100vh!important;
+    max-width:none!important;
+    padding:0!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+    opacity:1!important;
+    transform:none!important;
+    transition:none!important;
+  }
+  .login-card:before,.login-card-glow,
+  .brand-row,.login-heading,.secure-access,
+  .login-footer-note,.login-corporate-footer{display:none!important}
+
+  #loginForm{
+    position:absolute!important;
+    left:7.66vw!important;
+    top:56.1vh!important;
+    width:31.2vw!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    direction:ltr!important;
+  }
+  .login-card label,.input-icon{display:none!important}
+  .input-wrap{
+    position:relative!important;
+    width:100%!important;
+    height:6.8vh!important;
+    min-height:44px!important;
+    margin:0 0 2.1vh!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:13px!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    transition:none!important;
+  }
+  .input-wrap:nth-of-type(2){margin-bottom:4.55vh!important}
+  .input-wrap:focus-within{
+    border:0!important;
+    background:rgba(75,190,225,.035)!important;
+    box-shadow:inset 0 0 0 1px rgba(112,222,249,.16)!important;
+  }
+  .input-wrap input{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    padding:0 4.3vw 0 1.15vw!important;
+    border:0!important;
+    outline:0!important;
+    background:transparent!important;
+    color:#e8f8ff!important;
+    caret-color:#8eeaff!important;
+    font-size:clamp(12px,.95vw,17px)!important;
+    font-weight:500!important;
+    direction:ltr!important;
+    text-align:left!important;
+    text-shadow:0 2px 5px rgba(0,18,34,.88)!important;
+  }
+  .input-wrap input::placeholder{color:transparent!important}
+  .password-toggle{
+    position:absolute!important;
+    top:0!important;
+    right:0!important;
+    width:4vw!important;
+    height:100%!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    opacity:0!important;
+    cursor:pointer!important;
+  }
+  .login-message{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:21.2vh!important;
+    z-index:30!important;
+    margin:0!important;
+    padding:7px 10px!important;
+    border-radius:9px!important;
+    font-size:10px!important;
+    text-align:center!important;
+  }
+  .login-button{
+    position:relative!important;
+    width:100%!important;
+    height:7.8vh!important;
+    min-height:52px!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:14px!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:transparent!important;
+    animation:none!important;
+    transform:none!important;
+    cursor:pointer!important;
+  }
+  .login-button:hover,.login-button:active{
+    transform:none!important;
+    background:rgba(91,210,242,.035)!important;
+    box-shadow:inset 0 0 0 1px rgba(108,220,248,.12)!important;
+  }
+  .button-energy,.button-text{visibility:hidden!important}
+  .button-loader{
+    width:20px!important;height:20px!important;
+    border:2px solid rgba(255,255,255,.28)!important;
+    border-top-color:#85eaff!important;
+    position:absolute!important;left:50%!important;top:50%!important;
+    margin:-10px 0 0 -10px!important;
+  }
+}

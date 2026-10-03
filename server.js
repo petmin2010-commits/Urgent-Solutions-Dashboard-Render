@@ -87,6 +87,10 @@ function parseDate(v){
 }
 
 function credentials(){
+  if(process.env.GOOGLE_SERVICE_ACCOUNT_B64){
+    const decoded=Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_B64,'base64').toString('utf8');
+    return JSON.parse(decoded);
+  }
   if(process.env.GOOGLE_SERVICE_ACCOUNT_JSON){
     return JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
   }

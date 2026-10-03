@@ -496,6 +496,28 @@ app.get('/api/health',async(req,res)=>{
   }
 });
 
-app.use(express.static(path.join(__dirname,'public'),{index:false,maxAge:'5m'}));
+app.get('/api/build-info',(req,res)=>{
+  try{
+    const appPath=path.join(__dirname,'public','app.js');
+    const i18nPath=path.join(__dirname,'public','i18n.js');
+    const indexPath=path.join(__dirname,'public','index.html');
+    const appText=fs.existsSync(appPath)?fs.readFileSync(appPath,'utf8'):'';
+    const indexText=fs.existsSync(indexPath)?fs.readFileSync(indexPath,'utf8'):'';
+    res.set('Cache-Control','no-store').json({
+      ok:true,
+      appBytes:Buffer.byteLength(appText),
+      appInteractive:appText.includes("onClick:(event,elements)"),
+      i18nExists:fs.existsSync(i18nPath),
+      indexV8:indexText.includes('/app.js?v=8'),
+      release:process.env.APP_RELEASE||'local'
+    });
+  }catch(error){res.status(500).json({ok:false,message:error.message})}
+});
+
+app.use(express.static(path.join(__dirname,'public'),{
+  index:false,
+  maxAge:0,
+  setHeaders(res){res.setHeader('Cache-Control','no-store, max-age=0')}
+}));
 
 app.listen(PORT,()=>console.log('Urgent Solutions Dashboard: http://localhost:'+PORT));

@@ -483,3 +483,127 @@ body.is-ready .login-card{opacity:1;transform:translateY(0) scale(1)}.login-card
     transition:none!important;
   }
 }
+
+
+/* LOGIN BRAND ALIGNMENT — 2026-10-04
+   Keep the approved artwork and align the replacement Vision Dimensions mark
+   with the embedded Jeddah Municipality mark as one visual header. */
+@media(min-width:981px){
+  .login-vd-brand-overlay{
+    left:20.25vw!important;
+    top:10.35vh!important;
+    width:18.55vw!important;
+    height:10.75vh!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+    padding:5px 13px 5px 8px!important;
+    gap:12px!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:linear-gradient(90deg,rgba(6,48,75,.995),rgba(8,57,83,.99))!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+    overflow:hidden!important;
+    align-items:center!important;
+  }
+  .login-vd-brand-overlay:before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    background:linear-gradient(180deg,rgba(44,115,150,.035),rgba(0,0,0,.025))!important;
+    pointer-events:none!important;
+  }
+  .login-vd-logo-box{
+    width:clamp(58px,4.15vw,76px)!important;
+    height:clamp(58px,4.15vw,76px)!important;
+    min-width:clamp(58px,4.15vw,76px)!important;
+    flex:0 0 auto!important;
+    aspect-ratio:1/1!important;
+    border-radius:14px!important;
+    padding:5px!important;
+    box-shadow:0 5px 13px rgba(0,19,34,.18),0 0 0 1px rgba(255,220,138,.16)!important;
+  }
+  .login-vd-brand-copy{
+    flex:1!important;
+    min-width:0!important;
+    line-height:1.15!important;
+  }
+  .login-vd-brand-copy strong{
+    font-size:clamp(13px,.9vw,17px)!important;
+    line-height:1.2!important;
+  }
+  .login-vd-brand-copy span{
+    margin-top:2px!important;
+    font-size:clamp(8px,.56vw,10.5px)!important;
+  }
+  .login-vd-brand-copy em{
+    margin-top:3px!important;
+    font-size:clamp(7px,.47vw,9px)!important;
+    letter-spacing:.055em!important;
+  }
+  .login-vd-brand-overlay.is-near,
+  .login-vd-brand-overlay:hover{
+    border:0!important;
+    box-shadow:none!important;
+    filter:brightness(1.045)!important;
+  }
+}
+@media(max-width:1200px) and (min-width:981px){
+  .login-vd-brand-overlay{
+    left:20.25vw!important;
+    top:10.35vh!important;
+    width:18.55vw!important;
+    height:10.75vh!important;
+    min-width:0!important;
+  }
+}
+
+
+/* FINAL coordinated top branding — municipality + Vision Dimensions */
+@media(min-width:981px){
+  .login-page:before{
+    background-image:url("/assets/agreed-water-login-clean-vd.webp?v=brand-clean-20261004-1")!important;
+  }
+  .login-vd-brand-overlay{
+    left:19.6vw!important;
+    top:10.5vh!important;
+    width:18.6vw!important;
+    height:10.5vh!important;
+    padding:4px 10px!important;
+    gap:12px!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+  }
+  .login-vd-brand-overlay:before{display:none!important}
+  .login-vd-brand-overlay.is-near,
+  .login-vd-brand-overlay:hover{
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  .login-vd-logo-box{
+    width:clamp(58px,4vw,74px)!important;
+    height:clamp(58px,4vw,74px)!important;
+    min-width:clamp(58px,4vw,74px)!important;
+  }
+}
+
+/* Tighten the two brands into one balanced header row */
+@media(min-width:981px){
+  .login-vd-brand-overlay{
+    left:21.2vw!important;
+    top:10.45vh!important;
+    width:16.5vw!important;
+    justify-content:flex-start!important;
+  }
+  .login-vd-brand-copy{
+    flex:0 0 clamp(132px,8.2vw,158px)!important;
+    width:clamp(132px,8.2vw,158px)!important;
+  }
+}

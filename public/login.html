@@ -8,30 +8,45 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/login.css?v=urgent-jeddah-20261003-1">
+  <link rel="stylesheet" href="/login.css?v=urgent-water-20261003-2">
 </head>
 <body>
 <div class="login-page">
   <section class="city-visual" aria-label="هوية مشروع إدارة الحلول العاجلة">
     <div class="city-photo" aria-hidden="true"></div>
     <div class="city-shade" aria-hidden="true"></div>
-    <div class="electric-sweep electric-sweep-a" aria-hidden="true"></div>
-    <div class="electric-sweep electric-sweep-b" aria-hidden="true"></div>
-    <svg class="power-grid" viewBox="0 0 1200 900" preserveAspectRatio="none" aria-hidden="true">
-      <path class="power-line line-a" d="M-40 175 C180 105 300 245 505 174 S810 95 1240 190"/>
-      <path class="power-line line-b" d="M-60 665 C170 565 350 735 555 635 S865 560 1240 690"/>
-      <path class="power-line line-c" d="M120 0 C205 190 90 340 230 475 S480 620 420 900"/>
-      <circle class="power-node n1" cx="285" cy="191" r="7"/>
-      <circle class="power-node n2" cx="695" cy="143" r="7"/>
-      <circle class="power-node n3" cx="470" cy="672" r="7"/>
-      <circle class="power-node n4" cx="935" cy="612" r="7"/>
+    <div class="water-flow water-flow-a" aria-hidden="true"></div>
+    <div class="water-flow water-flow-b" aria-hidden="true"></div>
+    <div class="water-flow water-flow-c" aria-hidden="true"></div>
+    <svg class="water-grid" viewBox="0 0 1200 900" preserveAspectRatio="none" aria-hidden="true">
+      <path class="pipe-line pipe-a" d="M-40 205 C170 120 320 250 510 190 S825 105 1240 210"/>
+      <path class="pipe-line pipe-b" d="M-55 670 C170 570 350 725 570 645 S885 565 1240 675"/>
+      <path class="pipe-line pipe-c" d="M165 0 C230 190 125 335 270 470 S500 625 455 900"/>
+      <path class="pipe-line pipe-d" d="M530 900 C545 725 700 700 730 540 S850 335 1240 325"/>
+      <circle class="flow-node n1" cx="300" cy="205" r="7"/>
+      <circle class="flow-node n2" cx="700" cy="154" r="7"/>
+      <circle class="flow-node n3" cx="485" cy="676" r="7"/>
+      <circle class="flow-node n4" cx="950" cy="603" r="7"/>
+      <circle class="flow-node n5" cx="785" cy="455" r="7"/>
     </svg>
+    <div class="water-badge water-main-badge" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M32 6C24 18 15 28 15 39a17 17 0 0 0 34 0C49 28 40 18 32 6Z"/><path class="water-highlight" d="M24 42c2 5 7 8 12 8"/></svg>
+    </div>
+    <div class="water-badge water-drop-badge" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M32 6C24 18 15 28 15 39a17 17 0 0 0 34 0C49 28 40 18 32 6Z"/><path class="water-highlight" d="M24 42c2 5 7 8 12 8"/></svg>
+    </div>
+    <div class="water-badge pump-badge" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M16 24h24a8 8 0 0 1 8 8v9H16Z"/><circle cx="28" cy="33" r="7"/><path d="M48 30h8v14h-8M11 28h5v10h-5M20 20v4M36 20v4M20 45v5M42 45v5M14 50h34"/></svg>
+    </div>
+    <div class="water-badge valve-badge" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M8 33h15M41 33h15M23 25l9 8-9 8ZM41 25l-9 8 9 8Z"/><circle cx="32" cy="15" r="8"/><path d="M32 23v10M24 15h16M32 7v16"/></svg>
+    </div>
     <div class="city-project">
-      <div class="city-project-icon">⚡</div>
+      <div class="city-project-icon" aria-label="مشاريع المياه">💧</div>
       <div>
         <span>URGENT SOLUTIONS • JEDDAH MUNICIPALITY</span>
         <strong>إدارة الحلول العاجلة</strong>
-        <small>Operational Control & Smart Reporting</small>
+        <small>Water Projects • Operational Control</small>
       </div>
     </div>
   </section>
@@ -58,8 +73,8 @@
       <div class="login-heading">
         <span class="login-kicker">URGENT SOLUTIONS CONTROL CENTER</span>
         <h1>إدارة الحلول العاجلة</h1>
-        <p>منصة المتابعة التشغيلية — <b>أمانة محافظة جدة</b></p>
-        <div class="contract-chip"><span>تشغيل ومتابعة</span><strong>JEDDAH</strong></div>
+        <p>المتابعة التشغيلية لمشاريع المياه — <b>أمانة محافظة جدة</b></p>
+        <div class="contract-chip"><span>مشاريع المياه</span><strong>JEDDAH</strong></div>
       </div>
 
       <form id="loginForm" autocomplete="on">

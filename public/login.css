@@ -72,3 +72,73 @@ body.is-ready .login-card{opacity:1;transform:translateY(0) scale(1)}.login-card
 .login-corporate-center{justify-self:start}
 @media(max-width:980px){.login-corporate-footer{grid-template-columns:1fr}.login-corporate-center,.login-corporate-credit{justify-self:end}}
 @media(max-width:560px){.municipality-brand{width:92px;min-width:92px;height:64px}}
+
+
+/* Water Projects identity — 2026-10-03
+   Keeps the approved Jeddah background unchanged and replaces only the
+   electricity HUD/motion layer with a smart-water network theme. */
+.city-visual:before{
+  background:
+    radial-gradient(circle at 21% 19%,rgba(101,220,255,.18),transparent 28%),
+    radial-gradient(circle at 72% 72%,rgba(30,165,215,.13),transparent 32%),
+    linear-gradient(125deg,transparent 0 51%,rgba(104,222,255,.07) 54%,transparent 58%);
+  mix-blend-mode:screen;
+}
+.water-grid{position:absolute;z-index:4;inset:0;width:100%;height:100%;pointer-events:none;opacity:.82}
+.pipe-line{fill:none;stroke:rgba(102,222,250,.72);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:8 15;filter:drop-shadow(0 0 5px rgba(61,193,232,.72));animation:waterPipeFlow 7s linear infinite}
+.pipe-b{animation-duration:8.8s;animation-direction:reverse;opacity:.76}.pipe-c{animation-duration:10.5s;opacity:.54}.pipe-d{animation-duration:9.4s;animation-direction:reverse;opacity:.62}
+.flow-node{fill:#e9fbff;stroke:#58cceb;stroke-width:3;filter:drop-shadow(0 0 10px rgba(79,205,239,.95));transform-box:fill-box;transform-origin:center;animation:waterNodePulse 2.8s ease-in-out infinite}.flow-node.n2{animation-delay:.45s}.flow-node.n3{animation-delay:.9s}.flow-node.n4{animation-delay:1.35s}.flow-node.n5{animation-delay:1.8s}
+
+.water-flow{position:absolute;z-index:4;left:-28%;width:76%;height:120px;border-radius:50%;pointer-events:none;opacity:.42;filter:drop-shadow(0 0 12px rgba(74,200,238,.42));transform-origin:center}
+.water-flow:before,.water-flow:after{content:"";position:absolute;inset:0;border-top:2px solid rgba(126,229,252,.72);border-radius:50%;box-shadow:0 -5px 20px rgba(55,184,227,.14)}
+.water-flow:after{inset:17px 7% 0;border-top-color:rgba(64,190,230,.46)}
+.water-flow-a{top:21%;transform:rotate(8deg);animation:waterRibbonA 9s ease-in-out infinite alternate}
+.water-flow-b{top:56%;transform:rotate(-9deg);animation:waterRibbonB 11s ease-in-out infinite alternate}
+.water-flow-c{top:77%;left:18%;width:70%;transform:rotate(4deg);opacity:.28;animation:waterRibbonC 13s ease-in-out infinite alternate}
+
+.water-badge{position:absolute;z-index:5;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;color:#9deeff;background:rgba(4,45,72,.34);border:1px solid rgba(118,221,247,.48);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);box-shadow:0 0 26px rgba(59,190,230,.14),inset 0 0 18px rgba(87,214,244,.05);pointer-events:none;animation:waterBadgeFloat 4.8s ease-in-out infinite}
+.water-badge svg{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 7px rgba(89,213,244,.44))}
+.water-drop-badge{top:16%;right:15%;animation-delay:.3s}.water-drop-badge svg path:first-child{fill:rgba(91,211,244,.18)}
+.water-highlight{stroke:#e9fcff!important;opacity:.72}
+.pump-badge{top:42%;left:14%;animation-delay:1.1s}
+.valve-badge{right:9%;bottom:24%;animation-delay:2s}
+
+.city-project-icon{border-color:rgba(108,216,245,.72)!important;color:#a6efff!important;background:rgba(3,43,70,.58)!important;box-shadow:0 0 30px rgba(62,193,230,.19)!important;text-shadow:0 0 14px rgba(82,215,247,.7)}
+.city-project span{color:#9eeaff!important}
+.login-kicker{color:#1689b6}
+.contract-chip{background:#eef9fc;border-color:#c7eaf3}
+.contract-chip strong{color:#08789f}
+.login-button{border-color:rgba(96,207,236,.74);background:linear-gradient(90deg,#07385f,#087ba5,#07385f)}
+.button-energy{background:linear-gradient(90deg,transparent,rgba(164,236,250,.68),transparent)}
+
+@keyframes waterPipeFlow{to{stroke-dashoffset:-150}}
+@keyframes waterNodePulse{0%,100%{transform:scale(.82);opacity:.55}50%{transform:scale(1.38);opacity:1}}
+@keyframes waterBadgeFloat{0%,100%{transform:translateY(0) scale(.98);opacity:.72}50%{transform:translateY(-9px) scale(1.04);opacity:1}}
+@keyframes waterRibbonA{from{translate:-2% 0;scale:.98 1}to{translate:14% 12px;scale:1.08 1.16}}
+@keyframes waterRibbonB{from{translate:4% 0;scale:1 1}to{translate:18% -9px;scale:1.1 1.12}}
+@keyframes waterRibbonC{from{translate:0 0;scale:.94 1}to{translate:-14% -12px;scale:1.08 1.08}}
+
+@media(max-width:980px){
+  .water-badge{width:60px;height:60px}.water-badge svg{width:31px;height:31px}
+  .water-drop-badge{top:10%;right:14%}.pump-badge{top:46%;left:9%}.valve-badge{right:8%;bottom:16%}
+  .water-flow{height:80px}
+}
+@media(max-width:560px){
+  .water-badge{width:45px;height:45px}.water-badge svg{width:24px;height:24px}
+  .pump-badge{display:none}.water-flow-c{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .pipe-line,.flow-node,.water-flow,.water-badge{animation:none!important}
+}
+
+.water-main-badge{top:8.5%;left:39.5%;width:88px;height:88px;background:rgba(5,48,76,.78);border-color:rgba(113,224,250,.72);box-shadow:0 0 34px rgba(66,196,235,.24),inset 0 0 28px rgba(80,211,244,.09);animation-delay:.05s}
+.water-main-badge svg{width:48px;height:48px}
+.water-main-badge svg path:first-child{fill:rgba(83,211,246,.22)}
+@media(max-width:980px){.water-main-badge{top:7%;left:42%;width:68px;height:68px}.water-main-badge svg{width:38px;height:38px}}
+@media(max-width:560px){.water-main-badge{width:50px;height:50px;left:41%}.water-main-badge svg{width:28px;height:28px}}
+
+/* Fully mask the legacy electric HUD badge while keeping the Jeddah photo untouched */
+.water-main-badge{top:5.3%;left:37.8%;width:122px;height:122px;background:rgba(5,45,72,.94);border:1.5px solid rgba(112,226,251,.78);box-shadow:0 0 38px rgba(57,193,232,.28),inset 0 0 34px rgba(77,211,245,.11)}
+.water-main-badge svg{width:58px;height:58px}
+@media(max-width:980px){.water-main-badge{top:4%;left:40%;width:86px;height:86px}.water-main-badge svg{width:44px;height:44px}}
+@media(max-width:560px){.water-main-badge{width:58px;height:58px;left:40%}.water-main-badge svg{width:32px;height:32px}}

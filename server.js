@@ -159,6 +159,29 @@ app.get('/login',(req,res)=>res.sendFile(path.join(__dirname,'public','login.htm
 app.get('/index.html',(req,res)=>req.session?.user?res.sendFile(path.join(__dirname,'public','index.html')):res.redirect('/login'));
 app.get('/',(req,res)=>req.session?.user?res.sendFile(path.join(__dirname,'public','index.html')):res.redirect('/login'));
 
+app.get('/api/auth/photo',async(req,res)=>{
+  try{
+    res.set('Cache-Control','no-store, max-age=0');
+    if(!req.session?.user?.username) return res.status(401).end();
+    const users=await readUsers();
+    const username=String(req.session.user.username||'').trim().toLowerCase();
+    const user=users.find(u=>u.username===username);
+    const imageUrl=String(user?.image||'').trim();
+    if(!imageUrl) return res.status(404).end();
+    const upstream=await fetch(imageUrl,{redirect:'follow'});
+    if(!upstream.ok) return res.status(404).end();
+    const contentType=upstream.headers.get('content-type')||'image/jpeg';
+    if(!contentType.toLowerCase().startsWith('image/')) return res.status(415).end();
+    const bytes=Buffer.from(await upstream.arrayBuffer());
+    res.set('Content-Type',contentType);
+    res.set('Content-Length',String(bytes.length));
+    return res.status(200).send(bytes);
+  }catch(error){
+    console.error('User photo proxy error:',error);
+    return res.status(500).end();
+  }
+});
+
 app.get('/api/auth/me',(req,res)=>{
   if(!req.session?.user) return res.status(401).json({ok:false});
   res.set('Cache-Control','no-store').json({ok:true,user:req.session.user});

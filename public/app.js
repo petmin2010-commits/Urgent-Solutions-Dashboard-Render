@@ -1215,7 +1215,7 @@ async function boot(){
  try{
   const r=await fetch('/api/auth/me',{cache:'no-store'});if(!r.ok)return location.replace('/login');const j=await r.json();state.user=j.user;
   $('#userName').textContent=state.user.name||state.user.username;$('#userRole').textContent=state.user.role||'';
-  if(state.user.image){$('#userPhoto').src=state.user.image;$('#userPhoto').hidden=false}
+  if(state.user.image){const photo=$('#userPhoto');photo.hidden=false;photo.onerror=()=>{photo.hidden=true;photo.removeAttribute('src')};photo.src='/api/auth/photo?v='+Date.now()}
   applyPermissions();
   await loadData(false);
  }catch(e){location.replace('/login')}

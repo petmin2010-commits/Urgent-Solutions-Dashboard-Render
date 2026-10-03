@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>إدارة الحلول العاجلة | أبعاد الرؤية</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<link rel="stylesheet" href="/styles.css?v=7">
+</head>
+<body>
+<div id="boot" class="boot"><div class="boot-card"><div class="spinner"></div><b>جاري تحميل بيانات الحلول العاجلة</b><span>يتم قراءة البيانات مباشرة من Google Sheets</span></div></div>
+
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-mark">VD</div>
+    <div class="brand-copy"><strong>إدارة الحلول العاجلة</strong><span>Vision Dimensions</span></div>
+  </div>
+
+  <div class="side-search">
+    <span>⌕</span>
+    <input id="navSearch" type="search" placeholder="ابحث عن شاشة..." autocomplete="off">
+    <button id="navClear" type="button">×</button>
+  </div>
+
+  <nav id="nav">
+    <section class="nav-group is-open" data-group="operations">
+      <button class="nav-group-head" type="button"><span>▦</span><b>المتابعة التشغيلية</b><i>⌄</i></button>
+      <div class="nav-group-items">
+        <button class="nav-item active" data-page="master"><span>◉</span><b>الرئيسية</b></button>
+        <button class="nav-item" data-page="projects"><span>▣</span><b>المشاريع</b></button>
+        <button class="nav-item" data-page="map"><span>⌖</span><b>الخريطة الجغرافية</b></button>
+        <button class="nav-item" data-page="permits"><span>▤</span><b>التصاريح</b></button>
+        <button class="nav-item" data-page="lines"><span>⌁</span><b>الخطوط البديلة والتصميم</b></button>
+        <button class="nav-item" data-page="settlements"><span>⇄</span><b>الأمتار والتسويات</b></button>
+        <button class="nav-item" data-page="guarantees"><span>◇</span><b>الضمانات</b></button>
+        <button class="nav-item" data-page="complaints"><span>!</span><b>الشكاوى</b></button>
+        <button class="nav-item" data-page="execution"><span>✓</span><b>التنفيذ والتسليم</b></button>
+      </div>
+    </section>
+
+    <section class="nav-group" data-group="admin">
+      <button class="nav-group-head" type="button"><span>⚙</span><b>المتابعة الادارية</b><i>⌄</i></button>
+      <div class="nav-group-items">
+        <button class="nav-item" data-page="parties"><span>♙</span><b>المقاولون والملاك</b></button>
+        <button class="nav-item" data-page="quality"><span>◎</span><b>جودة البيانات</b></button>
+      </div>
+    </section>
+
+    <section class="nav-group" data-group="analytics">
+      <button class="nav-group-head" type="button"><span>▥</span><b>التحليل الذكي و التقارير</b><i>⌄</i></button>
+      <div class="nav-group-items">
+        <button class="nav-item" data-page="analytics"><span>⌁</span><b>التحليل التنفيذي</b></button>
+        <button class="nav-item" data-page="reports"><span>⇩</span><b>مركز التقارير</b></button>
+        <button class="nav-item" data-page="excelExport"><span>▧</span><b>تصدير تقرير Excel</b></button>
+      </div>
+    </section>
+  </nav>
+  <div class="side-foot">Urgent Solutions Dashboard • 2026</div>
+</aside>
+
+<button id="sidebarToggle" class="sidebar-toggle" type="button" title="إخفاء القائمة">‹</button>
+
+<main class="main">
+  <header class="top-shell">
+    <div class="top-actions">
+      <button id="refreshBtn" class="icon-btn" title="تحديث البيانات">↻</button>
+      <button id="themeBtn" class="icon-btn" title="تغيير مظهر الصفحة">◐</button>
+      <button id="printBtn" class="top-export" type="button">تصدير التقرير PDF</button>
+    </div>
+    <div class="userbox">
+      <img id="userPhoto" alt="" hidden>
+      <div><b id="userName">...</b><span id="userRole">...</span></div>
+      <button id="logoutBtn" type="button">تسجيل الخروج</button>
+    </div>
+  </header>
+
+  <section class="page-hero" id="pageHero">
+    <div class="hero-visual"><span id="heroIcon">◉</span></div>
+    <div class="hero-copy"><small id="heroEyebrow">EXECUTIVE OVERVIEW</small><h1 id="pageTitle">الرئيسية</h1><p id="pageSubtitle">ملخص تنفيذي لحالة مشاريع الحلول العاجلة والتصاريح والخطوط البديلة.</p></div>
+    <div class="hero-meta"><span>آخر تحديث</span><b id="updatedAt">—</b></div>
+  </section>
+
+  <section id="filterBar" class="filter-bar">
+    <div class="filter-head"><div><b>الفلاتر التفاعلية</b><span id="filterHint">تطبق على الكروت والشارتات والجداول</span></div><button id="clearFiltersBtn" type="button">إعادة تعيين</button></div>
+    <div id="filtersHost" class="filters-host"></div>
+  </section>
+
+  <section id="pageHost" class="page-host"></section>
+  <section id="printMeta" class="print-meta">
+    <div><b id="printMetaTitle">إدارة الحلول العاجلة</b><span id="printMetaSubtitle">Vision Dimensions Engineering Consultancy</span></div>
+    <div><span>تاريخ ووقت التصدير</span><b id="printMetaTime">—</b></div>
+  </section>
+</main>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/app.js?v=7"></script>
+</body>
+</html>

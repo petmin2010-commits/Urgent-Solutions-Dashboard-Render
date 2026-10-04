@@ -1642,3 +1642,19 @@ html.desktop-artwork .login-page:after{
       rgba(4,31,55,.08) 74%,
       transparent 100%)!important;
 }
+
+/* FULL BACKGROUND — no navy side overlay — 2026-10-04 */
+html.desktop-artwork .login-page:before{
+  background-image:url("/assets/jeddah-water-full-hd.webp?v=fullhd-20261004-1")!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  filter:saturate(1.06) contrast(1.035) brightness(.96)!important;
+}
+html.desktop-artwork .login-page:after{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+html.desktop-artwork .login-side{
+  background:transparent!important;
+}

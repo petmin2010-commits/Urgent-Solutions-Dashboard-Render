@@ -15,7 +15,38 @@ const pct=(a,b)=>b?Math.round(a/b*1000)/10:0;
 const nowLabel=d=>new Date(d||Date.now()).toLocaleString('ar-SA',{dateStyle:'medium',timeStyle:'short'});
 const dateLabel=d=>new Date(d||Date.now()).toLocaleDateString('ar-SA',{dateStyle:'medium'});
 const state=()=>window.VDUrgent?.getState?.()||{};
-const data=()=>state().data||window.__urgentDashboardData||{};
+const rawData=()=>state().data||window.__urgentDashboardData||{};
+function scopedData(raw=rawData()){
+ const page=state().page||'';
+ const filterRows=window.VDUrgent?.filterRows;
+ if(!SMART_PAGES.has(page)||typeof filterRows!=='function')return raw;
+ const projects=filterRows(raw.projects||[]);
+ const projectNos=new Set(projects.map(x=>clean(x.no)).filter(Boolean));
+ const projectPairs=new Set(projects.map(x=>clean(x.owner)+'||'+clean(x.contractor)).filter(x=>x!=='||'));
+ const inProjectScope=r=>{
+  const no=clean(r.projectNo||r.no),pair=clean(r.owner||r.projectOwner)+'||'+clean(r.contractor||r.helperContractor);
+  if(no&&projectNos.size)return projectNos.has(no);
+  if(pair!=='||'&&projectPairs.size)return projectPairs.has(pair);
+  return true;
+ };
+ const permits=filterRows(raw.actualPermits||[]).filter(inProjectScope);
+ const lines=filterRows(raw.lines||[]).filter(inProjectScope);
+ const settlements=filterRows(raw.settlements||[]).filter(inProjectScope);
+ const quality=filterRows(raw.quality||[]);
+ const complaints=filterRows(raw.complaints||[]);
+ const permitMeters=permits.reduce((a,x)=>a+num(x.meters),0),lineMeters=lines.reduce((a,x)=>a+num(x.length),0);
+ const due=settlements.reduce((a,x)=>a+num(x.dueMeters),0),done=settlements.reduce((a,x)=>a+num(x.executedMeters),0);
+ const highRiskProjects=projects.filter(x=>['حرج','مرتفع'].includes(clean(x.riskLevel))).length;
+ const designPending=lines.filter(x=>/جاري|قيد/i.test(clean(x.designStatus))&&!x.approvalDate).length;
+ let expired=0,expiring=0,valid=0,unknown=0;
+ permits.forEach(x=>{const d=Number(x.expiryDays);if(Number.isFinite(d)){if(d<0)expired++;else if(d<=7)expiring++;else valid++;}else if(norm(x.expiryBand).includes('منتهي'))expired++;else unknown++;});
+ const summaries={...(raw.summaries||{}),projects:projects.length,actualPermits:permits.length,permitMeters,lines:lines.length,lineMeters,
+  grossCoveragePct:pct(lineMeters,permitMeters),matchedCoveragePct:pct(done,due),matchedGap:Math.round((due-done)*10)/10,
+  highRiskProjects,qualityIssues:quality.length,complaints:complaints.length,designPending};
+ const management={...(raw.management||{}),handoverReadiness:{...(raw.management?.handoverReadiness||{}),linesWithHandover:lines.filter(x=>x.handoverDate||x.handoverLetter).length}};
+ return {...raw,projects,actualPermits:permits,lines,settlements,quality,complaints,summaries,permitTiming:{...(raw.permitTiming||{}),expired,expiring,valid,unknown},management};
+}
+const data=()=>scopedData(rawData());
 const host=()=>document.getElementById('urgentSmartSuiteHost');
 
 function safeParse(raw,fallback){try{return JSON.parse(raw)}catch{return fallback}}
@@ -33,6 +64,7 @@ function metricSnapshot(d=data()){
  };
 }
 function captureSnapshot(force=false){
+ if(!force&&window.VDUrgent?.activeFilterCount?.()>0)return;
  const d=data();if(!d||!d.summaries)return;
  const h=history(),snap=metricSnapshot(d),last=h[h.length-1];
  if(!force&&last&&snap.capturedAt-num(last.capturedAt)<SNAPSHOT_INTERVAL)return;
@@ -115,7 +147,7 @@ function smartHeader(eyebrow,title,desc,action=''){
  return '<section class="us-smart-hero"><div><small>'+esc(eyebrow)+'</small><h2>'+esc(title)+'</h2><p>'+esc(desc)+'</p></div>'+action+'</section>';
 }
 function updateFilterVisibility(page){
- const bar=document.getElementById('filterBar');if(bar)bar.style.display=SMART_PAGES.has(page)?'none':'';
+ const bar=document.getElementById('filterBar');if(bar&&SMART_PAGES.has(page))bar.style.display='block';
 }
 
 function renderCenter(){
@@ -160,7 +192,7 @@ function riskTable(rows){
 }
 
 function renderMemory(){
- const h=host(),hist=history(),cur=hist[hist.length-1]||metricSnapshot(),first=hist[0],prev=hist[hist.length-2],trend=memoryFindings(hist);
+ const h=host(),hist=history(),cur=metricSnapshot(data()),first=hist[0],prev=hist[hist.length-1],trend=memoryFindings(hist);
  h.innerHTML=smartHeader('PROJECT TEMPORAL MEMORY • 15 MIN SNAPSHOTS','ذاكرة المشروع الزمنية','تُنشئ لقطة للمؤشرات كل 15 دقيقة عند وجود قراءة جديدة، وتستخدمها لاكتشاف بداية التغير وتفسير الاتجاه.','<button class="us-primary" id="usMemorySnap">＋ حفظ لقطة الآن</button>')+
  '<div class="us-kpis">'+kpi('عدد اللقطات',fmt(hist.length),'محفوظة على هذا الجهاز')+kpi('أول لقطة',first?dateLabel(first.capturedAt):'—','بداية الذاكرة')+kpi('آخر لقطة',cur?nowLabel(cur.capturedAt):'—','آخر قراءة')+kpi('المخاطر الحالية',fmt(cur.highRisk),'عالية/حرجة','danger')+kpi('التصاريح المنتهية',fmt(cur.expired),'الحالة الحالية','warn')+kpi('جودة البيانات',fmt(cur.quality),'ملاحظات حالية')+'</div>'+
  '<div class="us-grid two">'+

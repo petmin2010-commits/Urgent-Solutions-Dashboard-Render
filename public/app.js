@@ -1207,7 +1207,7 @@ async function loadData(force=false){
  const btn=$('#refreshBtn');if(btn)btn.disabled=true;
  try{
   const r=await fetch('/api/data'+(force?'?refresh=1':''),{cache:'no-store'});if(r.status===401)return location.replace('/login');const j=await r.json();if(!r.ok)throw new Error(j.message||'DATA');
-  state.data=j;$('#updatedAt').textContent=new Date(j.updatedAt).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'});renderPage();toast(force?'تم تحديث البيانات':'تم تحميل البيانات');
+  state.data=j;window.__urgentDashboardData=j;window.dispatchEvent(new CustomEvent('vd:urgent-data',{detail:j}));$('#updatedAt').textContent=new Date(j.updatedAt).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'});renderPage();toast(force?'تم تحديث البيانات':'تم تحميل البيانات');
  }catch(e){console.error(e);$('#pageHost').innerHTML='<div class="empty"><b>تعذر تحميل البيانات</b><span>'+esc(e.message)+'</span></div>';toast('تعذر الاتصال بمصدر البيانات')}
  finally{if(btn)btn.disabled=false;$('#boot').classList.add('hide')}
 }

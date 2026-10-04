@@ -708,40 +708,49 @@ function renderMap(){
  const lineAll=(state.data.lines||[]).filter(r=>rowPasses(r,lineDefs)&&rowPassesPeriod(r));
  const projects=projectAll.filter(validCoord),lines=lineAll.filter(validCoord);
  const missingProjects=projectAll.length-projects.length,missingLines=lineAll.length-lines.length;
- const critical=projects.filter(r=>r.riskLevel==='حرج');
  const coverageTotal=projectAll.length+lineAll.length,coverageMapped=projects.length+lines.length;
  const pctMapped=coverageTotal?Math.round(coverageMapped/coverageTotal*100):0;
  const combinedRows=[
-  ...projects.map(r=>({itemType:'مشروع',ref:r.no,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.riskLevel||r.permitStatus||'',lat:r.lat,lon:r.lon})),
+  ...projects.map(r=>({itemType:'مشروع',ref:r.no,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.contractStatus||r.permitStatus||'',lat:r.lat,lon:r.lon})),
   ...lines.map(r=>({itemType:'خط بديل',ref:r.ref,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.executionStatus||r.designStatus||'',lat:r.lat,lon:r.lon}))
  ];
- $('#pageHost').innerHTML='<div class="kpi-grid">'+
-  kpi('مشاريع على الخريطة',projects.length,missingProjects?'مفقود '+missingProjects+' موقع':'جميع مواقع المشاريع متاحة',missingProjects?'warn':'')+
-  kpi('خطوط بديلة على الخريطة',lines.length,missingLines?'مفقود '+missingLines+' موقع':'جميع مواقع الخطوط متاحة',missingLines?'warn':'')+
+ const opt=(rows,key,label)=>{
+  const vals=[...new Set(rows.map(r=>clean(r[key])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+  return '<label class="map-glass-filter"><span>'+label+'</span><select data-map-filter="'+key+'"><option value="">الكل</option>'+vals.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')+'</select></label>';
+ };
+ const filterUniverse=[...projects,...lines];
+ $('#pageHost').innerHTML='<div class="kpi-grid map-kpis">'+
+  kpi('مواقع المشاريع',projects.length,missingProjects?'مفقود '+missingProjects+' موقع':'جميع المواقع المتاحة')+
+  kpi('الخطوط البديلة',lines.length,missingLines?'مفقود '+missingLines+' إحداثية':'إحداثيات الخطوط المتاحة')+
   kpi('تغطية الإحداثيات',pctMapped+'%','من '+coverageTotal+' عنصرًا جغرافيًا')+
-  kpi('مشاريع حرجة',critical.length,'يمكن التركيز عليها مباشرة',critical.length?'danger':'')+
+  kpi('إجمالي أطوال الخطوط',fmt(sum(lines,'length')),'متر')+
  '</div>'+
- '<section class="map-panel map-panel-advanced">'+
-  '<div class="map-commandbar">'+
-   '<div class="map-layer-buttons">'+
-    '<button type="button" class="map-layer-btn active" data-map-layer="projects"><span class="map-symbol project-symbol"></span>المشاريع <b>'+projects.length+'</b></button>'+
-    '<button type="button" class="map-layer-btn active" data-map-layer="lines"><span class="map-symbol line-symbol"></span>الخطوط البديلة <b>'+lines.length+'</b></button>'+
-    '<button type="button" class="map-tool-btn" id="mapFitBtn">⌖ ملاءمة العرض</button>'+
-    '<button type="button" class="map-tool-btn danger" id="mapRiskBtn">⚠ تركيز الحرج</button>'+
+ '<section class="map-panel map-panel-advanced" id="advancedMapPanel">'+
+  '<div class="map-stage">'+
+   '<div id="projectMap" class="map-canvas"></div>'+
+   '<div class="map-glass-panel">'+
+    '<div class="map-glass-top">'+
+     '<div class="map-layer-buttons">'+
+      '<button type="button" class="map-layer-btn active" data-map-layer="projects"><span class="map-symbol project-symbol"></span>المشاريع <b id="mapProjectCount">'+projects.length+'</b></button>'+
+      '<button type="button" class="map-layer-btn active" data-map-layer="lines"><span class="map-symbol line-symbol"></span>الخطوط البديلة <b id="mapLineCount">'+lines.length+'</b></button>'+
+      '<button type="button" class="map-tool-btn" id="mapFitBtn">⌖ ملاءمة</button>'+
+      '<button type="button" class="map-tool-btn" id="mapResetBtn">↺ إعادة الفلاتر</button>'+
+      '<button type="button" class="map-tool-btn" id="mapFullscreenBtn">⛶ توسعة</button>'+
+     '</div>'+
+     '<div class="map-search-wrap"><input id="mapSearchInput" type="search" autocomplete="off" placeholder="بحث داخل الخريطة: مشروع، خط، مقاول، مالك، حي..."><div id="mapSearchResults" class="map-search-results"></div></div>'+
+    '</div>'+
+    '<div class="map-glass-filters">'+
+     opt(filterUniverse,'municipality','البلدية')+
+     opt(filterUniverse,'contractor','المقاول')+
+     opt(filterUniverse,'owner','المالك')+
+     opt(lines,'type','نوع الخط')+
+     opt(lines,'designStatus','حالة التصميم')+
+    '</div>'+
    '</div>'+
-   '<div class="map-search-wrap"><input id="mapSearchInput" type="search" autocomplete="off" placeholder="بحث: مشروع، خط، مقاول، مالك، حي، شارع..."><div id="mapSearchResults" class="map-search-results"></div></div>'+
+   '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-line-key"></i> خط بديل</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
   '</div>'+
-  '<div class="map-legend map-legend-advanced">'+
-   '<span><i class="map-dot" style="background:#b93737"></i> مشروع حرج</span>'+
-   '<span><i class="map-dot" style="background:#d86d45"></i> مرتفع</span>'+
-   '<span><i class="map-dot" style="background:#d0a351"></i> متوسط</span>'+
-   '<span><i class="map-dot" style="background:#168a72"></i> طبيعي</span>'+
-   '<span><i class="map-diamond"></i> خط بديل</span>'+
-   '<span class="map-legend-note">مرّر المؤشر لعرض البطاقة • اضغط لفتح التفاصيل والروابط</span>'+
-  '</div>'+
-  '<div id="projectMap" class="map-canvas"></div>'+
  '</section>'+
- tablePanel('العناصر الظاهرة على الخريطة',[
+ tablePanel('العناصر الجغرافية',[
   {key:'itemType',label:'النوع',html:r=>'<span class="pill '+(r.itemType==='خط بديل'?'info':'')+'">'+esc(r.itemType)+'</span>'},
   {key:'ref',label:'المرجع'},{key:'name',label:'الاسم'},{key:'municipality',label:'البلدية'},
   {key:'district',label:'الحي'},{key:'street',label:'الشارع'},{key:'owner',label:'المالك'},
@@ -756,72 +765,123 @@ function renderMap(){
  const action=(label,url)=>{const u=safeUrl(url);return u?'<a class="map-popup-action" href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(label)+'</a>':''};
  const cell=(label,value)=>clean(value)?'<div><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>':'';
  const projectTooltip=r=>'<div class="map-hover-card"><div class="map-card-head"><span class="map-kind project">مشروع</span><b>'+esc((r.no||'')+(r.name?' — '+r.name:''))+'</b></div><div class="map-card-grid">'+
-  cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('المقاول',r.contractor)+cell('المالك',r.owner)+cell('التصريح',r.permitStatus)+cell('المخاطر',(r.riskLevel||'—')+(r.riskScore!=null?' • '+r.riskScore:''))+
- '</div><div class="map-card-hint">اضغط لعرض جميع التفاصيل</div></div>';
+  cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('الشارع',r.street)+cell('المقاول',r.contractor)+cell('المالك',r.owner)+cell('حالة العقد',r.contractStatus)+cell('التصريح',r.permitStatus)+cell('أمتار التصاريح',r.permitMeters?fmt(r.permitMeters)+' م':'')+
+  '</div><div class="map-card-hint">اضغط لعرض جميع بيانات المشروع والروابط</div></div>';
  const projectPopup=r=>'<div class="map-popup-card"><div class="map-card-head"><span class="map-kind project">مشروع</span><b>'+esc((r.no||'')+(r.name?' — '+r.name:''))+'</b></div><div class="map-card-grid">'+
-  cell('حالة العقد',r.contractStatus)+cell('نوع المشروع',r.projectType)+cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('الشارع',r.street)+
-  cell('المالك',r.owner)+cell('المقاول',r.contractor)+cell('رقم/حالة التصريح',r.permitRefs)+cell('حالة التصريح',r.permitStatus)+
-  cell('أمتار التصاريح',r.permitMeters?fmt(r.permitMeters)+' م':'')+cell('حالة الضمان',r.guaranteeStatus)+cell('بداية المشروع',r.startDate)+cell('نهاية المشروع',r.endDate)+
-  cell('مستوى المخاطر',(r.riskLevel||'—')+(r.riskScore!=null?' • الدرجة '+r.riskScore:''))+
+  cell('رقم العقد',r.contractNo)+cell('حالة العقد',r.contractStatus)+cell('الشركة',r.company)+cell('الإدارة',r.department)+cell('نوع المشروع',r.projectType)+cell('الفرع',r.branch)+
+  cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('الشارع',r.street)+cell('المالك',r.owner)+cell('المقاول',r.contractor)+cell('المختبر',r.lab)+
+  cell('بداية المشروع',r.startDate)+cell('نهاية المشروع',r.endDate)+cell('رقم المعاملة',r.transactionNo)+cell('رقم/حالة التصريح',r.permitRefs)+cell('عدد التصاريح',r.permitCount)+cell('حالة التصريح',r.permitStatus)+
+  cell('انتهاء التصريح',r.permitExpiry)+cell('أمتار التصاريح',r.permitMeters?fmt(r.permitMeters)+' م':'')+cell('مرجع الضمان',r.guaranteeRef)+cell('انتهاء الضمان',r.guaranteeExpiry)+cell('حالة الضمان',r.guaranteeStatus)+
+  cell('محضر التسليم',r.handoverNo)+cell('تاريخ التسليم',r.handoverDate)+cell('المخالصة',r.clearance)+
   '</div><div class="map-popup-actions">'+action('فتح الموقع',r.locationLink)+action('فتح الضمان',r.guaranteeLink)+action('محضر التسليم',r.handoverLink)+action('تقرير المضخة',r.pumpReportLink)+'</div></div>';
  const lineTooltip=r=>'<div class="map-hover-card"><div class="map-card-head"><span class="map-kind line">خط بديل</span><b>'+esc((r.ref||'')+(r.name?' — '+r.name:''))+'</b></div><div class="map-card-grid">'+
-  cell('النوع',r.type)+cell('الطول',r.length?fmt(r.length)+' م':'')+cell('المقاول',r.contractor)+cell('المالك',r.owner)+cell('التصميم',r.designStatus)+cell('التنفيذ',r.executionStatus)+
- '</div><div class="map-card-hint">اضغط لعرض جميع التفاصيل</div></div>';
+  cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('الشارع',r.street)+cell('نوع الخط',r.type)+cell('الطول',r.length?fmt(r.length)+' م':'')+cell('القطر',r.diameter)+cell('المقاول',r.contractor)+cell('المالك',r.owner)+cell('التصميم',r.designStatus)+cell('التنفيذ',r.executionStatus)+
+  '</div><div class="map-card-hint">الخط يُعرض كمسار عند توفر أكثر من إحداثية لنفس المرجع، وإلا كرمز خط عند إحداثيته المرجعية</div></div>';
  const linePopup=r=>'<div class="map-popup-card"><div class="map-card-head"><span class="map-kind line">خط بديل</span><b>'+esc((r.ref||'')+(r.name?' — '+r.name:''))+'</b></div><div class="map-card-grid">'+
-  cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('الشارع',r.street)+cell('المالك',r.owner)+cell('المقاول',r.contractor)+
-  cell('نوع الخط',r.type)+cell('الطول',r.length?fmt(r.length)+' م':'')+cell('طول التصميم',r.designLength?fmt(r.designLength)+' م':'')+cell('القطر',r.diameter)+
-  cell('المصمم',r.designer)+cell('حالة التصميم',r.designStatus)+cell('رقم التكليف',r.assignmentNo)+cell('تاريخ التكليف',r.assignmentDate)+
-  cell('تاريخ الرفع',r.submissionDate)+cell('تاريخ الاعتماد',r.approvalDate)+cell('حالة التنفيذ',r.executionStatus)+cell('نسبة الإنجاز',r.completion)+
-  cell('ملاحظات',r.notes)+
-  '</div><div class="map-popup-actions">'+action('فتح الموقع',r.locationLink)+action('مخطط التصميم',r.designLink)+action('اعتماد التصميم',r.approvalLink)+action('تقرير الإتمام',r.completionReport)+action('خطاب التسليم',r.handoverLetter)+'</div></div>';
+  cell('البلدية',r.municipality)+cell('الحي',r.district)+cell('الشارع',r.street)+cell('المالك',r.owner)+cell('المقاول',r.contractor)+cell('نوع الخط',r.type)+cell('الطول',r.length?fmt(r.length)+' م':'')+
+  cell('طول التصميم',r.designLength?fmt(r.designLength)+' م':'')+cell('القطر',r.diameter)+cell('المصمم',r.designer)+cell('حالة التصميم',r.designStatus)+cell('رقم التكليف',r.assignmentNo)+cell('تاريخ التكليف',r.assignmentDate)+
+  cell('رقم المعاملة',r.transactionNo)+cell('تاريخ الرفع',r.submissionDate)+cell('تاريخ الاعتماد',r.approvalDate)+cell('REV',r.rev)+cell('حالة التنفيذ',r.executionStatus)+cell('نسبة الإنجاز',r.completion)+
+  cell('تاريخ التسليم',r.handoverDate)+cell('سنة التنفيذ',r.year)+cell('مستحق المالك',r.ownerDue)+cell('المتبقي',r.remaining)+cell('ملاحظات',r.notes)+
+  '</div><div class="map-popup-actions">'+action('فتح الموقع',r.locationLink)+action('التكليف',r.assignmentLink)+action('مخطط التصميم',r.designLink)+action('اعتماد التصميم',r.approvalLink)+action('تقرير الإتمام',r.completionReport)+action('خطاب التسليم',r.handoverLetter)+'</div></div>';
 
  state.map=L.map('projectMap',{zoomControl:true,attributionControl:true,preferCanvas:true}).setView([21.55,39.18],11);
  const street=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'});
  const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'});
  street.addTo(state.map);
  const projectLayer=L.layerGroup().addTo(state.map),lineLayer=L.layerGroup().addTo(state.map);
- const bounds=[],criticalBounds=[],searchItems=[];
- projects.forEach(r=>{
-  const lat=Number(r.lat),lon=Number(r.lon),riskColor=r.riskLevel==='حرج'?'#b93737':r.riskLevel==='مرتفع'?'#d86d45':r.riskLevel==='متوسط'?'#d0a351':'#168a72';
-  const marker=L.circleMarker([lat,lon],{radius:r.riskLevel==='حرج'?8:7,color:'#fff',weight:2,fillColor:riskColor,fillOpacity:.9});
-  marker.bindTooltip(projectTooltip(r),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip',offset:[0,-8]});
-  marker.bindPopup(projectPopup(r),{maxWidth:420,className:'vd-map-popup'});
-  projectLayer.addLayer(marker);bounds.push([lat,lon]);if(r.riskLevel==='حرج')criticalBounds.push([lat,lon]);
-  searchItems.push({kind:'مشروع',label:(r.no||'')+(r.name?' — '+r.name:''),search:norm([r.no,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.permitRefs,r.permitStatus].join(' ')),marker,lat,lon});
+ L.control.layers({'خريطة الشوارع':street,'صور جوية':satellite},{},{position:'bottomright',collapsed:true}).addTo(state.map);
+ const filterState={municipality:'',contractor:'',owner:'',type:'',designStatus:''};
+ let bounds=[],searchItems=[];
+ const matchesMapFilters=(r,kind)=>{
+  if(filterState.municipality&&clean(r.municipality)!==filterState.municipality)return false;
+  if(filterState.contractor&&clean(r.contractor)!==filterState.contractor)return false;
+  if(filterState.owner&&clean(r.owner)!==filterState.owner)return false;
+  if(kind==='line'&&filterState.type&&clean(r.type)!==filterState.type)return false;
+  if(kind==='line'&&filterState.designStatus&&clean(r.designStatus)!==filterState.designStatus)return false;
+  return true;
+ };
+ const lineGroupKey=r=>{
+  const raw=clean(r.name),base=raw.replace(/[\s\-–—]*(?:خط|جزء)?\s*(?:\d+|[٠-٩]+)\s*$/i,'').trim();
+  return 'name:'+norm(base||raw||r.ref||r.row);
+ };
+ const renderFeatures=()=>{
+  projectLayer.clearLayers();lineLayer.clearLayers();bounds=[];searchItems=[];
+  const fp=projects.filter(r=>matchesMapFilters(r,'project'));
+  const fl=lines.filter(r=>matchesMapFilters(r,'line'));
+  fp.forEach(r=>{
+   const lat=Number(r.lat),lon=Number(r.lon);
+   const marker=L.circleMarker([lat,lon],{radius:7,color:'#fff',weight:2,fillColor:'#168a72',fillOpacity:.94});
+   marker.bindTooltip(projectTooltip(r),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip',offset:[0,-8]});
+   marker.bindPopup(projectPopup(r),{maxWidth:460,className:'vd-map-popup'});
+   projectLayer.addLayer(marker);bounds.push([lat,lon]);
+   searchItems.push({kind:'مشروع',label:(r.no||'')+(r.name?' — '+r.name:''),search:norm([r.no,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.permitRefs,r.permitStatus].join(' ')),marker,lat,lon,layer:'projects'});
+  });
+  const groups=new Map();
+  fl.forEach(r=>{const k=lineGroupKey(r);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r)});
+  groups.forEach(group=>{
+   const distinct=[];const seen=new Set();
+   group.sort((a,b)=>(a.row||0)-(b.row||0)).forEach(r=>{const key=Number(r.lat).toFixed(6)+','+Number(r.lon).toFixed(6);if(!seen.has(key)){seen.add(key);distinct.push(r)}});
+   if(distinct.length>=2){
+    const coords=distinct.map(r=>[Number(r.lat),Number(r.lon)]);
+    const route=L.polyline(coords,{color:'#1677b8',weight:5,opacity:.88,lineCap:'round',lineJoin:'round'});
+    const representative=group[0];
+    route.bindTooltip(lineTooltip(representative),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip'});
+    route.bindPopup(linePopup(representative),{maxWidth:470,className:'vd-map-popup'});
+    lineLayer.addLayer(route);coords.forEach(c=>bounds.push(c));
+    group.forEach(r=>searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker:route,lat:Number(r.lat),lon:Number(r.lon),layer:'lines'}));
+   }else{
+    group.forEach(r=>{
+     const lat=Number(r.lat),lon=Number(r.lon);
+     const icon=L.divIcon({className:'vd-line-segment-wrap',html:'<span class="vd-line-segment"><i></i></span>',iconSize:[54,22],iconAnchor:[27,11],popupAnchor:[0,-12],tooltipAnchor:[0,-10]});
+     const marker=L.marker([lat,lon],{icon});
+     marker.bindTooltip(lineTooltip(r),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip',offset:[0,-8]});
+     marker.bindPopup(linePopup(r),{maxWidth:470,className:'vd-map-popup'});
+     lineLayer.addLayer(marker);bounds.push([lat,lon]);
+     searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker,lat,lon,layer:'lines'});
+    });
+   }
+  });
+  const pc=$('#mapProjectCount'),lc=$('#mapLineCount'),summary=$('#mapVisibleSummary');
+  if(pc)pc.textContent=fp.length;if(lc)lc.textContent=fl.length;if(summary)summary.textContent=fp.length+' مشروع • '+fl.length+' خط';
+ };
+ renderFeatures();
+ if(bounds.length)state.map.fitBounds(bounds,{padding:[42,42],maxZoom:14});
+ const fitVisible=()=>{if(bounds.length)state.map.fitBounds(bounds,{padding:[42,42],maxZoom:14})};
+ const fitBtn=$('#mapFitBtn'),resetBtn=$('#mapResetBtn'),fullBtn=$('#mapFullscreenBtn'),panel=$('#advancedMapPanel'),searchInput=$('#mapSearchInput'),searchResults=$('#mapSearchResults');
+ if(fitBtn)fitBtn.addEventListener('click',fitVisible);
+ if(resetBtn)resetBtn.addEventListener('click',()=>{
+  Object.keys(filterState).forEach(k=>filterState[k]='');
+  $$('[data-map-filter]','#pageHost').forEach(s=>s.value='');
+  renderFeatures();fitVisible();toast('تمت إعادة فلاتر الخريطة');
  });
- lines.forEach(r=>{
-  const lat=Number(r.lat),lon=Number(r.lon);
-  const lineColor=/منجز|مكتمل|منتهي/i.test(clean(r.executionStatus))?'#168a72':/معتمد/i.test(clean(r.designStatus))?'#1677b8':/جاري|قيد|بانتظار/i.test(clean(r.designStatus))?'#d0a351':'#7553a6';
-  const icon=L.divIcon({className:'vd-line-pin-wrap',html:'<span class="vd-line-pin" style="--pin:'+lineColor+'"></span>',iconSize:[20,20],iconAnchor:[10,10],popupAnchor:[0,-11],tooltipAnchor:[0,-9]});
-  const marker=L.marker([lat,lon],{icon});
-  marker.bindTooltip(lineTooltip(r),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip',offset:[0,-8]});
-  marker.bindPopup(linePopup(r),{maxWidth:440,className:'vd-map-popup'});
-  lineLayer.addLayer(marker);bounds.push([lat,lon]);
-  searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker,lat,lon});
+ if(fullBtn&&panel)fullBtn.addEventListener('click',()=>{
+  panel.classList.toggle('map-fullscreen');document.body.classList.toggle('map-fullscreen-open',panel.classList.contains('map-fullscreen'));
+  fullBtn.textContent=panel.classList.contains('map-fullscreen')?'✕ إغلاق التوسعة':'⛶ توسعة';
+  setTimeout(()=>{state.map&&state.map.invalidateSize();fitVisible()},180);
  });
- L.control.layers({'خريطة الشوارع':street,'صور جوية':satellite},{'المشاريع':projectLayer,'الخطوط البديلة':lineLayer},{position:'topright',collapsed:true}).addTo(state.map);
- if(bounds.length)state.map.fitBounds(bounds,{padding:[32,32],maxZoom:14});
- const fitBtn=$('#mapFitBtn'),riskBtn=$('#mapRiskBtn'),searchInput=$('#mapSearchInput'),searchResults=$('#mapSearchResults');
- if(fitBtn)fitBtn.addEventListener('click',()=>{if(bounds.length)state.map.fitBounds(bounds,{padding:[32,32],maxZoom:14})});
- if(riskBtn)riskBtn.addEventListener('click',()=>{if(criticalBounds.length){state.map.fitBounds(criticalBounds,{padding:[48,48],maxZoom:16});toast('تم التركيز على '+criticalBounds.length+' مشروعًا حرجًا')}else toast('لا توجد مشاريع حرجة ضمن الفلاتر الحالية')});
  $$('[data-map-layer]','#pageHost').forEach(btn=>btn.addEventListener('click',()=>{
   const layer=btn.dataset.mapLayer==='projects'?projectLayer:lineLayer;
   if(state.map.hasLayer(layer)){state.map.removeLayer(layer);btn.classList.remove('active')}else{layer.addTo(state.map);btn.classList.add('active')}
+ }));
+ $$('[data-map-filter]','#pageHost').forEach(sel=>sel.addEventListener('change',()=>{
+  filterState[sel.dataset.mapFilter]=sel.value;
+  renderFeatures();fitVisible();
  }));
  const closeSearch=()=>{if(searchResults){searchResults.innerHTML='';searchResults.classList.remove('show')}};
  if(searchInput&&searchResults){
   searchInput.addEventListener('input',()=>{
    const q=norm(searchInput.value);if(q.length<2){closeSearch();return}
-   const matches=searchItems.map((x,i)=>({...x,i})).filter(x=>x.search.includes(q)).slice(0,9);
-   searchResults.innerHTML=matches.length?matches.map(x=>'<button type="button" data-map-result="'+x.i+'"><span>'+esc(x.kind)+'</span><b>'+esc(x.label||'بدون اسم')+'</b></button>').join(''):'<div class="map-search-empty">لا توجد نتائج</div>';
+   const matches=searchItems.map((x,i)=>({...x,i})).filter(x=>x.search.includes(q)).slice(0,10);
+   searchResults.innerHTML=matches.length?matches.map(x=>'<button type="button" data-map-result="'+x.i+'"><span>'+esc(x.kind)+'</span><b>'+esc(x.label||'بدون اسم')+'</b></button>').join(''):'<div class="map-search-empty">لا توجد نتائج ضمن الفلاتر الحالية</div>';
    searchResults.classList.add('show');
   });
   searchResults.addEventListener('click',e=>{
    const b=e.target.closest('[data-map-result]');if(!b)return;const x=searchItems[Number(b.dataset.mapResult)];if(!x)return;
+   const targetLayer=x.layer==='projects'?projectLayer:lineLayer;if(!state.map.hasLayer(targetLayer))targetLayer.addTo(state.map);
    state.map.setView([x.lat,x.lon],17,{animate:true});x.marker.openPopup();searchInput.value=x.label;closeSearch();
   });
  }
- setTimeout(()=>state.map&&state.map.invalidateSize(),140);
+ setTimeout(()=>state.map&&state.map.invalidateSize(),160);
 }
 function renderPermits(){
  const rows=filtered(state.data.actualPermits),t=timing(rows);
@@ -1404,6 +1464,7 @@ function printCurrent(){
 function renderPage(){
  const pageAtRender=state.page,started=performance.now();
  document.body.dataset.vdPage=pageAtRender;
+ document.body.classList.remove('map-fullscreen-open');
  destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[pageAtRender]||PAGE_META.master;
  $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • URGENT SOLUTIONS';
  renderFilters();

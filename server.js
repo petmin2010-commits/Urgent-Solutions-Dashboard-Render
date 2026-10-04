@@ -247,7 +247,15 @@ app.post('/api/auth/logout',(req,res)=>{
   req.session.destroy(()=>res.json({ok:true}));
 });
 
+function geoPair(a,b){
+  const x=num(a),y=num(b);
+  const xLat=x>20&&x<23,xLon=x>38&&x<41,yLat=y>20&&y<23,yLon=y>38&&y<41;
+  if(xLat&&yLon)return {lat:x,lon:y};
+  if(yLat&&xLon)return {lat:y,lon:x};
+  return {lat:x,lon:y};
+}
 function projectRow(r,rowNumber){
+  const geo=geoPair(r[25],r[26]);
   const permitRefs=clean(r[28]);
   const derivedPermitStatus=
     permitRefs==='تحت الاصدار'?'تحت الإصدار':
@@ -258,7 +266,7 @@ function projectRow(r,rowNumber){
     no:clean(r[0]),name:clean(r[1]),contractStatus:clean(r[3]),company:clean(r[4]),contractNo:clean(r[5]),
     department:clean(r[6]),projectType:clean(r[7]),branch:clean(r[8]),startDate:clean(r[9]),endDate:clean(r[10]),
     owner:clean(r[18]),contractor:clean(r[19]),lab:clean(r[20]),municipality:clean(r[21]),district:clean(r[22]),street:clean(r[23]),locationLink:clean(r[24]),
-    lat:num(r[25]),lon:num(r[26]),transactionNo:clean(r[27]),
+    lat:geo.lat,lon:geo.lon,transactionNo:clean(r[27]),
     permitRefs,permitCount:num(r[30]),permitDuration:clean(r[31]),
     permitExpiry:clean(r[32]),permitDays:num(r[33]),permitStatus:derivedPermitStatus,
     permitStatusSheet:clean(r[34]),permitMeters:num(r[35]),
@@ -276,9 +284,10 @@ function permitRow(r,rowNumber){
   };
 }
 function lineRow(r,rowNumber){
+  const geo=geoPair(r[6],r[7]);
   return {
     row:rowNumber,ref:clean(r[0]),name:clean(r[1]),municipality:clean(r[2]),
-    district:clean(r[3]),street:clean(r[4]),locationLink:clean(r[5]),lat:num(r[6]),lon:num(r[7]),
+    district:clean(r[3]),street:clean(r[4]),locationLink:clean(r[5]),lat:geo.lat,lon:geo.lon,
     assignmentNo:clean(r[8]),assignmentLink:clean(r[9]),assignmentDate:clean(r[10]),contractor:clean(r[11]),
     owner:clean(r[12]),designer:clean(r[13]),type:clean(r[14]),length:num(r[15]),designLength:num(r[16]),
     diameter:clean(r[17]),designLink:clean(r[18]),designStatus:clean(r[19]),transactionNo:clean(r[20]),

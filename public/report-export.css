@@ -1,0 +1,2607 @@
+
+/* Vision Dimensions unified PDF report theme â€” inspection-report visual language */
+.vd-report-export-modal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(15,23,42,.56);backdrop-filter:blur(5px)}
+.vd-report-export-modal.open{display:flex}
+.vd-report-export-dialog{position:relative;width:min(560px,92vw);background:#fff;border:1px solid #d9dee7;border-radius:18px;padding:30px;box-shadow:0 24px 70px rgba(15,23,42,.28);direction:rtl;text-align:center;color:#172b5f}
+.vd-report-export-close{position:absolute;left:16px;top:12px;border:0;background:transparent;font-size:26px;cursor:pointer;color:#667085}
+.vd-report-export-icon{width:54px;height:54px;margin:0 auto 10px;border-radius:16px;display:grid;place-items:center;background:#eef1f6;color:#172b5f;font-size:28px}
+.vd-report-export-dialog h2{margin:6px 0 4px;color:#172b5f}.vd-report-export-dialog p{margin:0 0 18px;color:#6d7480}
+.vd-report-export-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.vd-report-option{border:1px solid #cfd5df;background:#fff;border-radius:12px;padding:16px;text-align:right;cursor:pointer;color:#172b5f}
+.vd-report-option.primary{border-color:#172b5f;background:#f7f8fb}.vd-report-option strong{display:block;font-size:15px}.vd-report-option span{display:block;font-size:12px;color:#717986;margin-top:5px}
+.vd-report-print-note{margin-top:16px;padding:11px 13px;border-radius:10px;background:#fff7e8;border:1px solid #f0c36a;color:#73551b;font-size:12px;line-height:1.7}
+#vdReportV2{display:none}
+body.vd-report-v2-mode{background:#fff!important}
+body.vd-report-v2-mode> *:not(#vdReportV2){display:none!important}
+body.vd-report-v2-mode #vdReportV2{display:block!important}
+.vd-report-v2{direction:rtl;background:#fff;color:#172b5f;font-family:Cairo,Tahoma,Arial,sans-serif}
+.vd-report-v2-page{position:relative;width:100%;min-height:190mm;padding:8mm 9mm 18mm;background:#fff;overflow:hidden;break-after:page;page-break-after:always}
+.vd-report-v2-page:last-child{break-after:auto;page-break-after:auto}
+.vd-report-v2-page:before{content:"";position:absolute;z-index:0;left:-18mm;bottom:-24mm;width:340mm;height:50mm;border-top:9mm solid #232d70;border-radius:50% 50% 0 0/100% 100% 0 0;transform:rotate(-1deg)}
+.vd-report-v2-page:after{content:"";position:absolute;z-index:0;left:-16mm;bottom:-16mm;width:338mm;height:41mm;border-top:5mm solid #d9dde3;border-radius:50% 50% 0 0/100% 100% 0 0;transform:rotate(-1deg)}
+.vd-report-v2-page>*{position:relative;z-index:2}
+.vd-report-section-header{min-height:30mm;text-align:center;padding:1mm 34mm 5mm;border-bottom:1px solid transparent}
+.vd-report-section-header:before{content:"";position:absolute;left:0;top:0;width:28mm;height:18mm;background:url('/assets/vision-dimensions-makkah.png') left top/contain no-repeat}
+.vd-report-section-header h2{margin:0;color:#172b5f;font-size:20px;font-weight:900}
+.vd-report-section-header h2:after{content:"";display:block;width:72mm;height:1.2px;background:#f2a31b;margin:4mm auto 0}
+.vd-report-section-header h2:before{content:"";position:absolute;left:50%;top:14mm;width:4mm;height:4mm;background:#f2a31b;transform:translateX(-50%) rotate(45deg)}
+.vd-report-section-header span{display:block;color:#6e737b;font-size:10px;font-weight:700;letter-spacing:.8px;margin-bottom:2mm}
+.vd-report-section-header p{margin:2mm 0 0;color:#6d7480;font-size:9px}
+.vd-report-page-identity{display:flex;flex-direction:column;align-items:center;gap:.5mm;margin-top:1.8mm;text-align:center}
+.vd-report-page-identity b{color:#172b5f;font-size:8px;font-weight:900;line-height:1.35}
+.vd-report-page-identity span{display:block;max-width:100%;color:#6f7885;font-family:Arial,Tahoma,sans-serif;font-size:6.6px;font-weight:700;letter-spacing:.15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vd-report-page-stamp{position:absolute!important;z-index:5!important;bottom:7mm;right:26mm;left:26mm;text-align:center;color:#7c8490;font-family:Arial,Tahoma,sans-serif;font-size:5.9px;font-weight:700;letter-spacing:.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vd-report-section-body{margin-top:4mm}
+.vd-report-footer{position:absolute;z-index:3;bottom:3mm;right:9mm;left:9mm;display:flex;justify-content:space-between;align-items:center;color:#777f8b;font-size:7px}
+.vd-report-cover{padding-top:7mm}
+.vd-report-cover-top{display:flex;align-items:center;justify-content:space-between;min-height:22mm}
+.vd-report-cover-brand{display:flex;align-items:center;gap:4mm}
+.vd-report-cover-brand img{width:26mm;height:18mm;object-fit:contain}
+.vd-report-cover-brand strong{display:block;color:#172b5f;font-size:12px}.vd-report-cover-brand span{display:block;color:#7b8088;font-size:7px;letter-spacing:.4px}
+.vd-report-cover-badge{background:#172b5f;color:#fff;border-radius:3px;padding:2.3mm 5mm;font-size:9px;font-weight:800}
+.vd-report-cover-title{text-align:center;margin:5mm 0 4mm}
+.vd-report-cover-title small{display:block;color:#6d7480;font-size:9px;margin-bottom:2mm}
+.vd-report-cover-title h1{margin:0;color:#172b5f;font-size:24px;font-weight:900}
+.vd-report-cover-title h1:after{content:"";display:block;width:78mm;height:1.2px;background:#f2a31b;margin:4mm auto 0}
+.vd-report-cover-title h1:before{content:"";position:absolute;left:50%;margin-top:11mm;width:4mm;height:4mm;background:#f2a31b;transform:translateX(-50%) rotate(45deg)}
+.vd-report-cover-title p{margin:4mm 0 1mm;color:#172b5f;font-size:12px;font-weight:800}.vd-report-cover-title>strong{color:#525d6d;font-size:9px}
+.vd-report-cover-meta{position:relative;margin:8mm 0 5mm;border:1.2px solid #24366d;border-radius:3px;display:grid;grid-template-columns:repeat(3,1fr)}
+.vd-report-cover-meta:before{content:"بيانات التقرير";position:absolute;right:-1px;top:-7mm;background:#172b5f;color:#fff;padding:2mm 5mm;border-radius:3px 3px 0 0;font-weight:900;font-size:9px}
+.vd-report-cover-meta>div{padding:3mm;text-align:center;background:#f7f8fa;border-left:1px solid #d0d5dd}.vd-report-cover-meta>div:nth-child(even){background:#eef0f4}.vd-report-cover-meta>div:last-child{border-left:0}
+.vd-report-cover-meta span{display:block;color:#697386;font-size:7px}.vd-report-cover-meta b{display:block;color:#172b5f;font-size:11px;margin-top:1mm}
+.vd-report-cover-kpis,.vd-report-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}
+.vd-report-cover-kpis{margin-top:4mm}
+.vd-report-kpi-clone{min-width:0!important;background:#fff!important;border:1.2px solid #24366d!important;border-radius:4px!important;padding:3mm!important;box-shadow:none!important;color:#172b5f!important;text-align:center!important}
+.vd-report-kpi-clone *{box-shadow:none!important}
+.vd-report-kpi-clone strong,.vd-report-kpi-clone b{color:#f09a00!important}
+.vd-report-cover-filters{margin-top:4mm;border:1px solid #d3d7de;border-radius:3px;padding:3mm;background:#fafafa}.vd-report-cover-filters>strong{display:block;color:#172b5f;margin-bottom:2mm}.vd-report-cover-filters>div{display:flex;gap:2mm;flex-wrap:wrap}.vd-report-cover-filters span{background:#eef0f4;padding:1.5mm 2.5mm;border-radius:2px;font-size:7px}
+.vd-report-cover-footer{position:absolute;bottom:4mm;right:9mm;color:#777f8b;font-size:7px}
+.vd-report-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.vd-report-chart-card,.vd-report-summary-table,.vd-report-detail-panel,.vd-report-tree-wrapper,.vd-report-misc-page .panel{background:#fff!important;border:1.2px solid #24366d!important;border-radius:4px!important;padding:3mm!important;box-shadow:none!important;color:#172b5f!important}
+.vd-report-chart-card .panel-title,.vd-report-summary-table .panel-title,.vd-report-detail-panel .panel-title,.vd-report-tree-wrapper .panel-title{background:#172b5f!important;color:#fff!important;margin:-3mm -3mm 3mm!important;padding:2mm 3mm!important;border-radius:3px 3px 0 0!important}
+.vd-report-chart-image{display:block;width:100%;height:auto;max-height:68mm;object-fit:contain;background:#fff}
+.vd-report-tree-wrapper{overflow:visible}.vd-report-tree-wrapper-large{font-size:90%}
+.vd-report-v2 table{width:100%!important;border-collapse:collapse!important;background:#fff!important;color:#263b64!important}
+.vd-report-v2 th{background:#eef0f4!important;color:#172b5f!important;border:1px solid #c7ced8!important;padding:1.8mm!important;font-weight:900!important}
+.vd-report-v2 td{background:#fff!important;color:#263b64!important;border:1px solid #d5d9e0!important;padding:1.6mm!important}
+.vd-report-v2 tbody tr:nth-child(even) td{background:#fbfbfc!important}
+.vd-report-static-value{display:inline-block;padding:1.5mm 2mm;border:1px solid #d0d5dd;border-radius:2px;background:#f8f9fb;color:#172b5f}
+.vd-report-v2 .panel,.vd-report-v2 article,.vd-report-v2 section{box-shadow:none!important}
+.vd-report-v2 .info-btn,.vd-report-v2 .help-btn,.vd-report-v2 .meeting-info-btn,.vd-report-v2 button{display:none!important}
+@page{size:A4 landscape;margin:7mm}
+@media print{
+  html,body{background:#fff!important}
+  body.vd-report-v2-mode #vdReportV2{display:block!important}
+  .vd-report-v2-page{min-height:190mm}
+}
+
+/* Unified in-tab report action + print-fit refinements */
+.vd-tab-report-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  margin:0 0 12px;
+  padding:0;
+  direction:rtl;
+}
+.vd-tab-report-btn{
+  border:0;
+  border-radius:9px;
+  background:#0b5d3b;
+  color:#fff;
+  padding:9px 15px;
+  font-family:Cairo,Tahoma,Arial,sans-serif;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 5px 14px rgba(11,93,59,.24);
+}
+.vd-tab-report-btn:hover{
+  filter:brightness(.96);
+  transform:translateY(-1px);
+}
+#printBtn{display:none!important}
+
+/* A4 landscape spacing refinement */
+.vd-report-v2-page{
+  min-height:194mm;
+  padding:6mm 7mm 16mm;
+}
+.vd-report-section-header{
+  min-height:25mm;
+  padding:1mm 32mm 3.5mm;
+}
+.vd-report-section-body{
+  margin-top:2.5mm;
+}
+.vd-report-footer{
+  right:7mm;
+  left:7mm;
+  bottom:2.6mm;
+}
+
+/* Trees get a dedicated compact page and are scaled from their real dashboard size. */
+.vd-report-tree-page{
+  padding:5mm 6mm 14mm;
+}
+.vd-report-tree-page .vd-report-section-header{
+  min-height:20mm;
+  padding:0 30mm 2.5mm;
+}
+.vd-report-tree-page .vd-report-section-header h2{
+  font-size:16px;
+}
+.vd-report-tree-page .vd-report-section-header h2:before{
+  top:11mm;
+}
+.vd-report-tree-page .vd-report-section-header p{
+  margin-top:1.2mm;
+}
+.vd-report-tree-page .vd-report-section-body{
+  margin-top:1mm;
+}
+.vd-report-tree-wrapper{
+  width:100%;
+  margin:0;
+  padding:2mm;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  overflow:hidden!important;
+  border:1.2px solid #24366d;
+  border-radius:4px;
+  background:#fff;
+}
+.vd-report-tree-fit{
+  flex:0 0 auto;
+  margin:0 auto!important;
+  overflow:visible!important;
+  box-shadow:none!important;
+}
+.vd-report-tree-fit .meeting-kpis,
+.vd-report-tree-fit .emergency-status-tree,
+.vd-report-tree-fit .emergency-type-tree{
+  overflow:visible!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.vd-report-tree-fit .kpi-story,
+.vd-report-tree-fit .emergency-tree-canvas,
+.vd-report-tree-fit .emergency-type-tree-canvas{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.vd-report-tree-fit .panel-head,
+.vd-report-tree-fit>.panel-title{
+  margin-bottom:4px!important;
+}
+.vd-report-tree-wrapper-large{
+  font-size:100%;
+}
+
+/* Keep report sections inside printable width without crowding. */
+.vd-report-chart-grid,
+.vd-report-kpi-grid,
+.vd-report-cover-kpis{
+  gap:3mm;
+}
+.vd-report-chart-card,
+.vd-report-summary-table,
+.vd-report-detail-panel{
+  min-width:0;
+  overflow:hidden;
+}
+.vd-report-v2 table{
+  table-layout:auto;
+  max-width:100%;
+}
+.vd-report-v2 th,
+.vd-report-v2 td{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+@page{
+  size:A4 landscape;
+  margin:5mm;
+}
+@media print{
+  .vd-tab-report-actions{display:none!important}
+  .vd-report-v2-page{overflow:hidden}
+}
+
+/* Data Quality â€” dedicated professional report layout */
+.vd-dq-cover-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:2.4mm!important;
+  margin-top:4mm!important;
+}
+.vd-dq-cover-grid .vd-dq-rule-card{
+  min-height:22mm;
+}
+.vd-report-data-quality-page .vd-report-section-body{
+  display:flex;
+  flex-direction:column;
+  gap:3mm;
+}
+.vd-dq-section-block{
+  border:1.2px solid #26396f;
+  border-radius:4px;
+  background:#fff;
+  overflow:hidden;
+  break-inside:avoid;
+}
+.vd-dq-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:5mm;
+  padding:2.5mm 3mm;
+  background:#eef0f4;
+  border-bottom:1px solid #c9d0db;
+}
+.vd-dq-section-head>div:first-child span{
+  display:block;
+  color:#6f7782;
+  font-size:6.3px;
+  margin-bottom:.6mm;
+}
+.vd-dq-section-head h3{
+  margin:0;
+  color:#172b5f;
+  font-size:11px;
+}
+.vd-dq-section-metrics{
+  display:flex;
+  align-items:stretch;
+  gap:2mm;
+  flex:0 0 auto;
+}
+.vd-dq-metric{
+  min-width:34mm;
+  padding:1.5mm 2.2mm;
+  background:#fff;
+  border:1px solid #d2d7df;
+  border-radius:3px;
+  text-align:center;
+}
+.vd-dq-metric b{
+  display:block;
+  color:#f09a00;
+  font-size:12px;
+  line-height:1.15;
+}
+.vd-dq-metric span{
+  display:block;
+  color:#172b5f;
+  font-size:6.2px;
+  font-weight:800;
+  margin-top:.5mm;
+}
+.vd-dq-metric small{
+  display:block;
+  color:#7b8490;
+  font-size:5.4px;
+  margin-top:.5mm;
+}
+.vd-dq-rule-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:2mm;
+  padding:2.5mm;
+}
+.vd-dq-rule-card{
+  position:relative;
+  min-width:0;
+  min-height:18mm;
+  padding:2mm 2.2mm;
+  border:1px solid #d5dbe4;
+  border-radius:3px;
+  background:#fff;
+  box-shadow:none;
+  overflow:hidden;
+}
+.vd-dq-rule-card:before{
+  content:"";
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:2.2mm;
+  background:#8796a8;
+}
+.vd-dq-rule-card.has-issue:before{
+  background:#d84e59;
+}
+.vd-dq-rule-card.is-ok:before{
+  background:#149869;
+}
+.vd-dq-rule-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:2mm;
+  padding-right:2mm;
+}
+.vd-dq-rule-top span{
+  color:#172b5f;
+  font-size:7px;
+  line-height:1.35;
+  font-weight:800;
+}
+.vd-dq-rule-top b{
+  flex:0 0 auto;
+  color:#172b5f;
+  font-size:12px;
+  line-height:1;
+}
+.vd-dq-rule-card.has-issue .vd-dq-rule-top b{
+  color:#c9414c;
+}
+.vd-dq-rule-card.is-ok .vd-dq-rule-top b{
+  color:#11845a;
+}
+.vd-dq-rule-card small{
+  display:block;
+  margin-top:1.2mm;
+  padding-right:2mm;
+  color:#697586;
+  font-size:5.4px;
+  line-height:1.45;
+}
+.vd-dq-rule-card p{
+  margin:1mm 0 0;
+  padding-right:2mm;
+  color:#7b8490;
+  font-size:5.2px;
+  line-height:1.4;
+}
+.vd-dq-ai-intro,
+.vd-dq-audit-intro{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:5mm;
+  padding:3mm;
+  border:1.2px solid #26396f;
+  border-radius:4px;
+  background:#f8f9fb;
+}
+.vd-dq-ai-intro h3,
+.vd-dq-audit-intro h3{
+  margin:0 0 1mm;
+  color:#172b5f;
+  font-size:11px;
+}
+.vd-dq-ai-intro p,
+.vd-dq-audit-intro p{
+  margin:0;
+  color:#687486;
+  font-size:6.4px;
+  line-height:1.6;
+}
+.vd-dq-ai-intro aside,
+.vd-dq-audit-intro aside{
+  flex:0 0 55mm;
+  padding:2.2mm 3mm;
+  border-radius:3px;
+  background:#172b5f;
+  color:#fff;
+  text-align:center;
+}
+.vd-dq-ai-intro aside b,
+.vd-dq-audit-intro aside b{
+  display:block;
+  font-size:11px;
+}
+.vd-dq-ai-intro aside small,
+.vd-dq-audit-intro aside small{
+  display:block;
+  margin-top:.8mm;
+  color:#dce4ee;
+  font-size:5.6px;
+  line-height:1.4;
+}
+.vd-dq-ai-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  padding:0;
+}
+.vd-dq-audit-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  padding:0;
+}
+.vd-report-dq-ai-page .vd-dq-rule-card{
+  min-height:26mm;
+}
+.vd-report-dq-audit-page .vd-dq-rule-card{
+  min-height:30mm;
+}
+.vd-report-data-quality-detail-page .vd-report-section-body{
+  overflow:hidden;
+}
+.vd-dq-detail-clone{
+  border:1.2px solid #26396f;
+  border-radius:4px;
+  overflow:hidden;
+  background:#fff;
+}
+.vd-dq-detail-clone .dq-detail-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:4mm!important;
+  padding:2.5mm 3mm!important;
+  background:#eef0f4!important;
+  border-bottom:1px solid #ccd3dd!important;
+  color:#172b5f!important;
+}
+.vd-dq-detail-clone .dq-detail-head h3{
+  margin:.5mm 0!important;
+  font-size:10px!important;
+  color:#172b5f!important;
+}
+.vd-dq-detail-clone .dq-detail-head span,
+.vd-dq-detail-clone .dq-detail-head small{
+  color:#6f7987!important;
+  font-size:5.8px!important;
+}
+.vd-dq-detail-clone .dq-detail-count{
+  color:#f09a00!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+.vd-dq-detail-clone .dq-table-wrap{
+  max-height:none!important;
+  overflow:visible!important;
+}
+.vd-dq-detail-clone table{
+  font-size:5.4px!important;
+}
+.vd-dq-detail-clone th,
+.vd-dq-detail-clone td{
+  padding:.7mm!important;
+}
+
+/* Data Quality cover: prevent accidental blank second print page */
+.vd-dq-cover-page{
+  height:188mm!important;
+  min-height:188mm!important;
+  max-height:188mm!important;
+  overflow:hidden!important;
+}
+.vd-dq-cover-page .vd-report-cover-top,
+.vd-dq-cover-page .vd-report-cover-title,
+.vd-dq-cover-page .vd-report-cover-meta,
+.vd-dq-cover-page .vd-report-cover-kpis{
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+@media print{
+  .vd-dq-cover-page{
+    height:188mm!important;
+    min-height:188mm!important;
+    max-height:188mm!important;
+    overflow:hidden!important;
+    break-after:page!important;
+    page-break-after:always!important;
+  }
+}
+
+/* Data Quality dedicated first page (normal report page, no generic cover wrapper) */
+.vd-report-data-quality-cover .vd-report-section-body{
+  margin-top:2mm;
+}
+.vd-dq-cover-meta{
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr 1fr .9fr;
+  border:1.2px solid #26396f;
+  border-radius:4px;
+  overflow:hidden;
+  background:#fff;
+  margin-bottom:4mm;
+}
+.vd-dq-cover-meta>div{
+  min-width:0;
+  padding:3mm 2.5mm;
+  text-align:center;
+  background:#f8f9fb;
+  border-left:1px solid #d1d7e0;
+}
+.vd-dq-cover-meta>div:nth-child(even){
+  background:#eef0f4;
+}
+.vd-dq-cover-meta>div:last-child{
+  border-left:0;
+}
+.vd-dq-cover-meta span{
+  display:block;
+  color:#707a88;
+  font-size:6.2px;
+  margin-bottom:1mm;
+}
+.vd-dq-cover-meta b{
+  display:block;
+  color:#172b5f;
+  font-size:8.5px;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+.vd-dq-cover-summary{
+  border:1.2px solid #26396f;
+  border-radius:4px;
+  background:#fff;
+  padding:3mm;
+}
+.vd-report-data-quality-cover .vd-dq-cover-grid{
+  margin-top:0!important;
+}
+@media print{
+  .vd-report-data-quality-cover{
+    break-after:page!important;
+    page-break-after:always!important;
+  }
+}
+
+/* Safety report â€” dedicated print layout */
+.vd-report-safety-overview,
+.vd-report-safety-ranking-page,
+.vd-report-safety-chart-page,
+.vd-report-safety-detail-page{box-sizing:border-box!important;height:176mm!important;min-height:176mm!important;max-height:176mm!important;overflow:hidden!important;padding:5mm 6mm 13mm!important;margin:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
+.vd-report-safety-overview .vd-report-section-header,
+.vd-report-safety-ranking-page .vd-report-section-header,
+.vd-report-safety-chart-page .vd-report-section-header,
+.vd-report-safety-detail-page .vd-report-section-header{min-height:20mm!important;padding:0 30mm 2.5mm!important}
+.vd-report-safety-overview .vd-report-section-body{display:flex;flex-direction:column;gap:2.5mm;margin-top:1mm!important}
+.vd-safety-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1.2px solid #26396f;border-radius:4px;overflow:hidden;background:#fff}
+.vd-safety-meta>div{min-width:0;padding:2mm 2.3mm;text-align:center;background:#f8f9fb;border-left:1px solid #d1d7e0}
+.vd-safety-meta>div:nth-child(even){background:#eef0f4}.vd-safety-meta>div:last-child{border-left:0}
+.vd-safety-meta .vd-safety-meta-wide{grid-column:1/-1;border-top:1px solid #d1d7e0;border-left:0!important;text-align:right}
+.vd-safety-meta span{display:block;color:#667085;font-size:6.2px;margin-bottom:.6mm}.vd-safety-meta b{display:block;color:#172b5f;font-size:8.4px;line-height:1.45;overflow-wrap:anywhere}
+.vd-safety-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2mm}
+.vd-safety-kpi-grid .vd-report-kpi-clone{min-height:18mm!important;padding:2mm!important}
+.vd-safety-insights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2mm;margin-top:.5mm}
+.vd-safety-insights article{min-width:0;min-height:25mm;border:1.2px solid #26396f;border-radius:4px;background:#f8f9fb;padding:2.4mm;text-align:center}
+.vd-safety-insights span{display:block;color:#667085;font-size:6.2px}.vd-safety-insights strong{display:block;color:#172b5f;font-size:10px;line-height:1.35;margin:1.2mm 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vd-safety-insights small{display:block;color:#f09a00;font-size:7px;font-weight:900}
+.vd-report-safety-ranking-page .vd-report-section-body{margin-top:1.5mm!important}
+.vd-safety-rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm;min-height:0}
+.vd-safety-rank-grid .vd-report-summary-table{padding:2mm!important;overflow:visible!important;min-height:0!important;background:#fff!important}
+.vd-report-safety-ranking-page .safety-rank-table{max-height:none!important;height:auto!important;overflow:visible!important}
+.vd-report-safety-ranking-page .panel-title{background:#172b5f!important;color:#fff!important}
+.vd-report-safety-ranking-page .panel-title h3{color:#fff!important}.vd-report-safety-ranking-page .panel-title span{color:#f6c45b!important}
+.vd-safety-rank-grid table{font-size:6.3px!important;table-layout:auto!important}.vd-safety-rank-grid th,.vd-safety-rank-grid td{padding:1.2mm 1mm!important;color:#23395d!important;line-height:1.35!important}
+.vd-safety-chart-grid{grid-template-columns:1fr 1fr;gap:3mm}
+.vd-report-safety-chart-page .vd-report-section-body{margin-top:1mm!important}
+.vd-report-safety-chart-page .vd-report-chart-card{min-height:0!important;height:63mm!important;padding:2mm!important;overflow:hidden!important}
+.vd-report-safety-chart-page .vd-report-chart-card .panel-title{background:#172b5f!important;color:#fff!important;margin:-2mm -2mm 1.5mm!important;padding:1.5mm 2mm!important}
+.vd-report-safety-chart-page .vd-report-chart-card .panel-title h3{color:#fff!important;font-size:8.4px!important}.vd-report-safety-chart-page .vd-report-chart-card .panel-title span{color:#f6c45b!important;font-size:5.5px!important}
+.vd-report-safety-chart-page .vd-report-chart-image{display:block!important;width:100%!important;height:52mm!important;max-height:52mm!important;object-fit:contain!important;background:#fff!important}
+.vd-report-safety-chart-page-last .vd-safety-chart-grid{align-items:start}
+.vd-report-safety-chart-page-last .vd-report-chart-card{height:108mm!important}
+.vd-report-safety-chart-page-last .vd-report-chart-image{height:96mm!important;max-height:96mm!important}
+.vd-report-safety-detail-page .vd-report-section-body{margin-top:1mm!important;overflow:hidden!important}
+.vd-report-safety-table{width:100%!important;table-layout:fixed!important;font-size:6.15px!important;direction:rtl!important}
+.vd-report-safety-table th,.vd-report-safety-table td{padding:1.05mm .9mm!important;line-height:1.42!important;vertical-align:top!important;color:#23395d!important;background:#fff!important;overflow-wrap:anywhere!important}
+.vd-report-safety-table th{background:#143d67!important;color:#fff!important;font-size:5.9px!important;text-align:center!important}
+.vd-report-safety-table tbody tr:nth-child(even) td{background:#f7f9fc!important}
+.vd-report-safety-table th:nth-child(1),.vd-report-safety-table td:nth-child(1){width:8.5%}
+.vd-report-safety-table th:nth-child(2),.vd-report-safety-table td:nth-child(2){width:7%}
+.vd-report-safety-table th:nth-child(3),.vd-report-safety-table td:nth-child(3){width:6%}
+.vd-report-safety-table th:nth-child(4),.vd-report-safety-table td:nth-child(4){width:11%}
+.vd-report-safety-table th:nth-child(5),.vd-report-safety-table td:nth-child(5){width:7%}
+.vd-report-safety-table th:nth-child(6),.vd-report-safety-table td:nth-child(6){width:7%}
+.vd-report-safety-table th:nth-child(7),.vd-report-safety-table td:nth-child(7){width:7%}
+.vd-report-safety-table th:nth-child(8),.vd-report-safety-table td:nth-child(8){width:9%}
+.vd-report-safety-table th:nth-child(9),.vd-report-safety-table td:nth-child(9){width:9%}
+.vd-report-safety-table th:nth-child(10),.vd-report-safety-table td:nth-child(10){width:23.5%}
+.vd-report-safety-table th:nth-child(11),.vd-report-safety-table td:nth-child(11){width:5%}
+.vd-report-safety-table a{display:inline-block!important;color:#075985!important;background:#eaf7fb!important;border:1px solid #9ed5e6!important;border-radius:3px!important;padding:.8mm 1mm!important;text-decoration:none!important;font-weight:900!important;white-space:nowrap!important}
+
+/* Safety PDF readability fix â€” force black text on light backgrounds */
+.vd-report-safety-overview *,
+.vd-report-safety-ranking-page *,
+.vd-report-safety-chart-page *,
+.vd-report-safety-detail-page *{
+  color:#000!important;
+  text-shadow:none!important;
+}
+.vd-report-safety-ranking-page .panel-title,
+.vd-report-safety-chart-page .panel-title,
+.vd-report-safety-ranking-page .vd-report-summary-table .panel-title,
+.vd-report-safety-chart-page .vd-report-chart-card .panel-title{
+  background:#fff!important;
+  color:#000!important;
+  border-bottom:1.2px solid #24366d!important;
+}
+.vd-report-safety-ranking-page .panel-title h3,
+.vd-report-safety-ranking-page .panel-title span,
+.vd-report-safety-chart-page .panel-title h3,
+.vd-report-safety-chart-page .panel-title span,
+.vd-report-safety-ranking-page .vd-report-summary-table .panel-title h3,
+.vd-report-safety-ranking-page .vd-report-summary-table .panel-title span,
+.vd-report-safety-chart-page .vd-report-chart-card .panel-title h3,
+.vd-report-safety-chart-page .vd-report-chart-card .panel-title span{
+  color:#000!important;
+}
+.vd-report-safety-table th{
+  background:#eef0f4!important;
+  color:#000!important;
+  border-color:#b9c2cf!important;
+}
+.vd-report-safety-table td,
+.vd-safety-rank-grid th,
+.vd-safety-rank-grid td,
+.vd-safety-meta span,
+.vd-safety-meta b,
+.vd-safety-insights span,
+.vd-safety-insights strong,
+.vd-safety-insights small,
+.vd-report-safety-table a{
+  color:#000!important;
+}
+.vd-report-safety-table a{
+  background:#f5f7fa!important;
+  border-color:#b9c2cf!important;
+}
+
+/* Safety PDF hard override against dashboard dark-theme table colors */
+body.vd-report-dark #vdReportV2 .vd-report-safety-ranking-page .safety-rank-table td,
+body.vd-report-dark #vdReportV2 .vd-report-safety-ranking-page .safety-rank-table td *,
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .vd-report-safety-table td,
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .vd-report-safety-table td *{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+body.vd-report-dark #vdReportV2 .vd-report-safety-ranking-page .safety-rank-table td,
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .vd-report-safety-table td{
+  background:#fff!important;
+  border-color:#d5d9e0!important;
+}
+body.vd-report-dark #vdReportV2 .vd-report-safety-ranking-page .safety-rank-table tbody tr:nth-child(even) td,
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .vd-report-safety-table tbody tr:nth-child(even) td{
+  background:#f7f9fc!important;
+}
+body.vd-report-dark #vdReportV2 .vd-report-safety-ranking-page .safety-rank-table th,
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .vd-report-safety-table th{
+  background:#143d67!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+}
+body.vd-report-dark #vdReportV2 .vd-report-safety-ranking-page .safety-rank-no{
+  color:#8a5200!important;
+  -webkit-text-fill-color:#8a5200!important;
+  opacity:1!important;
+}
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .table-link,
+body.vd-report-dark #vdReportV2 .vd-report-safety-detail-page .table-link *{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  opacity:1!important;
+}
+
+/* Execution violations + proof-of-condition reports â€” aligned with Safety report */
+.vd-report-violation-insights{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(38mm,1fr));
+  gap:2mm;
+  margin-top:.5mm;
+}
+.vd-report-violation-insights .vx-insight{
+  min-width:0;
+  min-height:24mm!important;
+  padding:2.2mm!important;
+  border:1.2px solid #26396f!important;
+  border-radius:4px!important;
+  background:#f8f9fb!important;
+  box-shadow:none!important;
+  text-align:center;
+}
+.vd-report-violation-insights .vx-insight span{
+  display:block!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:6.2px!important;
+}
+.vd-report-violation-insights .vx-insight strong{
+  display:block!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:9px!important;
+  line-height:1.35!important;
+  margin:1mm 0!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.vd-report-violation-insights .vx-insight small{
+  display:block!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:6.3px!important;
+  font-weight:800!important;
+}
+.vd-report-violations-ranking-page .vx-table{
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+.vd-report-violations-ranking-page .vd-report-summary-table{
+  background:#fff!important;
+  overflow:visible!important;
+}
+.vd-report-violations-ranking-page table{
+  width:100%!important;
+  table-layout:auto!important;
+  font-size:6.3px!important;
+}
+.vd-report-violations-ranking-page th,
+.vd-report-violations-ranking-page td{
+  padding:1.2mm 1mm!important;
+  line-height:1.35!important;
+}
+.vd-report-violations-chart-page .vx-chart{
+  height:auto!important;
+  min-height:0!important;
+}
+.vd-report-violations-table{
+  width:100%!important;
+  table-layout:fixed!important;
+  direction:rtl!important;
+  border-collapse:collapse!important;
+  background:#fff!important;
+}
+.vd-report-violations-table th,
+.vd-report-violations-table td{
+  padding:.9mm .75mm!important;
+  line-height:1.38!important;
+  vertical-align:top!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+  opacity:1!important;
+}
+.vd-report-violations-table th{
+  background:#eef0f4!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  border-color:#b9c2cf!important;
+  font-weight:900!important;
+  text-align:center!important;
+}
+.vd-report-violations-table td,
+.vd-report-violations-table td *{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  opacity:1!important;
+}
+.vd-report-violations-table tbody tr:nth-child(even) td{
+  background:#f7f9fc!important;
+}
+.vd-report-violations-table a{
+  display:inline-block!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  background:#f5f7fa!important;
+  border:1px solid #b9c2cf!important;
+  border-radius:3px!important;
+  padding:.7mm 1mm!important;
+  text-decoration:none!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+
+/* Employee evaluation â€” dedicated professional print layout */
+.vd-report-employee-overview .vd-report-section-body{display:flex;flex-direction:column;gap:2.2mm;margin-top:1mm!important}
+.vd-employee-score-hero{display:grid;grid-template-columns:44mm 1fr;gap:3mm;align-items:center;border:1.2px solid #24366d;border-radius:4px;padding:2.4mm;background:#fff}
+.vd-employee-score-hero>div{text-align:center;border-left:1px solid #d1d7e0;padding-left:3mm}.vd-employee-score-hero span{display:block;font-size:6.5px;color:#667085}.vd-employee-score-hero strong{display:block;font:900 24px/1 Arial;color:#172b5f;margin:1.2mm 0}.vd-employee-score-hero small{font-size:7px;font-weight:900;color:#e09a00}.vd-employee-score-hero p{margin:0;font-size:7px;line-height:1.7;color:#344054}
+.vd-employee-kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.vd-employee-kpi-grid .vd-report-kpi-clone{min-height:17mm!important}.vd-employee-kpi-grid .vd-report-kpi-clone span{font-size:6.2px!important}.vd-employee-kpi-grid .vd-report-kpi-clone strong{font-size:12px!important}
+.vd-employee-signature{margin-top:auto;display:flex;justify-content:flex-start;padding:1mm 8mm 0}.vd-employee-signature>div{width:52mm;text-align:center}.vd-employee-signature b{display:block;font-size:8px;margin-bottom:2mm}.vd-employee-signature span{display:block;height:8mm;border-bottom:1px solid #7d8490}.vd-employee-signature small{display:block;font-size:6px;color:#667085;margin-top:1mm}
+.vd-report-employee-chart-page .vd-report-section-body{margin-top:1mm!important}.vd-employee-chart-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:3mm!important}.vd-employee-chart-grid .vd-report-chart-card{height:48mm!important;min-height:48mm!important;padding:2mm!important;overflow:hidden!important}.vd-employee-chart-grid .vd-report-chart-card:first-child{grid-column:1/-1;height:62mm!important;min-height:62mm!important}.vd-employee-chart-grid .vd-report-chart-image{width:100%!important;height:38mm!important;max-height:38mm!important;object-fit:contain!important}.vd-employee-chart-grid .vd-report-chart-card:first-child .vd-report-chart-image{height:51mm!important;max-height:51mm!important}.vd-employee-chart-grid .panel-title{background:#fff!important;border-bottom:1.2px solid #24366d!important;margin:-2mm -2mm 1.5mm!important;padding:1.5mm 2mm!important}.vd-employee-chart-grid .panel-title h3,.vd-employee-chart-grid .panel-title span{color:#000!important}
+.vd-report-employee-scorecard-page{height:176mm!important;min-height:176mm!important;max-height:176mm!important;overflow:hidden!important;padding:5mm 6mm 13mm!important}.vd-report-employee-scorecard-page .vd-report-section-header,.vd-report-employee-detail-page .vd-report-section-header{min-height:20mm!important;padding:0 30mm 2.5mm!important}.vd-report-employee-scorecard-page .vd-report-section-body{margin-top:4mm!important}
+.vd-report-employee-scorecard{width:100%!important;table-layout:auto!important;border-collapse:collapse!important;font-size:7px!important}.vd-report-employee-scorecard th,.vd-report-employee-scorecard td{padding:1.6mm 1.2mm!important;border:1px solid #cfd6df!important;color:#000!important;text-align:center!important}.vd-report-employee-scorecard th{background:#eef0f4!important;font-size:6.4px!important}.vd-report-employee-scorecard button{display:inline!important;color:#000!important;background:none!important;border:0!important;font-weight:900!important}.vd-report-employee-scorecard small{display:block!important;color:#555!important}
+.vd-report-employee-detail-page{box-sizing:border-box!important;height:176mm!important;min-height:176mm!important;max-height:176mm!important;overflow:hidden!important;padding:5mm 6mm 13mm!important;margin:0!important}.vd-report-employee-detail-page .vd-report-section-body{margin-top:1mm!important}.vd-report-employee-table{width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:6.1px!important}.vd-report-employee-table th,.vd-report-employee-table td{padding:1.15mm 1mm!important;border:1px solid #cfd6df!important;color:#000!important;vertical-align:top!important;line-height:1.45!important;overflow-wrap:anywhere!important}.vd-report-employee-table th{background:#eef0f4!important;font-size:6px!important;text-align:center!important}.vd-report-employee-table tbody tr:nth-child(even) td{background:#f8f9fb!important}.vd-report-employee-table th:nth-child(1),.vd-report-employee-table td:nth-child(1){width:10%}.vd-report-employee-table th:nth-child(2),.vd-report-employee-table td:nth-child(2){width:12%}.vd-report-employee-table th:nth-child(3),.vd-report-employee-table td:nth-child(3){width:16%}.vd-report-employee-table th:nth-child(4),.vd-report-employee-table td:nth-child(4){width:18%}.vd-report-employee-table th:nth-child(5),.vd-report-employee-table td:nth-child(5){width:34%}.vd-report-employee-table th:nth-child(6),.vd-report-employee-table td:nth-child(6){width:10%}.vd-report-employee-table td:nth-child(5){max-height:16mm!important;overflow:hidden!important}
+.vd-report-employee-overview *,.vd-report-employee-chart-page *,.vd-report-employee-scorecard-page *,.vd-report-employee-detail-page *{color:#000!important;text-shadow:none!important}
+
+/* Employee evaluation report v2 - concise professional layout */
+.vd-employee-summary-insights{display:grid;grid-template-columns:1fr 1fr;gap:2mm}
+.vd-employee-summary-insights article{border:1px solid #d1d7e0;border-right:1.2mm solid #f2a31b;border-radius:4px;background:#f8f9fb;padding:2mm 2.5mm}
+.vd-employee-summary-insights span{display:block;font-size:6.2px;color:#667085!important;margin-bottom:.8mm}.vd-employee-summary-insights b{display:block;font-size:7px;line-height:1.55;color:#172b5f!important}
+.vd-employee-signature{margin-top:1mm!important;padding:0 8mm 0!important;justify-content:flex-start!important}.vd-employee-signature>div{width:46mm!important}.vd-employee-signature span{height:5.5mm!important}
+.vd-employee-chart-grid{display:block!important}.vd-employee-chart-grid .vd-report-chart-card,.vd-employee-chart-grid .vd-report-chart-card:first-child{width:100%!important;height:92mm!important;min-height:92mm!important}
+.vd-employee-chart-grid .vd-report-chart-image,.vd-employee-chart-grid .vd-report-chart-card:first-child .vd-report-chart-image{height:79mm!important;max-height:79mm!important}
+.vd-employee-analysis-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2mm;margin-top:3mm}.vd-employee-analysis-grid article{border:1.2px solid #26396f;border-radius:4px;background:#f8f9fb;padding:2.2mm;text-align:center;min-height:22mm}.vd-employee-analysis-grid span{display:block;font-size:6px;color:#667085!important}.vd-employee-analysis-grid strong{display:block;font-size:9px;color:#172b5f!important;margin:1mm 0}.vd-employee-analysis-grid small{display:block;font-size:6px;color:#667085!important}
+.vd-report-employee-table{font-size:6.25px!important}.vd-report-employee-table th,.vd-report-employee-table td{padding:1.05mm .9mm!important;line-height:1.38!important}.vd-report-employee-table th:nth-child(1),.vd-report-employee-table td:nth-child(1){width:10%!important}.vd-report-employee-table th:nth-child(2),.vd-report-employee-table td:nth-child(2){width:13%!important}.vd-report-employee-table th:nth-child(3),.vd-report-employee-table td:nth-child(3){width:18%!important}.vd-report-employee-table th:nth-child(4),.vd-report-employee-table td:nth-child(4){width:19%!important}.vd-report-employee-table th:nth-child(5),.vd-report-employee-table td:nth-child(5){width:40%!important;max-height:none!important}
+.vd-report-employee-overview .vd-report-section-body{gap:1.8mm!important}.vd-report-employee-overview .vd-employee-kpi-grid{gap:1.6mm!important}.vd-report-employee-overview .vd-employee-kpi-grid .vd-report-kpi-clone{min-height:15mm!important;padding:1.6mm!important}
+
+.vd-employee-safety-audit{display:grid;grid-template-columns:92mm 1fr;gap:2mm;align-items:stretch}
+.vd-employee-safety-audit .vd-report-kpi-clone{border-color:#0da36d!important;background:#f1fbf6!important;padding:2mm!important}
+.vd-employee-safety-audit .vd-report-kpi-clone strong{color:#08784f!important}.vd-employee-safety-audit .vd-report-kpi-clone small{display:block!important;color:#344054!important;line-height:1.5!important}
+.vd-employee-safety-audit p{margin:0;border:1px solid #cbd5df;border-right:1.2mm solid #0da36d;border-radius:4px;background:#f8f9fb;padding:2mm 2.5mm;font-size:6.6px;line-height:1.65;color:#344054!important}
+
+/* SEC engineer composite evaluation report */
+.vd-report-sec-engineer-overview .vd-report-section-body{display:flex;flex-direction:column;gap:2mm;margin-top:1mm!important}
+.vd-sec-engineer-score-hero{display:grid;grid-template-columns:46mm 1fr;gap:3mm;align-items:center;border:1.2px solid #26396f;border-radius:4px;padding:2.5mm;background:#fff}
+.vd-sec-engineer-score-hero>div{text-align:center;border-left:1px solid #d1d7e0;padding-left:3mm}.vd-sec-engineer-score-hero span{display:block;font-size:6.5px;color:#667085!important}.vd-sec-engineer-score-hero strong{display:block;font:900 25px/1 Arial;color:#172b5f!important;margin-top:1.2mm}.vd-sec-engineer-score-hero p{margin:0;font-size:7px;line-height:1.7;color:#344054!important}
+.vd-sec-engineer-component-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.8mm}.vd-sec-engineer-component-grid .vd-report-kpi-clone{min-height:16mm!important;padding:1.8mm!important}.vd-sec-engineer-component-grid .vd-report-kpi-clone span{font-size:6.2px!important}.vd-sec-engineer-component-grid .vd-report-kpi-clone strong{font-size:13px!important}.vd-sec-engineer-component-grid .vd-report-kpi-clone small{display:block!important;font-size:5.7px!important}
+.vd-sec-engineer-section-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}.vd-sec-engineer-section-grid .eee-section-card{border:1px solid #cfd6df!important;border-radius:4px!important;padding:2mm!important;background:#fff!important}.vd-sec-engineer-section-grid .eee-section-card>div{display:flex;justify-content:space-between;align-items:center}.vd-sec-engineer-section-grid .eee-section-card>div span{font-size:7px!important;font-weight:900}.vd-sec-engineer-section-grid .eee-section-card>div strong{font-size:12px!important;color:#172b5f!important}.vd-sec-engineer-section-grid .eee-section-sub{display:block;font-size:5.5px!important;color:#667085!important;margin:.5mm 0 1mm}.vd-sec-engineer-section-grid dl{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:1mm!important;margin:0!important}.vd-sec-engineer-section-grid dl div{background:#f5f7fa!important;border-radius:2px!important;padding:1mm!important;text-align:center}.vd-sec-engineer-section-grid dt{font-size:5.2px!important;color:#667085!important}.vd-sec-engineer-section-grid dd{font-size:6.5px!important;font-weight:800;margin:.5mm 0 0!important}
+.vd-report-sec-engineer-analysis .vd-report-section-body{margin-top:1mm!important}.vd-sec-engineer-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm}.vd-sec-engineer-chart-grid .vd-report-chart-card{height:58mm!important;min-height:58mm!important;padding:2mm!important;overflow:hidden!important}.vd-sec-engineer-chart-grid .vd-report-chart-image{height:45mm!important;max-height:45mm!important;object-fit:contain!important}.vd-sec-engineer-chart-grid .panel-title{background:#fff!important;border-bottom:1px solid #26396f!important;margin:-2mm -2mm 1mm!important;padding:1.4mm 2mm!important}.vd-sec-engineer-chart-grid .panel-title h3,.vd-sec-engineer-chart-grid .panel-title span{color:#000!important}
+.vd-sec-engineer-diagnostics{margin-top:2.5mm}.vd-sec-engineer-diagnostics h3{font-size:8px;margin:0 0 1.5mm;color:#172b5f!important}.vd-sec-engineer-diagnostics .eee-issue-list{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:1.2mm!important}.vd-sec-engineer-diagnostics .eee-issue-list>div{display:flex!important;justify-content:space-between!important;gap:2mm!important;border:1px solid #d5dbe3!important;border-radius:3px!important;padding:1.1mm 1.5mm!important;background:#f8f9fb!important;font-size:5.8px!important}.vd-sec-engineer-diagnostics .eee-issue-list b{color:#bd2433!important}
+.vd-report-sec-engineer-overview *,.vd-report-sec-engineer-analysis *{color:#000!important;text-shadow:none!important}
+
+
+/* Projects report â€” compact executive PDF layout */
+.vd-report-projects-cover .vd-report-cover-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:2.2mm!important}
+.vd-report-projects-cover .vd-report-kpi-clone{min-height:17mm!important;padding:1.8mm!important}
+.vd-report-projects-cover .vd-report-kpi-clone span{font-size:6.2px!important}.vd-report-projects-cover .vd-report-kpi-clone strong{font-size:13px!important}
+.vd-report-projects-chart-page{box-sizing:border-box!important;height:188mm!important;min-height:188mm!important;max-height:188mm!important;overflow:hidden!important}
+.vd-report-projects-chart-page .vd-report-section-body{margin-top:1mm!important}
+.vd-report-projects-chart-page .vd-report-chart-grid{grid-template-columns:1fr 1fr!important;grid-template-rows:repeat(2,67mm)!important;gap:3mm!important}
+.vd-report-projects-chart-page .vd-report-chart-card{height:67mm!important;min-height:67mm!important;max-height:67mm!important;padding:2mm!important;overflow:hidden!important}
+.vd-report-projects-chart-page .pa-wide{grid-column:auto!important}.vd-report-projects-chart-page .pa-chart-box{height:51mm!important;margin-top:1mm!important}
+.vd-report-projects-chart-page .vd-report-chart-image{height:49mm!important;max-height:49mm!important;width:100%!important;object-fit:contain!important}
+.vd-report-projects-chart-page .panel-title{margin:-2mm -2mm 1mm!important;padding:1.5mm 2mm!important;background:#172b5f!important}
+.vd-report-projects-chart-page .panel-title h3,.vd-report-projects-chart-page .panel-title span{color:#fff!important;-webkit-text-fill-color:#fff!important}
+.vd-report-projects-chart-page .panel-title h3{font-size:8px!important}.vd-report-projects-chart-page .panel-title span{font-size:5.4px!important}
+.vd-report-projects-action-page .vd-report-section-body{margin-top:1mm!important}.vd-report-projects-action-page .pa-wrap{max-height:none!important;overflow:visible!important}
+.vd-report-projects-action-page .panel-title>span{display:none!important}.vd-report-projects-action-page table{font-size:5.6px!important;table-layout:auto!important}
+.vd-report-projects-action-page th,.vd-report-projects-action-page td{padding:.85mm .7mm!important;line-height:1.35!important;color:#000!important;-webkit-text-fill-color:#000!important}
+.vd-report-projects-detail-page,.vd-report-projects-detail-page .vd-report-section-body,.vd-report-projects-detail-page .vd-report-detail-panel,.vd-report-projects-detail-page .table-wrap{height:auto!important;max-height:none!important;overflow:visible!important;break-inside:auto!important;page-break-inside:auto!important}
+.vd-report-projects-detail-page .vd-report-section-body{margin-top:1mm!important}.vd-report-projects-detail-page .vd-report-detail-panel{padding:1.5mm!important}
+.vd-report-projects-detail-page table{font-size:5.5px!important;table-layout:auto!important}.vd-report-projects-detail-page th,.vd-report-projects-detail-page td{padding:.75mm .6mm!important;line-height:1.3!important;color:#000!important;-webkit-text-fill-color:#000!important}
+@media print{.vd-report-projects-chart-page{break-after:page!important;page-break-after:always!important}.vd-report-projects-detail-page .vd-report-detail-panel{break-before:auto!important;page-break-before:auto!important}}
+
+.vd-report-projects-chart-page-last .vd-report-chart-grid{display:block!important}
+.vd-report-projects-chart-page-last .vd-report-chart-card{height:136mm!important;min-height:136mm!important;max-height:136mm!important}
+.vd-report-projects-chart-page-last .pa-chart-box{height:119mm!important}.vd-report-projects-chart-page-last .vd-report-chart-image{height:116mm!important;max-height:116mm!important}
+
+
+/* Print alignment fix: keep report inside the A4 landscape printable box.
+   Oversized decorative curves previously made Chrome shrink the whole report
+   and anchor the shrunken content to the left. */
+@media print{
+  html,
+  body,
+  body.vd-report-v2-mode{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #vdReportV2,
+  .vd-report-v2{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .vd-report-v2-page{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  .vd-report-v2-page:before,
+  .vd-report-v2-page:after{
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    transform:none!important;
+  }
+}
+
+
+/* Projects PDF finishing pass: balanced action pages and denser detail appendix */
+.vd-report-projects-action-page{
+  box-sizing:border-box!important;
+  min-height:188mm!important;
+  padding:6mm 8mm 14mm!important;
+}
+.vd-report-projects-action-page .vd-report-section-header{
+  min-height:22mm!important;
+  padding:0 30mm 2mm!important;
+}
+.vd-report-projects-action-page .vd-report-section-header h2{
+  font-size:17px!important;
+}
+.vd-report-projects-action-page .vd-report-section-header h2:after{
+  margin-top:2.2mm!important;
+}
+.vd-report-projects-action-page .vd-report-section-header h2:before{
+  top:11mm!important;
+}
+.vd-report-projects-action-page .vd-report-section-body{
+  margin-top:1.5mm!important;
+}
+.vd-report-projects-action-page .vd-report-summary-table{
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+  padding:1.5mm!important;
+  overflow:hidden!important;
+}
+.vd-report-projects-action-page .pa-wrap{
+  border-radius:2px!important;
+}
+.vd-report-projects-priority-page table{
+  font-size:5.5px!important;
+}
+.vd-report-projects-priority-page th,
+.vd-report-projects-priority-page td{
+  padding:.7mm .55mm!important;
+  line-height:1.25!important;
+}
+.vd-report-projects-priority-page td:last-child{
+  font-size:5px!important;
+  line-height:1.2!important;
+}
+.vd-report-projects-bottleneck-page table{
+  font-size:5.5px!important;
+}
+.vd-report-projects-bottleneck-page th,
+.vd-report-projects-bottleneck-page td{
+  padding:.72mm .58mm!important;
+  line-height:1.25!important;
+}
+
+/* Fit the full projects appendix more efficiently without creating a tiny final page. */
+.vd-report-projects-detail-page .vd-report-section-header{
+  min-height:18mm!important;
+  padding:0 26mm 1mm!important;
+}
+.vd-report-projects-detail-page .vd-report-section-header h2{
+  font-size:16px!important;
+}
+.vd-report-projects-detail-page .vd-report-section-header h2:after{
+  margin-top:1.6mm!important;
+}
+.vd-report-projects-detail-page .vd-report-section-header h2:before{
+  top:9mm!important;
+}
+.vd-report-projects-detail-page .vd-report-section-header p{
+  margin-top:.8mm!important;
+  font-size:7px!important;
+}
+.vd-report-projects-detail-page .vd-report-section-body{
+  margin-top:.5mm!important;
+}
+.vd-report-projects-detail-page .vd-report-detail-panel{
+  padding:1mm!important;
+}
+.vd-report-projects-detail-page .vd-report-detail-panel .panel-head{
+  margin-bottom:.5mm!important;
+}
+.vd-report-projects-detail-page table{
+  font-size:4.9px!important;
+  line-height:1.12!important;
+}
+.vd-report-projects-detail-page th,
+.vd-report-projects-detail-page td{
+  padding:.48mm .38mm!important;
+  line-height:1.12!important;
+}
+
+
+/* Projects detail table â€” compact but readable; never split Arabic words letter-by-letter */
+.vd-report-projects-detail-page .vd-report-detail-panel,
+.vd-report-projects-detail-page .table-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:auto!important;
+}
+.vd-report-projects-detail-page table{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  table-layout:auto!important;
+  margin:0 auto!important;
+}
+.vd-report-projects-detail-page th{
+  padding:.30mm .24mm!important;
+  font-size:4.0px!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  letter-spacing:0!important;
+}
+.vd-report-projects-detail-page td{
+  padding:.34mm .24mm!important;
+  font-size:4.45px!important;
+  line-height:1.08!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+}
+/* Text-heavy columns get controlled space and wrap only at natural word boundaries. */
+.vd-report-projects-detail-page th:nth-child(4),
+.vd-report-projects-detail-page td:nth-child(4){
+  min-width:14mm!important;
+  max-width:22mm!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page th:nth-child(5),
+.vd-report-projects-detail-page td:nth-child(5){
+  min-width:16mm!important;
+  max-width:24mm!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page th:nth-child(14),
+.vd-report-projects-detail-page td:nth-child(14){
+  min-width:15mm!important;
+  max-width:22mm!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page th:nth-child(15),
+.vd-report-projects-detail-page td:nth-child(15){
+  min-width:12mm!important;
+  max-width:18mm!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page th:nth-child(16),
+.vd-report-projects-detail-page td:nth-child(16){
+  min-width:12mm!important;
+  max-width:20mm!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page th:nth-child(21),
+.vd-report-projects-detail-page td:nth-child(21){
+  min-width:26mm!important;
+  max-width:36mm!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page th:nth-child(22),
+.vd-report-projects-detail-page td:nth-child(22){
+  min-width:34mm!important;
+  max-width:48mm!important;
+  white-space:normal!important;
+}
+/* Keep compact numeric/date/status columns to the exact content width. */
+.vd-report-projects-detail-page th:nth-child(1),
+.vd-report-projects-detail-page td:nth-child(1),
+.vd-report-projects-detail-page th:nth-child(2),
+.vd-report-projects-detail-page td:nth-child(2),
+.vd-report-projects-detail-page th:nth-child(3),
+.vd-report-projects-detail-page td:nth-child(3),
+.vd-report-projects-detail-page th:nth-child(n+6):nth-child(-n+13),
+.vd-report-projects-detail-page td:nth-child(n+6):nth-child(-n+13),
+.vd-report-projects-detail-page th:nth-child(n+17):nth-child(-n+20),
+.vd-report-projects-detail-page td:nth-child(n+17):nth-child(-n+20),
+.vd-report-projects-detail-page th:last-child,
+.vd-report-projects-detail-page td:last-child{
+  width:1%!important;
+  white-space:nowrap!important;
+}
+
+
+/* Global PDF reports: remove orange diamond decoration from all report titles */
+.vd-report-v2 .vd-report-section-header h2::before,
+.vd-report-v2 .vd-report-section-header h2:before,
+.vd-report-v2 .vd-report-cover-title h1::before,
+.vd-report-v2 .vd-report-cover-title h1:before{
+  content:none!important;
+  display:none!important;
+}
+
+
+/* Projects detailed table: final columns and serial */
+.vd-report-projects-detail-page .vd-projects-serial-col{
+  width:1%!important;
+  min-width:4mm!important;
+  max-width:6mm!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+}
+.vd-report-projects-detail-page .vd-projects-advice-col{
+  min-width:34mm!important;
+  max-width:48mm!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+}
+.vd-report-projects-detail-page .vd-projects-advice-date-col{
+  width:1%!important;
+  min-width:13mm!important;
+  max-width:18mm!important;
+  white-space:nowrap!important;
+}
+
+
+/* Jeddah projects PDF parity with Makkah */
+.vd-report-projects-chart-page-last .vd-report-chart-grid{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:1fr!important;
+  width:100%!important;
+}
+.vd-report-projects-chart-page-last .vd-report-chart-card{
+  width:100%!important;
+  max-width:100%!important;
+}
+.vd-report-projects-priority-page .vd-report-summary-table,
+.vd-report-projects-bottleneck-page .vd-report-summary-table{
+  width:100%!important;
+  max-width:100%!important;
+}
+
+
+/* Jeddah projects detailed table - force all agreed columns to fit on A4 landscape */
+.vd-report-projects-detail-page .vd-report-footer{
+  display:none!important;
+}
+.vd-report-projects-detail-page{
+  padding-bottom:0!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+.vd-report-projects-detail-page .vd-report-detail-panel,
+.vd-report-projects-detail-page .table-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  overflow:visible!important;
+}
+.vd-report-projects-detail-page table{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  table-layout:fixed!important;
+  font-size:3.65px!important;
+  line-height:1.08!important;
+}
+.vd-report-projects-detail-page th,
+.vd-report-projects-detail-page td{
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  padding:.25mm .15mm!important;
+  line-height:1.08!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  vertical-align:middle!important;
+}
+/* 23 columns after removing آ«ط§ظ„ظ‚ط³ظ…آ» and adding serial */
+.vd-report-projects-detail-page th:nth-child(1), .vd-report-projects-detail-page td:nth-child(1){width:1.5%!important}
+.vd-report-projects-detail-page th:nth-child(2), .vd-report-projects-detail-page td:nth-child(2){width:4%!important}
+.vd-report-projects-detail-page th:nth-child(3), .vd-report-projects-detail-page td:nth-child(3){width:2.5%!important}
+.vd-report-projects-detail-page th:nth-child(4), .vd-report-projects-detail-page td:nth-child(4){width:4.5%!important}
+.vd-report-projects-detail-page th:nth-child(5), .vd-report-projects-detail-page td:nth-child(5){width:6.5%!important}
+.vd-report-projects-detail-page th:nth-child(6), .vd-report-projects-detail-page td:nth-child(6){width:3.5%!important}
+.vd-report-projects-detail-page th:nth-child(7), .vd-report-projects-detail-page td:nth-child(7){width:4.5%!important}
+.vd-report-projects-detail-page th:nth-child(8), .vd-report-projects-detail-page td:nth-child(8){width:2.5%!important}
+.vd-report-projects-detail-page th:nth-child(9), .vd-report-projects-detail-page td:nth-child(9){width:2.5%!important}
+.vd-report-projects-detail-page th:nth-child(10), .vd-report-projects-detail-page td:nth-child(10){width:5.5%!important}
+.vd-report-projects-detail-page th:nth-child(11), .vd-report-projects-detail-page td:nth-child(11){width:4.5%!important}
+.vd-report-projects-detail-page th:nth-child(12), .vd-report-projects-detail-page td:nth-child(12){width:4.5%!important}
+.vd-report-projects-detail-page th:nth-child(13), .vd-report-projects-detail-page td:nth-child(13){width:4.5%!important}
+.vd-report-projects-detail-page th:nth-child(14), .vd-report-projects-detail-page td:nth-child(14){width:5.5%!important}
+.vd-report-projects-detail-page th:nth-child(15), .vd-report-projects-detail-page td:nth-child(15){width:4.5%!important}
+.vd-report-projects-detail-page th:nth-child(16), .vd-report-projects-detail-page td:nth-child(16){width:5%!important}
+.vd-report-projects-detail-page th:nth-child(17), .vd-report-projects-detail-page td:nth-child(17),
+.vd-report-projects-detail-page th:nth-child(18), .vd-report-projects-detail-page td:nth-child(18),
+.vd-report-projects-detail-page th:nth-child(19), .vd-report-projects-detail-page td:nth-child(19),
+.vd-report-projects-detail-page th:nth-child(20), .vd-report-projects-detail-page td:nth-child(20){width:2.6%!important}
+.vd-report-projects-detail-page th:nth-child(21), .vd-report-projects-detail-page td:nth-child(21){width:7%!important}
+.vd-report-projects-detail-page th:nth-child(22), .vd-report-projects-detail-page td:nth-child(22){width:11.6%!important}
+.vd-report-projects-detail-page th:nth-child(23), .vd-report-projects-detail-page td:nth-child(23){width:5%!important}
+.vd-report-projects-detail-page .vd-projects-advice-col{
+  width:11.6%!important;
+  min-width:0!important;
+  max-width:none!important;
+  white-space:normal!important;
+}
+.vd-report-projects-detail-page .vd-projects-advice-date-col{
+  width:5%!important;
+  min-width:0!important;
+  max-width:none!important;
+  white-space:normal!important;
+}
+
+
+/* Projects PDF: slightly shrink doughnut charts so the lower arc/legend is never clipped */
+.vd-report-projects-chart-page .vd-report-doughnut-card .pa-chart-box{
+  height:48mm!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+.vd-report-projects-chart-page .vd-report-doughnut-card .vd-report-chart-image-doughnut{
+  width:92%!important;
+  height:44mm!important;
+  max-height:44mm!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0 auto!important;
+}
+
+
+/* Jeddah projects detail table â€” readability pass.
+   Override older nth-child nowrap rules with stronger selectors so cells wrap instead of overlapping. */
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table{
+  width:100%!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  font-size:4px!important;
+  line-height:1.12!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th{
+  padding:.32mm .18mm!important;
+  font-size:3.7px!important;
+  line-height:1.08!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td{
+  padding:.34mm .18mm!important;
+  font-size:4px!important;
+  line-height:1.12!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+  vertical-align:middle!important;
+}
+
+/* Compact LTR values stay isolated so dates/numbers do not merge visually with Arabic cells. */
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(2),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(7),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(8),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(9),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(12),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(13),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(17),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(18),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(19),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(20),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(23){
+  direction:ltr!important;
+  unicode-bidi:isolate!important;
+  white-space:nowrap!important;
+  overflow-wrap:normal!important;
+}
+
+/* Rebalance widths: preserve the two final columns while giving dates/statuses enough room. */
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(1),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(1){width:1.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(2),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(2){width:4.2%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(3),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(3){width:2.7%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(4),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(4){width:4.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(5),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(5){width:6.3%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(6),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(6){width:3.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(7),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(7){width:4.2%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(8),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(8){width:2%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(9),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(9){width:2%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(10),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(10){width:5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(11),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(11){width:4.2%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(12),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(12){width:4.3%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(13),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(13){width:4.3%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(14),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(14){width:5.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(15),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(15){width:4.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(16),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(16){width:4.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(17),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(17),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(18),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(18),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(19),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(19),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(20),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(20){width:2.3%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(21),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(21){width:7.8%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(22),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(22){width:13.5%!important}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table th:nth-child(23),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page table td:nth-child(23){width:6.3%!important}
+
+
+/* Projects PDF: explicit doughnut legends for reliable print/export */
+.vd-report-projects-chart-page .vd-report-doughnut-card .pa-chart-box{
+  height:49mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:1mm!important;
+  overflow:visible!important;
+}
+.vd-report-projects-chart-page .vd-report-doughnut-card .vd-report-chart-image-doughnut{
+  width:90%!important;
+  height:39mm!important;
+  max-height:39mm!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0 auto!important;
+}
+.vd-report-doughnut-legend{
+  width:100%!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:1mm 2.2mm!important;
+  padding:.4mm 1mm 0!important;
+  box-sizing:border-box!important;
+  direction:rtl!important;
+}
+.vd-report-doughnut-legend-item{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:.8mm!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:5.4px!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+}
+.vd-report-doughnut-legend-item i{
+  display:inline-block!important;
+  width:2.2mm!important;
+  height:2.2mm!important;
+  min-width:2.2mm!important;
+  border-radius:50%!important;
+}
+.vd-report-doughnut-legend-item b{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-weight:700!important;
+}
+
+
+/* Jeddah projects PDF: guaranteed doughnut legend inserted after cloning */
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-chart-page .vd-report-doughnut-card .pa-chart-box{
+  height:50mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:visible!important;
+  gap:.8mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-chart-page .vd-report-doughnut-card .vd-report-chart-image-doughnut{
+  width:88%!important;
+  height:36mm!important;
+  max-height:36mm!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0 auto!important;
+  flex:0 0 auto!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-chart-page .vd-report-doughnut-legend-final{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:8mm!important;
+  gap:1mm 2.4mm!important;
+  padding:.4mm 1.5mm 0!important;
+  box-sizing:border-box!important;
+  direction:rtl!important;
+  visibility:visible!important;
+  opacity:1!important;
+  overflow:visible!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-chart-page .vd-report-doughnut-legend-final .vd-report-doughnut-legend-item{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:.8mm!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:5.6px!important;
+  line-height:1.15!important;
+  font-weight:700!important;
+  white-space:nowrap!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-chart-page .vd-report-doughnut-legend-final .vd-report-doughnut-legend-item i{
+  display:inline-block!important;
+  width:2.3mm!important;
+  height:2.3mm!important;
+  min-width:2.3mm!important;
+  border-radius:50%!important;
+}
+
+
+/* =========================================================
+   Control-room PDF skill: الرئيسية + التوصيلات + الأصول
+   ========================================================= */
+.vd-report-control-cover .vd-report-cover-badge{
+  display:none!important;
+}
+.vd-report-control-cover .vd-report-cover-kpis{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:3mm!important;
+}
+.vd-report-control-cover .vd-report-kpi-clone{
+  min-height:19mm!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-cover .vd-report-kpi-clone span,
+.vd-report-control-cover .vd-report-kpi-clone small,
+.vd-report-control-cover .vd-report-kpi-clone strong{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+
+.vd-report-control-metric-page .vd-report-section-body{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:3mm!important;
+  min-height:0!important;
+}
+.vd-report-control-group-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:3.5mm!important;
+  align-items:stretch!important;
+}
+.vd-report-control-group{
+  margin:0!important;
+  padding:2.6mm!important;
+  border:1px solid #d8dee8!important;
+  border-radius:3mm!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+.vd-report-control-group header{
+  margin:0 0 2mm!important;
+}
+.vd-report-control-group h3{
+  margin:0 0 2mm!important;
+  color:#172554!important;
+  -webkit-text-fill-color:#172554!important;
+  font-size:8.2px!important;
+  line-height:1.25!important;
+}
+.vd-report-control-group header h3{
+  margin:0!important;
+}
+.vd-report-control-group header span,
+.vd-report-control-group header small{
+  font-size:4.8px!important;
+  line-height:1.15!important;
+  color:#475569!important;
+  -webkit-text-fill-color:#475569!important;
+}
+.vd-report-control-group > div,
+.vd-report-control-group > header + div{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:1.6mm!important;
+}
+.vd-report-control-group .me-card,
+.vd-report-control-group .ca-card,
+.vd-report-control-group .aa-card{
+  min-width:0!important;
+  min-height:15mm!important;
+  padding:1.7mm!important;
+  margin:0!important;
+  border:1px solid #e2e8f0!important;
+  border-radius:2mm!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-group .me-card span,
+.vd-report-control-group .ca-card span,
+.vd-report-control-group .aa-card span{
+  display:block!important;
+  font-size:5.3px!important;
+  line-height:1.15!important;
+  color:#334155!important;
+  -webkit-text-fill-color:#334155!important;
+}
+.vd-report-control-group .me-card strong,
+.vd-report-control-group .ca-card strong,
+.vd-report-control-group .aa-card strong{
+  display:block!important;
+  margin:.7mm 0!important;
+  font-size:8.7px!important;
+  line-height:1!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-group .me-card small,
+.vd-report-control-group .ca-card small,
+.vd-report-control-group .aa-card small{
+  display:block!important;
+  font-size:4.4px!important;
+  line-height:1.15!important;
+  color:#475569!important;
+  -webkit-text-fill-color:#475569!important;
+}
+.vd-report-control-prelude{
+  width:100%!important;
+  margin:0!important;
+  padding:2mm!important;
+  border:1px solid #dbe3ef!important;
+  border-radius:2.5mm!important;
+  background:#f8fafc!important;
+  box-sizing:border-box!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-prelude.aa-funnel{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:1mm!important;
+}
+.vd-report-control-prelude .aa-funnel-step{
+  min-width:19mm!important;
+  flex:1 1 19mm!important;
+  padding:1.2mm!important;
+  background:#fff!important;
+  border:1px solid #e2e8f0!important;
+  border-radius:1.5mm!important;
+  text-align:center!important;
+}
+.vd-report-control-prelude .aa-funnel-step span,
+.vd-report-control-prelude .aa-funnel-step small{
+  font-size:4.5px!important;
+  color:#334155!important;
+  -webkit-text-fill-color:#334155!important;
+}
+.vd-report-control-prelude .aa-funnel-step strong{
+  display:block!important;
+  font-size:7px!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-prelude > i{
+  display:none!important;
+}
+
+/* Charts */
+.vd-report-control-chart-page .vd-report-section-body{
+  min-height:0!important;
+  overflow:visible!important;
+}
+.vd-report-control-chart-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-rows:61mm!important;
+  gap:4mm!important;
+  width:100%!important;
+  align-content:start!important;
+}
+.vd-report-control-chart-card{
+  min-width:0!important;
+  width:100%!important;
+  height:61mm!important;
+  min-height:61mm!important;
+  max-height:61mm!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  background:#fff!important;
+  border:1px solid #d9e0ea!important;
+  border-radius:2.5mm!important;
+  box-shadow:none!important;
+}
+.vd-report-control-chart-card.vd-report-wide-chart{
+  grid-column:1/-1!important;
+}
+.vd-report-control-chart-card .panel-title{
+  min-height:11mm!important;
+  padding:1.6mm 2.2mm!important;
+  background:#17336f!important;
+  border-radius:2.2mm 2.2mm 0 0!important;
+  box-sizing:border-box!important;
+}
+.vd-report-control-chart-card .panel-title h3{
+  margin:0!important;
+  font-size:6.6px!important;
+  line-height:1.15!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.vd-report-control-chart-card .panel-title span{
+  display:block!important;
+  margin-bottom:.5mm!important;
+  font-size:4px!important;
+  line-height:1!important;
+  color:#dbeafe!important;
+  -webkit-text-fill-color:#dbeafe!important;
+}
+.vd-report-control-chart-card .me-chart-box,
+.vd-report-control-chart-card .ca-chart-box,
+.vd-report-control-chart-card .aa-chart-box{
+  height:48mm!important;
+  min-height:48mm!important;
+  max-height:48mm!important;
+  padding:1.2mm!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+.vd-report-control-chart-card .vd-report-chart-image{
+  display:block!important;
+  width:100%!important;
+  height:45mm!important;
+  max-height:45mm!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0 auto!important;
+}
+.vd-report-control-chart-card.vd-report-doughnut-card .me-chart-box,
+.vd-report-control-chart-card.vd-report-doughnut-card .ca-chart-box,
+.vd-report-control-chart-card.vd-report-doughnut-card .aa-chart-box{
+  height:48mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:.6mm!important;
+}
+.vd-report-control-chart-card .vd-report-chart-image-doughnut{
+  width:88%!important;
+  height:36mm!important;
+  max-height:36mm!important;
+  flex:0 0 36mm!important;
+  object-fit:contain!important;
+}
+.vd-report-control-chart-card .vd-report-control-doughnut-legend,
+.vd-report-control-chart-card .vd-report-doughnut-legend{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:7mm!important;
+  max-height:9mm!important;
+  gap:.7mm 2mm!important;
+  padding:0 1mm!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  direction:rtl!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.vd-report-control-chart-card .vd-report-doughnut-legend-item{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:.6mm!important;
+  white-space:nowrap!important;
+  font-size:4.8px!important;
+  line-height:1.1!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-chart-card .vd-report-doughnut-legend-item i{
+  display:inline-block!important;
+  width:2mm!important;
+  height:2mm!important;
+  min-width:2mm!important;
+  border-radius:50%!important;
+}
+.vd-report-control-chart-card .vd-report-doughnut-legend-item b{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-weight:700!important;
+}
+.vd-report-control-chart-page-single .vd-report-control-chart-grid{
+  grid-template-columns:1fr!important;
+  grid-auto-rows:130mm!important;
+}
+.vd-report-control-chart-page-single .vd-report-control-chart-card{
+  grid-column:1/-1!important;
+  height:130mm!important;
+  min-height:130mm!important;
+  max-height:130mm!important;
+}
+.vd-report-control-chart-page-single .vd-report-control-chart-card .me-chart-box,
+.vd-report-control-chart-page-single .vd-report-control-chart-card .ca-chart-box,
+.vd-report-control-chart-page-single .vd-report-control-chart-card .aa-chart-box{
+  height:116mm!important;
+  max-height:116mm!important;
+}
+.vd-report-control-chart-page-single .vd-report-control-chart-card .vd-report-chart-image{
+  height:112mm!important;
+  max-height:112mm!important;
+}
+
+/* Paginated action/detail tables */
+.vd-report-control-table-page .vd-report-section-body,
+.vd-report-control-detail-page .vd-report-section-body{
+  min-height:0!important;
+  overflow:visible!important;
+}
+.vd-report-paginated-table{
+  width:100%!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
+  direction:rtl!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-paginated-table thead{
+  display:table-header-group!important;
+}
+.vd-report-paginated-table tr{
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+.vd-report-paginated-table th{
+  padding:.8mm .5mm!important;
+  background:#e9eef5!important;
+  border:1px solid #cfd7e3!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:5.2px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+.vd-report-paginated-table td{
+  padding:.72mm .5mm!important;
+  border:1px solid #d7dee8!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:5px!important;
+  line-height:1.25!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  vertical-align:middle!important;
+}
+.vd-report-paginated-table td:first-child,
+.vd-report-paginated-table th:first-child{
+  width:5%!important;
+  text-align:center!important;
+}
+.vd-report-control-table-page .vd-report-footer,
+.vd-report-control-detail-page .vd-report-footer{
+  display:none!important;
+}
+.vd-report-control-table-page,
+.vd-report-control-detail-page{
+  padding-bottom:0!important;
+  min-height:0!important;
+}
+.vd-report-segmented-table th,
+.vd-report-segmented-table td{
+  font-size:5.1px!important;
+}
+.vd-report-segmented-table td[dir="auto"]{
+  unicode-bidi:plaintext!important;
+}
+.vd-report-connections-control .vd-report-segmented-table td,
+.vd-report-assets-control .vd-report-segmented-table td{
+  overflow-wrap:break-word!important;
+}
+
+/* Keep Arabic readable: do not split words letter by letter. */
+.vd-report-master-control .vd-report-paginated-table td,
+.vd-report-connections-control .vd-report-paginated-table td,
+.vd-report-assets-control .vd-report-paginated-table td{
+  word-break:normal!important;
+  hyphens:none!important;
+}
+
+/* Print stability */
+@media print{
+  .vd-report-control-chart-page,
+  .vd-report-control-metric-page,
+  .vd-report-control-table-page,
+  .vd-report-control-detail-page{
+    break-after:page!important;
+    page-break-after:always!important;
+    overflow:hidden!important;
+  }
+
+  .vd-report-control-chart-page:last-child,
+  .vd-report-control-metric-page:last-child,
+  .vd-report-control-table-page:last-child,
+  .vd-report-control-detail-page:last-child{
+    page-break-after:auto!important;
+  }
+}
+
+
+/* Jeddah الرئيسية PDF — dense doughnut handling */
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-dense .vd-report-chart-image-doughnut{
+  width:84%!important;
+  height:31mm!important;
+  max-height:31mm!important;
+  flex:0 0 31mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-dense .vd-report-control-doughnut-legend{
+  min-height:11mm!important;
+  max-height:13mm!important;
+  gap:.6mm 1.4mm!important;
+  padding:0 .8mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-dense .vd-report-doughnut-legend-item{
+  max-width:48%!important;
+  white-space:normal!important;
+  font-size:4.35px!important;
+  line-height:1.12!important;
+  text-align:right!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-ultra-dense .vd-report-chart-image-doughnut{
+  width:80%!important;
+  height:27mm!important;
+  max-height:27mm!important;
+  flex:0 0 27mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-ultra-dense .vd-report-control-doughnut-legend{
+  min-height:15mm!important;
+  max-height:17mm!important;
+  gap:.5mm 1.1mm!important;
+  padding:0 .6mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-ultra-dense .vd-report-doughnut-legend-item{
+  max-width:48%!important;
+  white-space:normal!important;
+  font-size:3.95px!important;
+  line-height:1.08!important;
+  text-align:right!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-dense .vd-report-doughnut-legend-item i,
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control .vd-report-doughnut-ultra-dense .vd-report-doughnut-legend-item i{
+  flex:0 0 1.8mm!important;
+  width:1.8mm!important;
+  height:1.8mm!important;
+  min-width:1.8mm!important;
+}
+
+
+/* =========================================================
+   REPORT SKILL PARITY — PROJECTS → MAIN/PERMITS/CONNECTIONS/
+   ASSETS/CLOSURES/SITE FOLLOW-UP/EMERGENCY
+   AutoFit rows + readable wrapped cells for full PDF reports.
+   ========================================================= */
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table{
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
+}
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table thead,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table thead,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table thead{
+  display:table-header-group!important;
+}
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table tr,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table tr,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table tr{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table th,
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table td,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table th,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table td,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table th,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table td{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:.75mm .6mm!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.35!important;
+  vertical-align:top!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table th *,
+body.vd-report-v2-mode #vdReportV2 table.vd-report-autofit-table td *,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table th *,
+body.vd-report-v2-mode #vdReportV2 .vd-report-summary-table table td *,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table th *,
+body.vd-report-v2-mode #vdReportV2 .vd-report-detail-panel table td *{
+  max-height:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:normal!important;
+  -webkit-line-clamp:unset!important;
+  line-clamp:unset!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-autofit-serial{
+  width:7mm!important;
+  max-width:7mm!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  vertical-align:middle!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-autofit-detail-page{
+  min-height:0!important;
+  height:auto!important;
+  overflow:visible!important;
+  padding-bottom:0!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-autofit-detail-page .vd-report-section-body{
+  min-height:0!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-autofit-detail-page .vd-report-footer{
+  display:none!important;
+}
+
+/* Source table wrappers must never clip a tall AutoFit row. */
+body.vd-report-v2-mode #vdReportV2 .pe-wrap,
+body.vd-report-v2-mode #vdReportV2 .sf-table-wrap,
+body.vd-report-v2-mode #vdReportV2 .emergency-table-scroll,
+body.vd-report-v2-mode #vdReportV2 .aa-table-wrap,
+body.vd-report-v2-mode #vdReportV2 .ca-wrap,
+body.vd-report-v2-mode #vdReportV2 .table-wrap{
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+
+/* Extend the project/control-room KPI skill to the added tabs. */
+.vd-report-control-group .pe-card,
+.vd-report-control-group .sf-card,
+.vd-report-control-group .emergency-mini-kpi{
+  min-width:0!important;
+  min-height:15mm!important;
+  height:auto!important;
+  padding:1.7mm!important;
+  margin:0!important;
+  border:1px solid #e2e8f0!important;
+  border-radius:2mm!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-group .pe-card span,
+.vd-report-control-group .sf-card span,
+.vd-report-control-group .emergency-mini-kpi span{
+  display:block!important;
+  font-size:5.3px!important;
+  line-height:1.2!important;
+  color:#334155!important;
+  -webkit-text-fill-color:#334155!important;
+}
+.vd-report-control-group .pe-card strong,
+.vd-report-control-group .sf-card strong,
+.vd-report-control-group .emergency-mini-kpi strong{
+  display:block!important;
+  margin:.7mm 0!important;
+  font-size:8.7px!important;
+  line-height:1.05!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.vd-report-control-group .pe-card small,
+.vd-report-control-group .sf-card small,
+.vd-report-control-group .emergency-mini-kpi small{
+  display:block!important;
+  font-size:4.4px!important;
+  line-height:1.2!important;
+  color:#475569!important;
+  -webkit-text-fill-color:#475569!important;
+}
+
+/* Emergency KPI group has an internal heading row + cards grid. */
+.vd-report-emergency-control .vd-report-control-group .emergency-kpi-group-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:2mm!important;
+  margin:0 0 2mm!important;
+}
+.vd-report-emergency-control .vd-report-control-group .emergency-kpi-group-head h3{
+  margin:0!important;
+}
+.vd-report-emergency-control .vd-report-control-group .emergency-kpi-group-head span{
+  font-size:4.8px!important;
+  color:#64748b!important;
+}
+.vd-report-emergency-control .vd-report-control-group .emergency-kpi-cards{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:1.6mm!important;
+}
+
+/* Extend control chart sizing to permits/site-follow-up/emergency. */
+.vd-report-control-chart-card .pe-chart-box,
+.vd-report-control-chart-card .sf-chart-box,
+.vd-report-control-chart-card .emergency-chart-wrap{
+  height:48mm!important;
+  min-height:48mm!important;
+  max-height:48mm!important;
+  padding:1.2mm!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+.vd-report-control-chart-card.vd-report-doughnut-card .pe-chart-box,
+.vd-report-control-chart-card.vd-report-doughnut-card .sf-chart-box,
+.vd-report-control-chart-card.vd-report-doughnut-card .emergency-chart-wrap{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:.6mm!important;
+}
+.vd-report-control-chart-page-single .vd-report-control-chart-card .pe-chart-box,
+.vd-report-control-chart-page-single .vd-report-control-chart-card .sf-chart-box,
+.vd-report-control-chart-page-single .vd-report-control-chart-card .emergency-chart-wrap{
+  height:116mm!important;
+  max-height:116mm!important;
+}
+
+/* Allow long notes/statements to grow the row naturally. */
+body.vd-report-v2-mode #vdReportV2 td.sf-statement,
+body.vd-report-v2-mode #vdReportV2 td.aa-note,
+body.vd-report-v2-mode #vdReportV2 td.vd-projects-advice-col{
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+@media print{
+  body.vd-report-v2-mode #vdReportV2 .vd-report-autofit-detail-page{
+    overflow:visible!important;
+    break-after:page!important;
+    page-break-after:always!important;
+  }
+  body.vd-report-v2-mode #vdReportV2 .vd-report-autofit-detail-page:last-child{
+    break-after:auto!important;
+    page-break-after:auto!important;
+  }
+}
+
+
+/* Closures PDF: force each copied tree to occupy exactly one printed page. */
+.vd-report-closures-tree-page{height:194mm!important;min-height:194mm!important;max-height:194mm!important;box-sizing:border-box!important;overflow:hidden!important;break-inside:avoid!important;page-break-inside:avoid!important;break-after:page!important;page-break-after:always!important}
+.vd-report-closures-tree-page .vd-report-section-body{overflow:hidden!important}
+.vd-report-closures-tree-page .vd-report-tree-wrapper{max-height:145mm!important;overflow:hidden!important}
+@media print{.vd-report-closures-tree-page{height:194mm!important;min-height:194mm!important;max-height:194mm!important;break-inside:avoid!important;page-break-inside:avoid!important;break-after:page!important;page-break-after:always!important}}
+
+/* Human Resources PDF: stable page boundaries, balanced pagination and no decorative overlap. */
+.vd-report-hr-control.vd-report-control-cover,
+.vd-report-hr-kpi-page,
+.vd-report-hr-chart-page{
+  box-sizing:border-box!important;
+  height:194mm!important;
+  min-height:194mm!important;
+  max-height:194mm!important;
+  overflow:hidden!important;
+}
+.vd-report-hr-control.vd-report-control-cover{
+  padding:5mm 7mm 13mm!important;
+}
+.vd-report-hr-control.vd-report-control-cover .vd-report-cover-top{min-height:18mm!important}
+.vd-report-hr-control.vd-report-control-cover .vd-report-cover-title{margin:3mm 0 3mm!important}
+.vd-report-hr-control.vd-report-control-cover .vd-report-cover-meta{margin:6mm 0 4mm!important}
+.vd-report-hr-control.vd-report-control-cover .vd-report-cover-kpis{margin-top:3mm!important;gap:2.2mm!important}
+.vd-report-hr-control.vd-report-control-cover .vd-report-kpi-clone{padding:2mm!important}
+.vd-report-hr-control.vd-report-control-cover .vd-report-cover-filters{margin-top:3mm!important;padding:2.4mm!important}
+.vd-report-hr-kpi-page .vd-report-section-body,
+.vd-report-hr-chart-page .vd-report-section-body{
+  margin-top:1.5mm!important;
+  overflow:hidden!important;
+}
+.vd-report-hr-kpi-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:2.2mm!important;
+  align-content:start!important;
+}
+.vd-report-hr-kpi-grid .vd-report-kpi-clone{
+  min-height:24mm!important;
+  padding:2mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+.vd-report-hr-kpi-grid .vd-report-kpi-clone span{font-size:6.2px!important;line-height:1.25!important}
+.vd-report-hr-kpi-grid .vd-report-kpi-clone strong,
+.vd-report-hr-kpi-grid .vd-report-kpi-clone b{font-size:12px!important;line-height:1.15!important}
+.vd-report-hr-kpi-grid .vd-report-kpi-clone small{font-size:5.5px!important;line-height:1.2!important}
+
+.vd-report-hr-chart-grid{
+  grid-template-columns:1fr 1fr!important;
+  gap:4mm!important;
+  align-items:start!important;
+}
+.vd-report-hr-chart-page .vd-report-chart-card{
+  box-sizing:border-box!important;
+  height:112mm!important;
+  min-height:112mm!important;
+  max-height:112mm!important;
+  padding:2mm!important;
+  overflow:hidden!important;
+}
+.vd-report-hr-chart-page .vd-report-chart-card .panel-title{
+  margin:-2mm -2mm 1.5mm!important;
+  padding:1.5mm 2mm!important;
+}
+.vd-report-hr-chart-page .vd-report-chart-card .panel-title h3{font-size:8px!important;line-height:1.25!important}
+.vd-report-hr-chart-page .vd-report-chart-card .panel-title span{font-size:5.5px!important;line-height:1.2!important}
+.vd-report-hr-chart-page .vd-report-chart-image{
+  width:100%!important;
+  height:94mm!important;
+  max-height:94mm!important;
+  object-fit:contain!important;
+}
+.vd-report-hr-chart-page-single .vd-report-hr-chart-grid{grid-template-columns:1fr!important}
+.vd-report-hr-chart-page-single .vd-report-chart-card{width:100%!important}
+
+.vd-report-hr-control.vd-report-control-table-page:before,
+.vd-report-hr-control.vd-report-control-table-page:after,
+.vd-report-hr-control.vd-report-control-detail-page:before,
+.vd-report-hr-control.vd-report-control-detail-page:after{
+  display:none!important;
+}
+.vd-report-hr-control.vd-report-control-table-page,
+.vd-report-hr-control.vd-report-control-detail-page{
+  box-sizing:border-box!important;
+  padding:5mm 7mm 5mm!important;
+  overflow:hidden!important;
+}
+.vd-report-hr-control.vd-report-control-table-page .vd-report-section-header,
+.vd-report-hr-control.vd-report-control-detail-page .vd-report-section-header{
+  min-height:22mm!important;
+  padding:0 30mm 2.5mm!important;
+}
+.vd-report-hr-control .vd-report-paginated-table th{font-size:5.5px!important;line-height:1.2!important}
+.vd-report-hr-control .vd-report-paginated-table td{font-size:5.25px!important;line-height:1.28!important}
+
+@media print{
+  .vd-report-hr-kpi-page,
+  .vd-report-hr-chart-page{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+    break-after:page!important;
+    page-break-after:always!important;
+  }
+}
+
+
+/* Closures emergency tree: report clones use button elements as visual nodes.
+   Re-enable only those nodes after the generic report rule hides buttons. */
+.vd-report-v2 .vd-report-closures-tree-page button.emergency-tree-card{
+  display:flex!important;
+  pointer-events:none!important;
+}
+.vd-report-v2 .vd-report-closures-tree-page button.emergency-tree-warning{
+  display:grid!important;
+  pointer-events:none!important;
+}
+
+
+/* Violation-family PDF doughnuts: clean chart image + explicit value/percentage legend. */
+.vd-report-violations-chart-page .vd-report-violation-doughnut-card .vx-chart{
+  display:grid!important;
+  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)!important;
+  align-items:center!important;
+  gap:2mm!important;
+  height:50mm!important;
+  min-height:50mm!important;
+  max-height:50mm!important;
+  padding:1mm!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-card .vd-report-chart-image-doughnut{
+  grid-column:1!important;
+  display:block!important;
+  width:100%!important;
+  height:45mm!important;
+  max-height:45mm!important;
+  object-fit:contain!important;
+  margin:0 auto!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend{
+  grid-column:2!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:.7mm!important;
+  min-width:0!important;
+  width:100%!important;
+  max-height:47mm!important;
+  overflow:hidden!important;
+  direction:rtl!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item{
+  display:grid!important;
+  grid-template-columns:2mm minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:1mm!important;
+  min-width:0!important;
+  padding:.55mm .6mm!important;
+  border-bottom:1px solid #e5e7eb!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:5px!important;
+  line-height:1.15!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item:last-child{
+  border-bottom:0!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item i{
+  width:2mm!important;
+  height:2mm!important;
+  min-width:2mm!important;
+  border-radius:50%!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item b{
+  min-width:0!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-weight:800!important;
+}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item strong{
+  white-space:nowrap!important;
+  color:#172b5f!important;
+  -webkit-text-fill-color:#172b5f!important;
+  font-size:5px!important;
+  font-weight:900!important;
+}
+.vd-report-violations-chart-page .vd-report-doughnut-dense .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item{
+  font-size:4.6px!important;
+  gap:.7mm!important;
+  padding:.42mm .5mm!important;
+}
+.vd-report-violations-chart-page .vd-report-doughnut-ultra-dense .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item{
+  font-size:4.15px!important;
+  line-height:1.05!important;
+  gap:.6mm!important;
+  padding:.32mm .45mm!important;
+}
+.vd-report-safety-chart-page-last.vd-report-violations-chart-page .vd-report-violation-doughnut-card .vx-chart{
+  height:94mm!important;
+  min-height:94mm!important;
+  max-height:94mm!important;
+  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr)!important;
+}
+.vd-report-safety-chart-page-last.vd-report-violations-chart-page .vd-report-violation-doughnut-card .vd-report-chart-image-doughnut{
+  height:80mm!important;
+  max-height:80mm!important;
+}
+.vd-report-safety-chart-page-last.vd-report-violations-chart-page .vd-report-violation-doughnut-legend{
+  max-height:86mm!important;
+}
+.vd-report-safety-chart-page-last.vd-report-violations-chart-page .vd-report-violation-doughnut-legend .vd-report-doughnut-legend-item{
+  font-size:5.5px!important;
+  padding:.8mm .7mm!important;
+}
+
+/* Main report PDF: keep simple doughnuts centered and fully inside each chart card. */
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control:not(.vd-report-control-chart-page-single) .vd-report-control-chart-card.vd-report-doughnut-card:not(.vd-report-doughnut-dense):not(.vd-report-doughnut-ultra-dense) .me-chart-box{
+  justify-content:center!important;
+  gap:1mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control:not(.vd-report-control-chart-page-single) .vd-report-control-chart-card.vd-report-doughnut-card:not(.vd-report-doughnut-dense):not(.vd-report-doughnut-ultra-dense) .vd-report-chart-image-doughnut{
+  width:72%!important;
+  height:29mm!important;
+  max-height:29mm!important;
+  flex:0 0 29mm!important;
+  object-position:center center!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-master-control:not(.vd-report-control-chart-page-single) .vd-report-control-chart-card.vd-report-doughnut-card:not(.vd-report-doughnut-dense):not(.vd-report-doughnut-ultra-dense) .vd-report-control-doughnut-legend{
+  min-height:6mm!important;
+  max-height:10mm!important;
+  gap:.7mm 1.6mm!important;
+  padding:0 .8mm!important;
+}
+
+/* Violation PDF doughnuts: full-row cards and non-clipping legends. */
+.vd-report-violations-chart-page .vd-report-violation-doughnut-wide{grid-column:1/-1!important;height:63mm!important;min-height:63mm!important;max-height:63mm!important;overflow:visible!important}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-wide .vx-chart{grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)!important;height:50mm!important;min-height:50mm!important;max-height:none!important;overflow:visible!important}
+.vd-report-violations-chart-page .vd-report-violation-doughnut-legend{max-height:none!important;overflow:visible!important}
+.vd-report-violations-chart-page .vd-report-doughnut-dense .vd-report-violation-doughnut-legend,.vd-report-violations-chart-page .vd-report-doughnut-ultra-dense .vd-report-violation-doughnut-legend{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-content:center!important;column-gap:2mm!important;row-gap:.45mm!important}
+.vd-report-violations-chart-page .vd-report-doughnut-dense .vd-report-doughnut-legend-item,.vd-report-violations-chart-page .vd-report-doughnut-ultra-dense .vd-report-doughnut-legend-item{min-height:5mm!important;box-sizing:border-box!important}
+
+/* Violation PDF legend hard fix: external sibling, always visible in print. */
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-card{
+  display:grid!important;
+  grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr)!important;
+  grid-template-rows:auto 1fr!important;
+  height:76mm!important;
+  min-height:76mm!important;
+  max-height:76mm!important;
+  overflow:visible!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-card>.panel-title{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-card>.vx-chart{
+  grid-column:1!important;
+  grid-row:2!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:54mm!important;
+  min-height:54mm!important;
+  max-height:54mm!important;
+  overflow:visible!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-card>.vx-chart>.vd-report-chart-image-doughnut{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:46mm!important;
+  max-height:46mm!important;
+  object-fit:contain!important;
+  margin:0 auto!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-legend-external{
+  grid-column:2!important;
+  grid-row:2!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-content:center!important;
+  align-items:stretch!important;
+  gap:.7mm 2mm!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:1.2mm!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:relative!important;
+  z-index:20!important;
+  background:#fff!important;
+  direction:rtl!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-legend-external .vd-report-doughnut-legend-item{
+  display:grid!important;
+  grid-template-columns:2.2mm minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:.8mm!important;
+  min-width:0!important;
+  min-height:5.3mm!important;
+  padding:.55mm .7mm!important;
+  box-sizing:border-box!important;
+  border:1px solid #e2e8f0!important;
+  border-radius:1.2mm!important;
+  background:#f8fafc!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-legend-external .vd-report-doughnut-legend-item i{
+  display:block!important;
+  width:2.2mm!important;
+  height:2.2mm!important;
+  min-width:2.2mm!important;
+  border-radius:50%!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-legend-external .vd-report-doughnut-legend-item b{
+  display:block!important;
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:5.2px!important;
+  line-height:1.18!important;
+  font-weight:800!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-violations-chart-page .vd-report-violation-doughnut-legend-external .vd-report-doughnut-legend-item strong{
+  display:block!important;
+  white-space:nowrap!important;
+  color:#172b5f!important;
+  -webkit-text-fill-color:#172b5f!important;
+  font-size:5.2px!important;
+  font-weight:900!important;
+}
+
+/* Projects detail PDF: isolate this table from the generic AutoFit rules.
+   Most columns stay on one line; only text-heavy fields wrap at word boundaries. */
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  table-layout:auto!important;
+  border-collapse:collapse!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:.30mm .24mm!important;
+  font-size:4px!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  vertical-align:middle!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:.34mm .24mm!important;
+  font-size:4.45px!important;
+  line-height:1.08!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  vertical-align:middle!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th *,
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td *{
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:clip!important;
+  -webkit-line-clamp:unset!important;
+  line-clamp:unset!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th:nth-child(4),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td:nth-child(4),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th:nth-child(5),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td:nth-child(5),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th:nth-child(14),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td:nth-child(14),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th:nth-child(15),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td:nth-child(15),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table th:nth-child(16),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table td:nth-child(16),
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table .vd-projects-advice-col{
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table .vd-projects-advice-col{
+  min-width:34mm!important;
+  max-width:48mm!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table .vd-projects-advice-date-col{
+  min-width:13mm!important;
+  max-width:18mm!important;
+  white-space:nowrap!important;
+}
+body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-detail-panel table .vd-projects-serial-col{
+  min-width:4mm!important;
+  max-width:6mm!important;
+  width:1%!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+}
+
+
+/* General site-engineers matrix report — 2026-10-04 */
+.vd-report-employee-matrix-page .vd-report-section-body{
+  margin-top:1.5mm!important;
+  overflow:hidden!important;
+}
+.vd-employee-matrix-summary{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:2mm!important;
+  margin-bottom:2.2mm!important;
+}
+.vd-employee-matrix-summary>div{
+  border:1px solid #cfd8e6!important;
+  border-right:1.2mm solid #1d5f8f!important;
+  border-radius:3.2px!important;
+  background:#f7faff!important;
+  padding:1.6mm 2mm!important;
+  min-height:12mm!important;
+}
+.vd-employee-matrix-summary span{
+  display:block!important;
+  color:#667085!important;
+  font-size:5.7px!important;
+  font-weight:800!important;
+  margin-bottom:.6mm!important;
+}
+.vd-employee-matrix-summary b{
+  display:block!important;
+  color:#172b5f!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  line-height:1.25!important;
+}
+.vd-report-employee-matrix-table{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  direction:rtl!important;
+  font-size:5.15px!important;
+  color:#000!important;
+}
+.vd-report-employee-matrix-table th,
+.vd-report-employee-matrix-table td{
+  border:1px solid #ccd5e2!important;
+  padding:1.05mm .55mm!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  line-height:1.22!important;
+  color:#000!important;
+  overflow-wrap:anywhere!important;
+  page-break-inside:avoid!important;
+}
+.vd-report-employee-matrix-table th{
+  background:#eaf1f9!important;
+  font-size:4.9px!important;
+  font-weight:900!important;
+  white-space:normal!important;
+}
+.vd-report-employee-matrix-table tbody tr:nth-child(even) td{
+  background:#f8fafc!important;
+}
+.vd-report-employee-matrix-table th:nth-child(1),
+.vd-report-employee-matrix-table td:nth-child(1){width:2.8%!important}
+.vd-report-employee-matrix-table th:nth-child(2),
+.vd-report-employee-matrix-table td:nth-child(2){width:13.2%!important;text-align:right!important;padding-right:1mm!important}
+.vd-report-employee-matrix-table th:nth-child(3),
+.vd-report-employee-matrix-table td:nth-child(3){width:4.5%!important}
+.vd-report-employee-matrix-table .vd-report-engineer-name{
+  font-size:5.45px!important;
+  font-weight:900!important;
+  color:#111827!important;
+}
+.vd-report-employee-matrix-table .ee-score,
+.vd-report-employee-matrix-table .ee-mini-score{
+  display:inline-block!important;
+  min-width:0!important;
+  padding:.8mm 1mm!important;
+  border-radius:2.4px!important;
+  font-size:5px!important;
+  color:#000!important;
+  background:#f1f5f9!important;
+  box-shadow:none!important;
+}
+.vd-report-employee-matrix-table small{
+  display:block!important;
+  margin-top:.45mm!important;
+  font-size:4.5px!important;
+  color:#475467!important;
+}

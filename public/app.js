@@ -173,7 +173,7 @@ const CARD_RULES={
  }
 };
 
-const state={data:null,user:null,page:'master',filters:new Map(),interactiveFilters:new Map(),charts:[],map:null,theme:0,export:{sheet:'vd projects',source:null,cache:new Map(),columns:new Set(),filters:new Map(),initializedSheet:null}};
+const state={data:null,user:null,page:'master',filters:new Map(),interactiveFilters:new Map(),periods:new Map(),charts:[],map:null,theme:0,export:{sheet:'vd projects',source:null,cache:new Map(),columns:new Set(),filters:new Map(),initializedSheet:null}};
 
 const COLORS=['#0879a5','#19a5c8','#5bc6de','#83d9e8','#2f73b7','#79a8d8','#d0a351','#d36d56','#7d70b4','#69a99b'];
 function toast(message){
@@ -265,10 +265,88 @@ function rowPasses(row,defs=pageFilterDefs()){
  if(!manual)return false;
  return [...interactiveStore().values()].every(rule=>rulePass(row,rule));
 }
-function filtered(rows,defs=pageFilterDefs()){return (rows||[]).filter(r=>rowPasses(r,defs))}
+const PERIOD_META={
+ master:{basis:'الأساس: تاريخ بداية المشروع / بداية التصريح / تاريخ التكليف',fields:['startDate','start','assignmentDate']},
+ projects:{basis:'الأساس: تاريخ بداية المشروع',fields:['startDate']},
+ map:{basis:'الأساس: تاريخ بداية المشروع',fields:['startDate']},
+ permits:{basis:'الأساس: تاريخ بداية التصريح',fields:['start']},
+ lines:{basis:'الأساس: تاريخ التكليف',fields:['assignmentDate']},
+ settlements:{basis:'لا يوجد محور زمني موحد لهذه الشاشة',disabled:true},
+ guarantees:{basis:'الأساس: تاريخ انتهاء الضمان',fields:['guaranteeExpiry']},
+ complaints:{basis:'لا يوجد تاريخ معتمد في سجل الشكاوى',disabled:true},
+ execution:{basis:'الأساس: تاريخ التكليف',fields:['assignmentDate']},
+ parties:{basis:'الأساس: تاريخ بداية المشروع / تاريخ التكليف',fields:['startDate','assignmentDate']},
+ municipalities:{basis:'لا يوجد محور زمني في التجميع البلدي',disabled:true},
+ traceability:{basis:'لا يوجد تاريخ موحد في سجل التتبع الحالي',disabled:true},
+ quality:{basis:'لا يوجد تاريخ مستقل لسجل جودة البيانات',disabled:true},
+ risks:{basis:'الأساس: تاريخ بداية المشروع',fields:['startDate']},
+ analytics:{basis:'الأساس: تاريخ المصدر التشغيلي',fields:['startDate','start','assignmentDate']}
+};
+function periodState(){
+ if(!state.periods.has(state.page))state.periods.set(state.page,{from:'',to:'',preset:'all'});
+ return state.periods.get(state.page);
+}
+function parsePeriodDate(v){
+ const s=clean(v);if(!s)return null;
+ let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+ if(m){const d=new Date(+m[1],+m[2]-1,+m[3]);return isNaN(d)?null:d}
+ m=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+ if(m){const a=+m[1],b=+m[2],y=+m[3],day=a>12?a:b>12?b:a,month=a>12?b:b>12?a:b;const d=new Date(y,month-1,day);return isNaN(d)?null:d}
+ const d=new Date(s);return isNaN(d)?null:d;
+}
+function inputPeriodDate(v){
+ const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;
+ const d=new Date(+m[1],+m[2]-1,+m[3]);return isNaN(d)?null:d;
+}
+function rowPeriodDate(row){
+ const meta=PERIOD_META[state.page];if(!meta||meta.disabled)return null;
+ for(const field of meta.fields||[]){const d=parsePeriodDate(row?.[field]);if(d)return d}
+ return null;
+}
+function rowPassesPeriod(row){
+ const meta=PERIOD_META[state.page];if(!meta||meta.disabled)return true;
+ const st=periodState(),from=inputPeriodDate(st.from),to=inputPeriodDate(st.to);
+ if(!from&&!to)return true;
+ const d=rowPeriodDate(row);if(!d)return false;d.setHours(12,0,0,0);
+ if(from){from.setHours(0,0,0,0);if(d<from)return false}
+ if(to){to.setHours(23,59,59,999);if(d>to)return false}
+ return true;
+}
+function isoPeriod(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fmtPeriod(v){const d=inputPeriodDate(v);return d?String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear():''}
+function setPeriodPreset(preset){
+ const meta=PERIOD_META[state.page];if(!meta||meta.disabled)return;
+ const st=periodState(),today=new Date();today.setHours(0,0,0,0);
+ if(preset==='all'){st.from='';st.to=''}
+ else if(preset==='week'){const start=new Date(today);start.setDate(start.getDate()-((start.getDay()-5+7)%7));const end=new Date(start);end.setDate(end.getDate()+6);st.from=isoPeriod(start);st.to=isoPeriod(end)}
+ else if(preset==='month'){st.from=isoPeriod(new Date(today.getFullYear(),today.getMonth(),1));st.to=isoPeriod(today)}
+ else if(preset==='30'){const d=new Date(today);d.setDate(d.getDate()-29);st.from=isoPeriod(d);st.to=isoPeriod(today)}
+ else if(preset==='90'){const d=new Date(today);d.setDate(d.getDate()-89);st.from=isoPeriod(d);st.to=isoPeriod(today)}
+ else if(preset==='year'){st.from=isoPeriod(new Date(today.getFullYear(),0,1));st.to=isoPeriod(today)}
+ st.preset=preset;renderPage();
+}
+function periodLabel(){
+ const st=periodState();if(!st.from&&!st.to)return 'كامل المدة';
+ if(st.from&&st.to)return fmtPeriod(st.from)+' — '+fmtPeriod(st.to);
+ if(st.from)return 'من '+fmtPeriod(st.from);return 'حتى '+fmtPeriod(st.to);
+}
+function renderPeriodControls(){
+ const box=$('#periodControls'),meta=PERIOD_META[state.page],st=periodState();if(!box)return;
+ const disabled=!meta||meta.disabled,from=$('#periodFrom'),to=$('#periodTo'),basis=$('#periodBasis');
+ box.classList.toggle('is-disabled',disabled);
+ if(basis)basis.textContent=meta?.basis||'لا يوجد محور زمني لهذه الشاشة';
+ if(from){from.disabled=disabled;from.value=disabled?'':st.from}
+ if(to){to.disabled=disabled;to.value=disabled?'':st.to}
+ $$('.vd-period-presets [data-period]',box).forEach(btn=>{btn.disabled=disabled;btn.classList.toggle('active',!disabled&&btn.dataset.period===st.preset)});
+ const main=$('#periodSummaryMain'),sub=$('#periodSummarySub');
+ if(main)main.textContent=disabled?'كامل البيانات':periodLabel();
+ if(sub)sub.textContent=disabled?(meta?.basis||'بدون فلتر زمني'):(meta?.basis||'الأساس الزمني').replace(/^الأساس:\s*/,'');
+}
+function filtered(rows,defs=pageFilterDefs()){return (rows||[]).filter(r=>rowPasses(r,defs)&&rowPassesPeriod(r))}
 function activeFilterCount(){
  let x=interactiveStore().size;
  for(const def of pageFilterDefs()){const {values,set}=selectedFor(def.field);if(values.length&&set.size<values.length)x++}
+ const meta=PERIOD_META[state.page],st=periodState();if(meta&&!meta.disabled&&(st.from||st.to))x++;
  return x;
 }
 function commonFiltered(rows){
@@ -291,62 +369,39 @@ function toggleInteractiveFilter(key,rule){
 function clearAllFilters(){
  pageFilterDefs().forEach(d=>state.filters.delete(filterKey(d.field)));
  interactiveStore().clear();
+ const st=periodState();st.from='';st.to='';st.preset='all';
  renderPage();
- toast('تمت إعادة تعيين الفلاتر');
+ toast('تم مسح الفلاتر وإعادة الفترة إلى كامل المدة');
 }
 function renderFilterSummary(){
  const box=$('#activeFilters'),count=$('#resultCount');if(!box||!count)return;
  const chips=[];
  for(const def of pageFilterDefs()){
   const {values,set}=selectedFor(def.field);
-  if(values.length&&set.size<values.length){
-   const selected=[...set];
-   const detail=selected.length<=2?selected.join('، '):(selected.length+' من '+values.length);
-   chips.push({key:'manual:'+def.field,label:def.label+': '+detail,type:'manual',field:def.field});
-  }
+  if(values.length&&set.size<values.length){const selected=[...set],detail=selected.length<=2?selected.join('، '):(selected.length+' من '+values.length);chips.push({key:'manual:'+def.field,label:def.label+': '+detail})}
  }
- for(const [key,rule] of interactiveStore()){
-  chips.push({key:'interactive:'+key,label:(rule.label||rule.field)+': '+(rule.displayValue||rule.value||'مفعل'),type:'interactive',filterKey:key});
- }
- box.innerHTML=chips.length?chips.map(c=>'<span class="filter-chip '+(c.type==='interactive'?'interactive':'')+'" data-chip="'+esc(c.key)+'"><b>'+esc(c.label)+'</b><button type="button" aria-label="حذف الفلتر">×</button></span>').join(''):'<span class="no-active-filter">لا توجد فلاتر نشطة</span>';
- $$('.filter-chip button',box).forEach(btn=>btn.addEventListener('click',()=>{
-  const chip=btn.closest('.filter-chip'),key=chip.dataset.chip||'';
-  if(key.startsWith('manual:'))state.filters.delete(filterKey(key.slice(7)));
-  if(key.startsWith('interactive:'))interactiveStore().delete(key.slice(12));
-  renderPage();
- }));
- const rows=primaryRows(),defs=pageFilterDefs().filter(d=>rows.some(r=>Object.prototype.hasOwnProperty.call(r,d.field)));
- count.textContent=filtered(rows,defs).length+' نتيجة';
+ for(const [key,rule] of interactiveStore())chips.push({key:'interactive:'+key,label:(rule.label||rule.field)+': '+(rule.displayValue||rule.value||'مفعل')});
+ const meta=PERIOD_META[state.page],st=periodState();
+ if(meta&&!meta.disabled&&(st.from||st.to))chips.push({key:'period',label:'الفترة: '+periodLabel()});
+ box.innerHTML=chips.length?chips.map(c=>'<button type="button" class="vd-filter-chip" data-chip="'+esc(c.key)+'"><span>'+esc(c.label)+'</span><b>×</b></button>').join(''):'<span class="vd-no-active-filters">لا توجد فلاتر نشطة</span>';
+ $$('.vd-filter-chip',box).forEach(btn=>btn.addEventListener('click',()=>{const key=btn.dataset.chip||'';if(key.startsWith('manual:'))state.filters.delete(filterKey(key.slice(7)));else if(key.startsWith('interactive:'))interactiveStore().delete(key.slice(12));else if(key==='period'){const ps=periodState();ps.from='';ps.to='';ps.preset='all'}renderPage()}));
+ const rows=primaryRows(),defs=pageFilterDefs().filter(d=>rows.some(r=>Object.prototype.hasOwnProperty.call(r,d.field))),matched=filtered(rows,defs);
+ count.innerHTML='<b>'+matched.length+' سجل</b><small>من '+rows.length+' إجمالي</small>';
+ renderPeriodControls();
 }
 
 function renderFilters(){
- const bar=$('#filterBar'),host=$('#filtersHost'),defs=pageFilterDefs();
- if(!defs.length){bar.style.display='none';host.innerHTML='';return}
- bar.style.display='block';
+ const bar=$('#filterBar'),host=$('#filtersHost'),defs=pageFilterDefs();if(!bar||!host)return;
+ bar.style.display='block';bar.classList.toggle('no-manual-filters',!defs.length);
  host.innerHTML=defs.map(def=>{
-  const {values,set}=selectedFor(def.field);
-  const label=!values.length?'لا توجد قيم':set.size===values.length?'الكل':set.size+'/'+values.length;
-  return '<div class="multi-filter" data-field="'+esc(def.field)+'">'+
-   '<button class="mf-trigger" type="button"><b>'+esc(def.label)+'</b><span>'+esc(label)+' ▾</span></button>'+
-   '<div class="mf-pop"><input class="mf-search" type="search" placeholder="بحث داخل '+esc(def.label)+'...">'+
-   '<div class="mf-actions"><button data-act="all" type="button">تحديد الكل</button><button data-act="none" type="button">إلغاء الكل</button></div>'+
-   '<div class="mf-options">'+values.map(v=>'<label class="mf-option" data-text="'+esc(norm(v))+'"><input type="checkbox" value="'+esc(v)+'" '+(set.has(v)?'checked':'')+'><span>'+esc(v)+'</span></label>').join('')+'</div></div></div>';
+  const {values,set}=selectedFor(def.field),label=!values.length?'لا توجد قيم':set.size===values.length?'الكل':set.size+'/'+values.length;
+  return '<div class="multi-filter" data-field="'+esc(def.field)+'"><button class="mf-trigger" type="button"><b>'+esc(def.label)+'</b><span>'+esc(label)+' ▾</span></button><div class="mf-pop"><input class="mf-search" type="search" placeholder="بحث داخل '+esc(def.label)+'..."><div class="mf-actions"><button data-act="all" type="button">تحديد الكل</button><button data-act="none" type="button">إلغاء الكل</button></div><div class="mf-options">'+values.map(v=>'<label class="mf-option" data-text="'+esc(norm(v))+'"><input type="checkbox" value="'+esc(v)+'" '+(set.has(v)?'checked':'')+'><span>'+esc(v)+'</span></label>').join('')+'</div></div></div>';
  }).join('');
- $$('.mf-trigger',host).forEach(btn=>btn.addEventListener('click',e=>{
-   e.stopPropagation();const box=btn.closest('.multi-filter');$$('.multi-filter',host).forEach(x=>{if(x!==box)x.classList.remove('open')});box.classList.toggle('open');
- }));
- $$('.mf-search',host).forEach(inp=>inp.addEventListener('input',()=>{
-   const q=norm(inp.value);$$('.mf-option',inp.closest('.mf-pop')).forEach(x=>x.style.display=!q||x.dataset.text.includes(q)?'flex':'none');
- }));
- $$('.mf-actions button',host).forEach(btn=>btn.addEventListener('click',()=>{
-   const box=btn.closest('.multi-filter'),field=box.dataset.field,{values,set}=selectedFor(field);
-   set.clear();if(btn.dataset.act==='all')values.forEach(v=>set.add(v));renderPage();
- }));
- $$('.mf-option input',host).forEach(inp=>inp.addEventListener('change',()=>{
-   const field=inp.closest('.multi-filter').dataset.field,{set}=selectedFor(field);
-   inp.checked?set.add(inp.value):set.delete(inp.value);renderPage();
- }));
- renderFilterSummary();
+ $$('.mf-trigger',host).forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const box=btn.closest('.multi-filter');$$('.multi-filter',host).forEach(x=>{if(x!==box)x.classList.remove('open')});box.classList.toggle('open')}));
+ $$('.mf-search',host).forEach(inp=>inp.addEventListener('input',()=>{const q=norm(inp.value);$$('.mf-option',inp.closest('.mf-pop')).forEach(x=>x.style.display=!q||x.dataset.text.includes(q)?'flex':'none')}));
+ $$('.mf-actions button',host).forEach(btn=>btn.addEventListener('click',()=>{const box=btn.closest('.multi-filter'),field=box.dataset.field,{values,set}=selectedFor(field);set.clear();if(btn.dataset.act==='all')values.forEach(v=>set.add(v));renderPage()}));
+ $$('.mf-option input',host).forEach(inp=>inp.addEventListener('change',()=>{const field=inp.closest('.multi-filter').dataset.field,{set}=selectedFor(field);inp.checked?set.add(inp.value):set.delete(inp.value);renderPage()}));
+ renderPeriodControls();renderFilterSummary();
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.multi-filter'))$$('.multi-filter').forEach(x=>x.classList.remove('open'))});
 
@@ -1173,15 +1228,12 @@ function reportName(type,forceFiltered=false){
  return 'VD_UrgentSolutions_'+String(type).replace(/\s+/g,'_')+'_'+scope+'_'+stamp;
 }
 function printCurrent(){
- const old=document.title,meta=PAGE_META[state.page]||PAGE_META.master;
- const now=new Date();
- const title=reportName(meta.title||state.page);
+ if(window.VDReportExport?.print)return window.VDReportExport.print();
+ const old=document.title,meta=PAGE_META[state.page]||PAGE_META.master,now=new Date(),title=reportName(meta.title||state.page);
  const titleEl=$('#printMetaTitle'),timeEl=$('#printMetaTime');
  if(titleEl)titleEl.textContent='إدارة الحلول العاجلة • '+meta.title;
  if(timeEl)timeEl.textContent=now.toLocaleString('ar-SA',{dateStyle:'medium',timeStyle:'short'});
- document.title=title;
- window.print();
- setTimeout(()=>document.title=old,500);
+ document.title=title;window.print();setTimeout(()=>document.title=old,500);
 }
 
 function renderPage(){
@@ -1234,7 +1286,11 @@ $('#sidebarToggle').addEventListener('click',()=>{document.body.classList.toggle
 if(localStorage.getItem('vd.urgent.sidebar.collapsed')==='1')document.body.classList.add('sidebar-collapsed');
 $('#refreshBtn').addEventListener('click',()=>loadData(true));
 $('#clearFiltersBtn').addEventListener('click',clearAllFilters);
+$('#previewReportBtn')?.addEventListener('click',()=>window.VDReportExport?.preview?.());
 $('#printBtn').addEventListener('click',printCurrent);
+$('#periodFrom')?.addEventListener('change',e=>{const st=periodState();st.from=e.target.value||'';if(st.from&&st.to&&st.from>st.to){const x=st.from;st.from=st.to;st.to=x}st.preset='custom';renderPage()});
+$('#periodTo')?.addEventListener('change',e=>{const st=periodState();st.to=e.target.value||'';if(st.from&&st.to&&st.from>st.to){const x=st.from;st.from=st.to;st.to=x}st.preset='custom';renderPage()});
+$$('.vd-period-presets [data-period]').forEach(btn=>btn.addEventListener('click',()=>setPeriodPreset(btn.dataset.period)));
 $('#logoutBtn').addEventListener('click',async()=>{await fetch('/api/auth/logout',{method:'POST'});location.replace('/login')});
 $('#vdInfoClose')?.addEventListener('click',closeInfo);
 $('#vdInfoModal')?.addEventListener('click',e=>{if(e.target.id==='vdInfoModal')closeInfo()});

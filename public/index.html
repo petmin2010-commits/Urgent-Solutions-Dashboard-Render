@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="/parity-core.css?v=jeddah-parity-20261004-1">
 <link rel="stylesheet" href="/project-news.css?v=urgent-news-speed-20261004-1">
 <link rel="stylesheet" href="/technology-parity.css?v=jeddah-parity-20261004-1">
+<link rel="stylesheet" href="/urgent-topbar-parity.css?v=20261004-toolbar-weather-1">
 </head>
 <body>
 <div id="boot" class="boot"><div class="boot-card"><div class="spinner"></div><b>جاري تحميل بيانات الحلول العاجلة</b><span>يتم قراءة البيانات مباشرة من Google Sheets</span></div></div>
@@ -76,17 +77,41 @@
 <button id="sidebarToggle" class="sidebar-toggle" type="button" title="إخفاء القائمة">‹</button>
 
 <main class="main">
-  <header class="top-shell">
+  <header class="top-shell topbar urgent-topbar-parity">
+    <div class="topbar-page-name" aria-hidden="true"><small>VISION DIMENSIONS</small><h1>إدارة الحلول العاجلة</h1></div>
     <div class="top-actions">
       <div class="search vd-global-search"><span>⌕</span><input id="globalSearch" type="search" placeholder="بحث في الصفحة الحالية..."></div>
-      <button id="refreshBtn" class="icon-btn" title="تحديث البيانات">↻</button>
-      <button id="themeBtn" class="icon-btn" title="تغيير مظهر الصفحة">◐</button>
-      <button id="printBtn" class="top-export" type="button">تصدير التقرير PDF</button>
+      <button id="refreshBtn" class="primary-btn" type="button" title="تحديث البيانات">↻ تحديث</button>
+      <div id="themePickerWrap" class="theme-picker-wrap">
+        <button id="themePickerButton" class="theme-picker-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="themePickerPanel">
+          <span class="theme-palette-icon" aria-hidden="true">🎨</span>
+          <span id="themeCurrentDot" class="theme-current-dot" aria-hidden="true"></span>
+          <span id="themePickerLabel" class="theme-picker-label">أبيض</span>
+          <span class="theme-picker-caret" aria-hidden="true">⌄</span>
+        </button>
+        <div id="themePickerPanel" class="theme-picker-panel" role="dialog" aria-label="اختيار ألوان الواجهة" hidden>
+          <div class="theme-picker-head"><div><strong>ألوان الواجهة</strong><small>اختر ستايل فاتح أو غامق</small></div><button id="themePickerClose" class="theme-picker-close" type="button" aria-label="إغلاق">×</button></div>
+          <div class="theme-mode-tabs" role="tablist" aria-label="نوع الألوان"><button type="button" class="active" data-theme-group="light">☀ فاتح</button><button type="button" data-theme-group="dark">🌙 غامق</button></div>
+          <div class="theme-swatch-grid" data-theme-group-panel="light">
+            <button type="button" data-theme="light"><i style="--swatch:#ffffff"></i><span>أبيض</span></button><button type="button" data-theme="lavender"><i style="--swatch:#b9a3e3"></i><span>لافندر</span></button><button type="button" data-theme="purple"><i style="--swatch:#8064c9"></i><span>موف</span></button><button type="button" data-theme="blue"><i style="--swatch:#397bc0"></i><span>أزرق</span></button><button type="button" data-theme="sky"><i style="--swatch:#3aa7c4"></i><span>سماوي</span></button><button type="button" data-theme="green"><i style="--swatch:#43996c"></i><span>أخضر</span></button><button type="button" data-theme="mint"><i style="--swatch:#36a88e"></i><span>نعناعي</span></button><button type="button" data-theme="orange"><i style="--swatch:#df8a3a"></i><span>برتقالي</span></button><button type="button" data-theme="gold"><i style="--swatch:#b99839"></i><span>ذهبي</span></button><button type="button" data-theme="pink"><i style="--swatch:#c56d92"></i><span>وردي</span></button>
+          </div>
+          <div class="theme-swatch-grid" data-theme-group-panel="dark" hidden>
+            <button type="button" data-theme="charcoal"><i style="--swatch:#3d424e"></i><span>فحمي</span></button><button type="button" data-theme="navy"><i style="--swatch:#203653"></i><span>كحلي</span></button><button type="button" data-theme="midnight"><i style="--swatch:#16263e"></i><span>ليلي أزرق</span></button><button type="button" data-theme="forest"><i style="--swatch:#1f4034"></i><span>أخضر داكن</span></button><button type="button" data-theme="plum"><i style="--swatch:#493052"></i><span>موف داكن</span></button><button type="button" data-theme="burgundy"><i style="--swatch:#4d2631"></i><span>خمري داكن</span></button>
+          </div>
+          <div class="theme-picker-foot">✓ يتم حفظ اختيارك تلقائيًا على هذا الجهاز</div>
+        </div>
+      </div>
+      <button id="themeBtn" type="button" hidden aria-hidden="true">◐</button>
+      <button id="printBtn" type="button" hidden aria-hidden="true">تصدير التقرير PDF</button>
     </div>
-    <div class="userbox">
-      <img id="userPhoto" alt="" hidden>
-      <div><b id="userName">...</b><span id="userRole">...</span></div>
-      <button id="logoutBtn" type="button">تسجيل الخروج</button>
+    <div id="dashboardContext" class="dashboard-context" data-city="جدة" data-lat="21.5433" data-lon="39.1728" aria-label="التاريخ والوقت ودرجة الحرارة">
+      <span class="dashboard-context-date" id="dashboardDate">—</span><span class="dashboard-context-sep" aria-hidden="true"></span><span class="dashboard-context-time" id="dashboardTime">—</span><span class="dashboard-context-sep" aria-hidden="true"></span><span class="dashboard-context-temp" id="dashboardTemp" title="درجة الحرارة الحالية"><i aria-hidden="true">🌡</i><b>--°م</b></span>
+    </div>
+    <div id="dashboardUserProfile" class="userbox dashboard-user-profile">
+      <span class="dashboard-live-badge" id="vdSourceBadge" title="اتصال مباشر بالبيانات"><i aria-hidden="true"></i><span>LIVE SHEETS</span></span>
+      <div class="dashboard-user-avatar" aria-hidden="true"><img id="userPhoto" alt="" hidden><span id="urgentUserInitial">U</span></div>
+      <div class="dashboard-user-info"><strong id="userName">...</strong><span id="userRole">...</span></div>
+      <button id="logoutBtn" class="dashboard-logout-button" type="button" title="تسجيل الخروج" aria-label="تسجيل الخروج"><span class="dashboard-logout-icon">↪</span><span>تسجيل الخروج</span></button>
     </div>
   </header>
 
@@ -140,5 +165,6 @@
 <script src="/report-export.js?v=full-parity-20261004-2"></script>
 <script src="/i18n.js?v=4-full-parity"></script>
 <script src="/logo-effects.js?v=vision-logo-proximity-20261004-1"></script>
+<script src="/toolbar-context.js?v=20261004-toolbar-weather-1"></script>
 </body>
 </html>

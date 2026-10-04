@@ -67,8 +67,10 @@ async function openAI(){
 }
 function installAI(){addTopButton('vdAiBtn','✦','المحلل الذكي',openAI)}
 function installStatus(){
- const user=$('.userbox');if(!user||$('#vdSourceBadge'))return;const b=document.createElement('span');b.id='vdSourceBadge';b.className='vd-source-badge';b.innerHTML='<i></i><span>LIVE SHEETS</span>';user.prepend(b);
- window.addEventListener('vd:urgent-data',e=>{const mode=e.detail?.sourceMode||'live',fallback=mode==='snapshot'||mode==='stale-cache';b.classList.toggle('snapshot',fallback);b.querySelector('span').textContent=mode==='snapshot'?'SNAPSHOT FALLBACK':mode==='stale-cache'?'STALE CACHE':'LIVE SHEETS'})
+ const user=$('.userbox');if(!user)return;let b=$('#vdSourceBadge');
+ if(!b){b=document.createElement('span');b.id='vdSourceBadge';b.className='dashboard-live-badge vd-source-badge';b.innerHTML='<i></i><span>LIVE SHEETS</span>';user.prepend(b)}
+ const label=b.querySelector('span:last-child')||b;
+ window.addEventListener('vd:urgent-data',e=>{const mode=e.detail?.sourceMode||'live',fallback=mode==='snapshot'||mode==='stale-cache';b.classList.toggle('snapshot',fallback);label.textContent=mode==='snapshot'?'SNAPSHOT FALLBACK':mode==='stale-cache'?'STALE CACHE':'LIVE SHEETS'})
 }
 function installReportPrint(){
  window.addEventListener('beforeprint',()=>{window.VDCountUp?.finishAll?.();const title=$('#printMetaTitle');if(title&&window.VDReportNaming)title.textContent='إدارة الحلول العاجلة • '+window.VDReportNaming.arabicTitle()});

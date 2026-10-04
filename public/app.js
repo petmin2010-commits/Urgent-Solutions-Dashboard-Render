@@ -25,8 +25,13 @@ const PAGE_META={
  quality:{title:'جودة البيانات',sub:'تدقيق ذكي للتعارضات والمراجع المفقودة والقيم غير الطبيعية.',icon:'◎',eye:'DATA QUALITY'},
  risks:{title:'مخاطر المشاريع',sub:'مؤشر مركب للمخاطر النظامية والتعاقدية وفجوات الأمتار وجودة البيانات.',icon:'⚠',eye:'PROJECT RISK CONTROL'},
  analytics:{title:'التحليل التنفيذي',sub:'قراءة إدارية مركزة لأبرز مؤشرات الأداء والمخاطر التشغيلية.',icon:'⌁',eye:'EXECUTIVE ANALYTICS'},
- reports:{title:'مركز التقارير',sub:'تصدير تقارير PDF وExcel بأسماء منظمة وفق الشاشة والفلاتر الحالية.',icon:'⇩',eye:'REPORTS CENTER'},
- excelExport:{title:'تصدير تقرير Excel',sub:'اختيار قاعدة البيانات والأعمدة والفلاتر ثم تصدير القيم النهائية فقط.',icon:'▧',eye:'EXCEL EXPORT'}
+ smartCenter:{title:'مركز التحليل الذكي',sub:'قراءة ذكية موحدة للموقف الحالي والتغيرات والمخاطر والإجراءات ذات الأولوية.',icon:'◆',eye:'SMART INTELLIGENCE CENTER'},
+ temporalMemory:{title:'ذاكرة المشروع الزمنية',sub:'حفظ ومقارنة لقطات المؤشرات لرصد بداية التدهور والتغيرات عبر الزمن.',icon:'◷',eye:'PROJECT TEMPORAL MEMORY'},
+ investigationRoom:{title:'غرفة التحقيق الذكية',sub:'تحليل أسباب الظواهر والمخاطر بتقسيمها حسب البلدية والمقاول والمالك ومصادر البيانات.',icon:'⌕',eye:'SMART INVESTIGATION ROOM'},
+ explainableDecision:{title:'محرك القرار المفسر',sub:'ترتيب الحالات حسب الأولوية مع إظهار أسباب القرار والأدلة والإجراء المقترح.',icon:'⚖',eye:'EXPLAINABLE DECISION ENGINE'},
+ smartThursday:{title:'تقرير الخميس الذكي',sub:'ملخص أسبوعي الجمعة–الخميس للمؤشرات والتغيرات والقرارات المطلوبة للأسبوع التالي.',icon:'▣',eye:'SMART THURSDAY REPORT'},
+ reports:{title:'مركز التقارير',sub:'تصدير تقارير PDF وExcel بأسماء منظمة وفق الشاشة والفلاتر الحالية.',icon:'▦',eye:'REPORTS CENTER'},
+ excelExport:{title:'تقارير الاكسيل',sub:'اختيار قاعدة البيانات والأعمدة والفلاتر ثم تصدير القيم النهائية فقط.',icon:'▧',eye:'EXCEL REPORTS'}
 };
 const FILTERS={
  master:[
@@ -109,6 +114,11 @@ const PAGE_SOURCES={
  quality:'تدقيق مشتق من vd projects + info. new + Alternative lines',
  risks:'مؤشر مشتق من التصريح والضمان والتسوية والعقد والإحداثيات والتمديدات',
  analytics:'مؤشرات مجمعة من المشاريع والتصاريح والخطوط والتسويات',
+ smartCenter:'تحليل مباشر من المشاريع والتصاريح والخطوط والتسويات والضمانات وجودة البيانات',
+ temporalMemory:'لقطات زمنية محفوظة من مؤشرات الداشبورد مع مقارنة التغيرات',
+ investigationRoom:'تحليل تجميعي للظواهر حسب البلدية والمقاول والمالك ومصدر المشكلة',
+ explainableDecision:'قواعد قرار مفسرة مبنية على المخاطر والتصاريح والضمانات والتسويات وجودة البيانات',
+ smartThursday:'ملخص الجمعة–الخميس ومقارنة أحدث لقطة زمنية بالخط الأساس السابق',
  reports:'شاشات الداشبورد الحالية وفق الفلاتر النشطة',
  excelExport:'القيم النهائية من Google Sheets'
 };
@@ -1121,9 +1131,12 @@ function renderAnalyticsV2(){
  x=topEntries(countBy(projects,'municipality'),12);makeChart('anMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
 }
 
+function renderSmartShell(){
+ $('#pageHost').innerHTML='<section id="urgentSmartSuiteHost" class="urgent-smart-suite-host" data-smart-page="'+esc(state.page)+'"></section>';
+}
 function renderReports(){
  $('#pageHost').innerHTML='<div class="report-actions">'+
- ['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','risks','quality','analytics'].map(key=>{
+ ['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','risks','quality','analytics','smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].map(key=>{
   const m=PAGE_META[key];return '<article class="report-card"><b>'+esc(m.title)+'</b><p>'+esc(m.sub)+'</p><div class="report-card-actions"><button class="report-preview" type="button" data-preview="'+key+'">معاينة</button><button class="report-export" type="button" data-report="'+key+'">تصدير PDF</button></div></article>'
  }).join('')+'</div>';
  $$('[data-preview]','#pageHost').forEach(btn=>btn.addEventListener('click',()=>{openPage(btn.dataset.preview);toast('تم فتح معاينة التقرير — استخدم زر تصدير التقرير PDF بالأعلى')}));
@@ -1239,9 +1252,9 @@ function printCurrent(){
 
 function renderPage(){
  destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[state.page]||PAGE_META.master;
- $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • JEDDAH WATER PROJECTS';
+ $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • URGENT SOLUTIONS';
  renderFilters();
- const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMasterV2;
+ const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,smartCenter:renderSmartShell,temporalMemory:renderSmartShell,investigationRoom:renderSmartShell,explainableDecision:renderSmartShell,smartThursday:renderSmartShell,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMasterV2;
  fn();wireTableSearch();wireInteractiveCards();decorateInfo();renderFilterSummary();if(window.VDCountUp)window.VDCountUp.refresh();else animateCounts();
  window.__urgentCurrentPage=state.page;
  window.dispatchEvent(new CustomEvent('vd:urgent-page',{detail:{page:state.page,data:state.data}}));
@@ -1249,7 +1262,17 @@ function renderPage(){
 }
 function canAccess(item){
  const p=state.user?.permissions||[];if(!p.length||p.includes('*'))return true;
- const key=item.dataset.page,label=clean($('b',item)?.textContent);return p.some(x=>norm(x)===norm(key)||norm(x)===norm(label));
+ const key=item.dataset.page,label=clean($('b',item)?.textContent);
+ const aliases={
+  excelExport:['تصدير تقرير Excel','تقارير الاكسيل','excelExport'],
+  smartCenter:['مركز التحليل الذكي','التحليل الذكي و التقارير','analytics','risks'],
+  temporalMemory:['ذاكرة المشروع الزمنية','التحليل الذكي و التقارير'],
+  investigationRoom:['غرفة التحقيق الذكية','التحليل الذكي و التقارير'],
+  explainableDecision:['محرك القرار المفسر','التحليل الذكي و التقارير'],
+  smartThursday:['تقرير الخميس الذكي','التحليل الذكي و التقارير']
+ };
+ const wanted=[key,label,...(aliases[key]||[])].map(norm);
+ return p.some(x=>wanted.includes(norm(x)));
 }
 function applyPermissions(){
  $$('.nav-item').forEach(item=>item.style.display=canAccess(item)?'grid':'none');

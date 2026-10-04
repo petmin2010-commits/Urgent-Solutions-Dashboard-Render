@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const pages=['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','quality','risks','analytics'];
+const pages=['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','quality','risks','analytics','smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'];
 function mount(){
  const st=window.VDUrgent?.getState?.();if(!st||st.page!=='reports')return;const host=document.querySelector('#pageHost');if(!host||host.querySelector('#vdReportHub'))return;
  const meta=window.VDUrgent?.PAGE_META||{},el=document.createElement('section');el.id='vdReportHub';el.className='vd-report-hub';

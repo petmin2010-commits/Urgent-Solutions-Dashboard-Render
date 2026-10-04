@@ -83,8 +83,9 @@
 /* Keep white text where a dark filled surface requires contrast */
 .page-hero,
 .page-hero *,
-.project-news,
-.project-news *,
+.news-label,
+.news-label *,
+.news-priority.urgent,
 .sidebar,
 .sidebar *,
 .us-smart-hero,
@@ -122,3 +123,15 @@
 
 /* Native form placeholders stay softer but neutral */
 ::placeholder{color:#5d5d5d !important;opacity:1;}
+
+/* Smart news: black readable text on the light ticker; priority/status chips keep semantic colors */
+.project-news .news-item,
+.project-news .news-title,
+.project-news .news-category,
+.project-news .news-date,
+.project-news .news-source,
+.project-news .news-control,
+.project-news .news-speed-control,
+.project-news .news-empty-message{
+  color:#000 !important;
+}

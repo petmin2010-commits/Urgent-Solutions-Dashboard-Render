@@ -1860,3 +1860,264 @@ html.desktop-artwork .login-card{z-index:11!important}
     transform:none!important;
   }
 }
+
+
+/* =========================================================
+   SMART WATER HUD — independent live objects, not baked art
+   ========================================================= */
+html.desktop-artwork .smart-water-hud{
+  position:absolute!important;
+  inset:0!important;
+  z-index:6!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  transform:translate3d(calc(var(--mx,0px)*.035),calc(var(--my,0px)*.025),0)!important;
+  transition:transform .24s cubic-bezier(.2,.72,.22,1)!important;
+}
+
+html.desktop-artwork .smart-water-links{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:visible!important;
+  mix-blend-mode:screen!important;
+  opacity:.94!important;
+}
+html.desktop-artwork .hud-link{
+  fill:none!important;
+  vector-effect:non-scaling-stroke!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+html.desktop-artwork .hud-link-soft{
+  stroke:rgba(96,218,250,.18)!important;
+  stroke-width:4!important;
+  filter:url(#hudGlow)!important;
+}
+html.desktop-artwork .hud-link-main{
+  stroke:rgba(201,248,255,.72)!important;
+  stroke-width:1.6!important;
+  stroke-dasharray:2 9!important;
+  filter:drop-shadow(0 0 5px rgba(101,223,251,.70)) drop-shadow(0 0 11px rgba(66,196,235,.35))!important;
+  animation:hudLinkFlow 5.6s linear infinite!important;
+}
+html.desktop-artwork .hud-delay-1{animation-delay:-1.7s!important}
+html.desktop-artwork .hud-delay-2{animation-delay:-3.1s!important}
+@keyframes hudLinkFlow{to{stroke-dashoffset:-110}}
+
+html.desktop-artwork .hud-traveler{
+  fill:#f5feff!important;
+  stroke:#8fe9ff!important;
+  stroke-width:1.5!important;
+  filter:drop-shadow(0 0 5px #e7fdff) drop-shadow(0 0 11px #70dff8) drop-shadow(0 0 24px rgba(67,195,234,.85))!important;
+}
+
+html.desktop-artwork .smart-water-node{
+  position:absolute!important;
+  left:var(--node-x)!important;
+  top:var(--node-y)!important;
+  width:126px!important;
+  height:126px!important;
+  transform:translate(-50%,-50%)!important;
+  perspective:900px!important;
+  will-change:transform!important;
+}
+html.desktop-artwork .hud-node-small{width:78px!important;height:78px!important}
+
+html.desktop-artwork .hud-node-shell{
+  position:relative!important;
+  width:100%!important;
+  height:100%!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  transform-style:preserve-3d!important;
+  animation:hudNodeFloat 5.6s ease-in-out infinite alternate!important;
+  will-change:transform,filter!important;
+}
+html.desktop-artwork .node-drop-main .hud-node-shell{animation-duration:6.4s!important;animation-delay:-1.5s!important}
+html.desktop-artwork .node-valve .hud-node-shell{animation-duration:5.1s!important;animation-delay:-2.6s!important}
+html.desktop-artwork .node-pump .hud-node-shell{animation-duration:6.9s!important;animation-delay:-3.2s!important}
+html.desktop-artwork .hud-node-small .hud-node-shell{animation-duration:4.9s!important}
+@keyframes hudNodeFloat{
+  0%{transform:translate3d(0,4px,0) rotateX(0deg) rotateY(-1deg) scale(.985)}
+  100%{transform:translate3d(0,-8px,0) rotateX(1.2deg) rotateY(1.6deg) scale(1.025)}
+}
+
+/* Large opaque glass backplate intentionally covers the old baked icon beneath it. */
+html.desktop-artwork .hud-node-shell:before{
+  content:""!important;
+  position:absolute!important;
+  inset:6px!important;
+  border-radius:50%!important;
+  z-index:0!important;
+  background:
+    radial-gradient(circle at 35% 28%,rgba(225,251,255,.17),transparent 25%),
+    radial-gradient(circle at 50% 48%,rgba(9,52,80,.93) 0%,rgba(6,42,70,.96) 58%,rgba(4,30,54,.985) 100%)!important;
+  border:1px solid rgba(187,242,255,.64)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    inset 0 -18px 30px rgba(0,18,37,.32),
+    0 0 16px rgba(125,231,255,.30),
+    0 0 36px rgba(61,193,234,.22),
+    0 0 64px rgba(38,168,213,.12)!important;
+  backdrop-filter:blur(10px) saturate(1.15)!important;
+  -webkit-backdrop-filter:blur(10px) saturate(1.15)!important;
+}
+html.desktop-artwork .hud-node-small .hud-node-shell:before{inset:4px!important}
+
+html.desktop-artwork .hud-node-core{
+  position:relative!important;
+  z-index:4!important;
+  width:76px!important;
+  height:76px!important;
+  border-radius:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  background:
+    radial-gradient(circle at 35% 28%,rgba(255,255,255,.22),transparent 19%),
+    radial-gradient(circle,rgba(79,207,243,.15),rgba(6,43,72,.24) 64%,rgba(2,28,52,.34))!important;
+  border:1px solid rgba(224,252,255,.35)!important;
+  box-shadow:
+    inset 0 0 24px rgba(131,233,255,.12),
+    0 0 18px rgba(117,229,252,.22)!important;
+  transform:translateZ(18px)!important;
+}
+html.desktop-artwork .hud-node-small .hud-node-core{width:48px!important;height:48px!important}
+
+html.desktop-artwork .hud-icon{
+  width:45px!important;
+  height:45px!important;
+  fill:none!important;
+  stroke:#e9fdff!important;
+  stroke-width:2.2!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  filter:
+    drop-shadow(0 0 4px rgba(244,254,255,.95))
+    drop-shadow(0 0 10px rgba(114,230,253,.90))
+    drop-shadow(0 0 22px rgba(58,196,238,.50))!important;
+  animation:hudIconBreath 2.65s ease-in-out infinite!important;
+}
+html.desktop-artwork .hud-node-small .hud-icon{width:28px!important;height:28px!important}
+html.desktop-artwork .drop-icon path:first-child{
+  fill:rgba(100,221,249,.15)!important;
+}
+html.desktop-artwork .hud-highlight{
+  stroke:#ffffff!important;
+  opacity:.78!important;
+}
+@keyframes hudIconBreath{
+  0%,100%{transform:scale(.94);filter:drop-shadow(0 0 4px rgba(244,254,255,.85)) drop-shadow(0 0 10px rgba(114,230,253,.72)) drop-shadow(0 0 18px rgba(58,196,238,.38))}
+  50%{transform:scale(1.07);filter:drop-shadow(0 0 6px rgba(255,255,255,1)) drop-shadow(0 0 15px rgba(125,236,255,1)) drop-shadow(0 0 30px rgba(62,202,243,.68))}
+}
+
+html.desktop-artwork .hud-orbit{
+  position:absolute!important;
+  z-index:2!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+html.desktop-artwork .orbit-a{
+  inset:0!important;
+  border:1px solid rgba(190,245,255,.62)!important;
+  border-left-color:rgba(99,220,249,.08)!important;
+  border-bottom-color:rgba(99,220,249,.18)!important;
+  box-shadow:0 0 12px rgba(114,228,251,.18)!important;
+  animation:hudOrbitSpin 8s linear infinite!important;
+}
+html.desktop-artwork .orbit-b{
+  inset:11px!important;
+  border:1px dashed rgba(134,232,253,.34)!important;
+  animation:hudOrbitSpinReverse 11s linear infinite!important;
+}
+html.desktop-artwork .hud-node-small .orbit-b{display:none!important}
+@keyframes hudOrbitSpin{to{transform:rotate(360deg)}}
+@keyframes hudOrbitSpinReverse{to{transform:rotate(-360deg)}}
+
+html.desktop-artwork .hud-pulse{
+  position:absolute!important;
+  z-index:1!important;
+  border-radius:50%!important;
+  border:1px solid rgba(143,236,255,.34)!important;
+  box-shadow:0 0 18px rgba(81,206,241,.16)!important;
+  animation:hudPulseWave 3.3s ease-out infinite!important;
+}
+html.desktop-artwork .pulse-a{inset:-4px!important}
+html.desktop-artwork .pulse-b{inset:-4px!important;animation-delay:-1.65s!important}
+html.desktop-artwork .hud-node-small .pulse-b{display:none!important}
+@keyframes hudPulseWave{
+  0%{transform:scale(.78);opacity:0}
+  24%{opacity:.58}
+  100%{transform:scale(1.42);opacity:0}
+}
+
+html.desktop-artwork .hud-glint{
+  position:absolute!important;
+  z-index:5!important;
+  top:18px!important;
+  right:21px!important;
+  width:8px!important;
+  height:8px!important;
+  border-radius:50%!important;
+  background:#f7ffff!important;
+  box-shadow:
+    0 0 7px #ffffff,
+    0 0 15px rgba(137,236,255,.95),
+    0 0 30px rgba(72,204,242,.62)!important;
+  animation:hudGlintPulse 2.1s ease-in-out infinite!important;
+}
+html.desktop-artwork .hud-node-small .hud-glint{display:none!important}
+@keyframes hudGlintPulse{
+  0%,100%{transform:scale(.7);opacity:.45}
+  50%{transform:scale(1.75);opacity:1}
+}
+
+/* Hide legacy DOM badges on desktop; the new HUD supersedes them. */
+html.desktop-artwork .water-badge{display:none!important}
+
+/* Mobile keeps the lighter existing water badges, not the heavy desktop HUD. */
+html:not(.desktop-artwork) .smart-water-hud{display:none!important}
+
+/* Accessibility. */
+@media(prefers-reduced-motion:reduce){
+  html.desktop-artwork .hud-link-main,
+  html.desktop-artwork .hud-node-shell,
+  html.desktop-artwork .hud-icon,
+  html.desktop-artwork .hud-orbit,
+  html.desktop-artwork .hud-pulse,
+  html.desktop-artwork .hud-glint{
+    animation:none!important;
+  }
+}
+
+/* SMART HUD alignment + baked-icon concealment */
+html.desktop-artwork .node-pump{--node-x:47.5%!important;--node-y:24.4%!important}
+html.desktop-artwork .node-drop-main{--node-x:75%!important;--node-y:14.7%!important}
+html.desktop-artwork .node-valve{--node-x:98.6%!important;--node-y:29%!important}
+html.desktop-artwork .node-drop-right{--node-x:94%!important;--node-y:43.8%!important}
+html.desktop-artwork .node-drop-low{--node-x:74%!important;--node-y:66.5%!important}
+
+html.desktop-artwork .smart-water-node:not(.hud-node-small){
+  width:138px!important;
+  height:138px!important;
+}
+html.desktop-artwork .smart-water-node:not(.hud-node-small) .hud-node-shell:before{
+  inset:-4px!important;
+  background:
+    radial-gradient(circle at 35% 28%,rgba(225,251,255,.15),transparent 22%),
+    radial-gradient(circle at 50% 48%,rgba(8,49,77,.97) 0%,rgba(5,40,68,.985) 62%,rgba(3,28,52,.995) 100%)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    inset 0 -18px 34px rgba(0,17,35,.36),
+    0 0 18px rgba(125,231,255,.34),
+    0 0 40px rgba(61,193,234,.25),
+    0 0 72px rgba(38,168,213,.15)!important;
+}
+html.desktop-artwork .hud-node-small .hud-node-shell:before{
+  inset:-3px!important;
+  background:
+    radial-gradient(circle at 35% 28%,rgba(225,251,255,.14),transparent 22%),
+    radial-gradient(circle,rgba(8,49,77,.97),rgba(3,28,52,.995))!important;
+}

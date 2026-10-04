@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/login.css?v=ultra-lightfx-20261004-1">
+  <link rel="stylesheet" href="/login.css?v=smart-hud-20261004-1">
 </head>
 <body>
 <div class="login-page">
@@ -67,6 +67,105 @@
     <span class="fx-wave fx-wave-1"></span>
     <span class="fx-wave fx-wave-2"></span>
     <span class="fx-sweep"></span>
+  </div>
+
+  <div class="smart-water-hud" aria-hidden="true">
+    <svg class="smart-water-links" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+      <defs>
+        <filter id="hudGlow">
+          <feGaussianBlur stdDeviation="3.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <path class="hud-link hud-link-soft" d="M470 215 C560 145 655 120 750 125 S900 170 980 270"/>
+      <path class="hud-link hud-link-main" d="M470 215 C560 145 655 120 750 125 S900 170 980 270"/>
+      <path class="hud-link hud-link-soft" d="M750 125 C760 245 800 350 925 430"/>
+      <path class="hud-link hud-link-main hud-delay-1" d="M750 125 C760 245 800 350 925 430"/>
+      <path class="hud-link hud-link-soft" d="M470 215 C545 310 630 410 735 650"/>
+      <path class="hud-link hud-link-main hud-delay-2" d="M470 215 C545 310 630 410 735 650"/>
+      <circle class="hud-traveler traveler-1" r="5">
+        <animateMotion dur="5.8s" repeatCount="indefinite" path="M470 215 C560 145 655 120 750 125 S900 170 980 270"/>
+      </circle>
+      <circle class="hud-traveler traveler-2" r="4">
+        <animateMotion dur="6.6s" begin="-2.2s" repeatCount="indefinite" path="M750 125 C760 245 800 350 925 430"/>
+      </circle>
+      <circle class="hud-traveler traveler-3" r="4">
+        <animateMotion dur="7.4s" begin="-3.7s" repeatCount="indefinite" path="M470 215 C545 310 630 410 735 650"/>
+      </circle>
+    </svg>
+
+    <div class="smart-water-node node-pump" style="--node-x:47%;--node-y:21%;">
+      <div class="hud-node-shell">
+        <i class="hud-orbit orbit-a"></i>
+        <i class="hud-orbit orbit-b"></i>
+        <i class="hud-pulse pulse-a"></i>
+        <i class="hud-pulse pulse-b"></i>
+        <span class="hud-glint"></span>
+        <div class="hud-node-core">
+          <svg class="hud-icon pump-icon" viewBox="0 0 64 64">
+            <path d="M9 34h8v-9h7v-7h17v7h7v9h7v13H9z"/>
+            <circle cx="32" cy="36" r="8"/>
+            <path d="M16 47v6m32-6v6M19 18h26M24 12h16M32 12v6M7 31h7m43 0h-7"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="smart-water-node node-drop-main" style="--node-x:75%;--node-y:12%;">
+      <div class="hud-node-shell">
+        <i class="hud-orbit orbit-a"></i>
+        <i class="hud-orbit orbit-b"></i>
+        <i class="hud-pulse pulse-a"></i>
+        <i class="hud-pulse pulse-b"></i>
+        <span class="hud-glint"></span>
+        <div class="hud-node-core">
+          <svg class="hud-icon drop-icon" viewBox="0 0 64 64">
+            <path d="M32 6C24 18 15 28 15 39a17 17 0 0 0 34 0C49 28 40 18 32 6Z"/>
+            <path class="hud-highlight" d="M24 42c2.4 5.2 6.4 7.8 11.5 8.4"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="smart-water-node node-valve" style="--node-x:98.3%;--node-y:26%;">
+      <div class="hud-node-shell">
+        <i class="hud-orbit orbit-a"></i>
+        <i class="hud-orbit orbit-b"></i>
+        <i class="hud-pulse pulse-a"></i>
+        <i class="hud-pulse pulse-b"></i>
+        <span class="hud-glint"></span>
+        <div class="hud-node-core">
+          <svg class="hud-icon valve-icon" viewBox="0 0 64 64">
+            <path d="M8 34h14m20 0h14M22 26l10 8-10 8zm20 0-10 8 10 8z"/>
+            <path d="M32 14v12M22 14h20M26 10h12M32 26V14"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="smart-water-node hud-node-small node-drop-right" style="--node-x:94%;--node-y:43%;">
+      <div class="hud-node-shell">
+        <i class="hud-orbit orbit-a"></i>
+        <i class="hud-pulse pulse-a"></i>
+        <div class="hud-node-core">
+          <svg class="hud-icon drop-icon" viewBox="0 0 64 64">
+            <path d="M32 6C24 18 15 28 15 39a17 17 0 0 0 34 0C49 28 40 18 32 6Z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="smart-water-node hud-node-small node-drop-low" style="--node-x:74%;--node-y:66%;">
+      <div class="hud-node-shell">
+        <i class="hud-orbit orbit-a"></i>
+        <i class="hud-pulse pulse-a"></i>
+        <div class="hud-node-core">
+          <svg class="hud-icon drop-icon" viewBox="0 0 64 64">
+            <path d="M32 6C24 18 15 28 15 39a17 17 0 0 0 34 0C49 28 40 18 32 6Z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
   </div>
 
   <main class="login-side">

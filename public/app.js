@@ -207,6 +207,7 @@ const CARD_RULES={
 const state={data:null,user:null,page:'master',filters:new Map(),interactiveFilters:new Map(),periods:new Map(),charts:[],map:null,theme:0,export:{sheet:'vd projects',source:null,cache:new Map(),columns:new Set(),filters:new Map(),initializedSheet:null}};
 
 const COLORS=['#0879a5','#19a5c8','#5bc6de','#83d9e8','#2f73b7','#79a8d8','#d0a351','#d36d56','#7d70b4','#69a99b'];
+if(window.Chart){Chart.defaults.color='#000000';}
 function toast(message){
  const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200);
 }
@@ -475,7 +476,7 @@ function destroyCharts(){state.charts.forEach(c=>{try{c.destroy()}catch(e){}});s
 const valuePlugin={
  id:'vdValueLabels',
  afterDatasetsDraw(chart){
-  const ctx=chart.ctx;ctx.save();ctx.font='600 10px Cairo';ctx.fillStyle='#223d37';ctx.textAlign='center';ctx.textBaseline='bottom';
+  const ctx=chart.ctx;ctx.save();ctx.font='600 10px Cairo';ctx.fillStyle='#000000';ctx.textAlign='center';ctx.textBaseline='bottom';
   chart.data.datasets.forEach((ds,di)=>{
    const meta=chart.getDatasetMeta(di);if(meta.data.length>18)return;
    meta.data.forEach((el,i)=>{const v=ds.data[i];if(v==null||v===0)return;const pos=el.tooltipPosition();ctx.fillText(fmt(v),pos.x,pos.y-5)});
@@ -503,7 +504,7 @@ function makeChart(id,type,labels,values,opts={}){
    onHover:(event,elements)=>{if(event?.native?.target)event.native.target.style.cursor=(elements.length&&(CHART_FILTERS[state.page]?.[id]||opts.filterRules?.length))?'pointer':'default'},
    onClick:(event,elements)=>{if(!elements.length)return;const idx=elements[0].index;if(!CHART_FILTERS[state.page]?.[id]&&!opts.filterRules?.[idx])return;handleChartClick(id,labels[idx],idx,opts)},
    plugins:{legend:{display:type==='doughnut',position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
-   scales:type==='doughnut'?{}:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
+   scales:type==='doughnut'?{}:{x:{ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{color:'rgba(0,0,0,.04)'}}}},
   plugins:[]
  });
  state.charts.push(chart);
@@ -521,7 +522,7 @@ function makeMultiBar(id,labels,datasets,opts={}){
    onHover:(event,elements)=>{if(event?.native?.target)event.native.target.style.cursor=(elements.length&&(CHART_FILTERS[state.page]?.[id]||opts.filterRules?.length))?'pointer':'default'},
    onClick:(event,elements)=>{if(!elements.length)return;const idx=elements[0].index;if(!CHART_FILTERS[state.page]?.[id]&&!opts.filterRules?.[idx])return;handleChartClick(id,labels[idx],idx,opts)},
    plugins:{legend:{display:true,position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
-   scales:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
+   scales:{x:{ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{color:'rgba(0,0,0,.04)'}}}},
   plugins:[]
  });
  state.charts.push(chart);

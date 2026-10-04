@@ -1,0 +1,124 @@
+/* Urgent Solutions — content text normalization
+   Default dashboard content text is black.
+   Semantic status colors and contrast-critical dark surfaces are preserved. */
+
+:root{
+  --text:#000000;
+  --muted:#000000;
+}
+
+/* Main light content surfaces */
+.top-shell,
+.top-shell input,
+.top-shell select,
+.top-shell .dashboard-user-info,
+.top-shell .dashboard-user-info strong,
+.top-shell .dashboard-user-info span,
+.theme-picker-panel,
+.theme-picker-panel *,
+.vd-unified-controls,
+.vd-unified-controls input,
+.vd-unified-controls select,
+.vd-unified-controls label,
+.vd-unified-controls span,
+.vd-unified-controls small,
+.vd-unified-controls strong,
+.vd-unified-controls b,
+.mf-pop,
+.mf-pop input,
+.mf-pop button,
+#pageHost,
+#pageHost input,
+#pageHost select,
+#pageHost textarea,
+#pageHost label,
+#pageHost th,
+#pageHost td,
+#pageHost .panel-head,
+#pageHost .panel-head *,
+#pageHost .table-tools,
+#pageHost .table-tools *,
+#pageHost .kpi-card > span,
+#pageHost .kpi-card > strong,
+#pageHost .kpi-card > small,
+#pageHost .quality-item,
+#pageHost .quality-item *,
+#pageHost .insight-card > span,
+#pageHost .insight-card > p,
+#pageHost .us-kpi > span,
+#pageHost .us-kpi > strong,
+#pageHost .us-kpi > small,
+#pageHost .us-panel,
+#pageHost .us-panel-head,
+#pageHost .us-panel-head *,
+#pageHost .us-change-list span,
+#pageHost .us-action-list strong,
+#pageHost .us-action-list small,
+#pageHost .us-table-wrap th,
+#pageHost .us-table-wrap td,
+#pageHost .us-table-wrap td b,
+#pageHost .us-table-wrap td small,
+#pageHost .us-finding b,
+#pageHost .us-finding span,
+#pageHost .us-investigation-note,
+#pageHost .us-investigation-note *,
+#pageHost .us-decision-head h3,
+#pageHost .us-decision-head p,
+#pageHost .us-decision-head small,
+#pageHost .us-reasons span,
+#pageHost .us-next small,
+#pageHost .us-next b,
+#pageHost .us-week-window,
+#pageHost .us-week-window *,
+#pageHost .us-method,
+#pageHost .filter-driven-table,
+#pageHost .filter-driven-table *,
+.vd-info-dialog,
+.vd-info-dialog *,
+.leaflet-popup-content,
+.leaflet-popup-content *{
+  color:#000 !important;
+}
+
+/* Keep white text where a dark filled surface requires contrast */
+.page-hero,
+.page-hero *,
+.project-news,
+.project-news *,
+.sidebar,
+.sidebar *,
+.us-smart-hero,
+.us-smart-hero small,
+.us-smart-hero h2,
+.us-smart-hero p,
+.toast,
+.primary-btn,
+.top-export,
+.vd-pdf-btn,
+.vd-preview-btn.is-primary{
+  color:#fff !important;
+}
+
+/* Light buttons inside dark smart hero remain black */
+.us-smart-hero .us-primary{
+  color:#000 !important;
+}
+
+/* Preserve semantic/status text colors */
+.pill{color:#0b6b8f !important;}
+.pill.warn{color:#a65e00 !important;}
+.pill.danger{color:#a62920 !important;}
+.pill.info{color:#2a67a0 !important;}
+
+.insight-card.warn > b{color:#a66509 !important;}
+.insight-card.danger > b{color:#ad332a !important;}
+
+.us-score.red,
+.us-big-score.red{color:#b83d4b !important;}
+.us-score.amber,
+.us-big-score.amber{color:#a66a14 !important;}
+.us-score.blue,
+.us-big-score.blue{color:#2f6fb0 !important;}
+
+/* Native form placeholders stay softer but neutral */
+::placeholder{color:#5d5d5d !important;opacity:1;}

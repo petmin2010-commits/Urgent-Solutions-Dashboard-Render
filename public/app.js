@@ -1385,6 +1385,7 @@ function printCurrent(){
 }
 
 function renderPage(){
+ document.body.dataset.vdPage=state.page;
  destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[state.page]||PAGE_META.master;
  $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • URGENT SOLUTIONS';
  renderFilters();

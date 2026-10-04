@@ -31,4 +31,6 @@
 .vd-report-preview-stage{overflow:auto;padding:18px;direction:ltr}.vd-report-preview-stage #vdReportV2{display:block!important;position:static!important;direction:rtl}
 @media(max-width:1400px){.vd-unified-filter-slot{grid-template-columns:repeat(4,minmax(150px,1fr))}.vd-unified-period-slot{grid-template-columns:minmax(190px,.8fr) minmax(160px,1fr) minmax(160px,1fr);}.vd-period-presets{grid-column:1/-1}.vd-unified-bottom{grid-template-columns:1.2fr .8fr .8fr;}.vd-unified-actions{grid-column:1/-1}}
 @media(max-width:900px){.vd-unified-filter-slot{grid-template-columns:repeat(2,minmax(140px,1fr))}.vd-unified-period-slot{grid-template-columns:1fr 1fr}.vd-period-title,.vd-period-presets{grid-column:1/-1}.vd-period-presets{grid-template-columns:repeat(3,1fr)}.vd-unified-bottom{grid-template-columns:1fr}.vd-unified-actions{grid-column:auto;flex-wrap:wrap}}
+body[data-vd-page="reports"] #filterBar,
+body[data-vd-page="reports"] .vd-unified-controls{display:none!important}
 @media print{.vd-unified-controls,.vd-report-preview-overlay{display:none!important}}

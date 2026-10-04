@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/login.css?v=jeddah-tech-20261004-1">
+  <link rel="stylesheet" href="/login.css?v=all-jeddah-tech-20261004-1">
 </head>
 <body>
 <div class="login-page">
@@ -55,19 +55,30 @@
     <section class="login-card">
       <div class="login-card-glow" aria-hidden="true"></div>
 
-      <div class="login-vd-brand-overlay vd-proximity-logo" data-proximity-strength="1.15" aria-label="أبعاد الرؤية للاستشارات الهندسية">
-        <div class="login-vd-logo-box">
-          <img src="/assets/vision-dimensions-makkah.png" alt="شعار أبعاد الرؤية">
+      <div class="login-brand-pair" aria-label="هوية أمانة جدة وأبعاد الرؤية">
+        <div class="live-brand municipality-live vd-proximity-logo" data-proximity-strength=".86">
+          <div class="live-brand-logo municipality-live-logo">
+            <img src="/assets/jeddah-municipality-transparent.png" alt="أمانة جدة">
+          </div>
+          <div class="live-brand-copy municipality-live-copy">
+            <strong>أمانة جدة</strong>
+            <span>JEDDAH MUNICIPALITY</span>
+          </div>
+          <i class="live-brand-shine" aria-hidden="true"></i>
         </div>
-        <div class="login-vd-brand-copy">
-          <strong>أبعاد الرؤية</strong>
-          <span>للاستشارات الهندسية</span>
-          <em>VISION DIMENSIONS</em>
+        <div class="live-brand-divider" aria-hidden="true"></div>
+        <div class="live-brand vision-live vd-proximity-logo" data-proximity-strength="1.05">
+          <div class="live-brand-logo vision-live-logo">
+            <img src="/assets/vision-dimensions-makkah.png" alt="أبعاد الرؤية">
+          </div>
+          <div class="live-brand-copy vision-live-copy">
+            <strong>أبعاد الرؤية</strong>
+            <span>للاستشارات الهندسية</span>
+            <em>VISION DIMENSIONS</em>
+          </div>
+          <i class="live-brand-shine" aria-hidden="true"></i>
         </div>
-        <i class="login-vd-brand-shine" aria-hidden="true"></i>
       </div>
-
-      <div class="login-municipality-hotspot vd-proximity-logo" data-proximity-strength=".78" aria-hidden="true"></div>
 
       <div class="brand-row">
         <div class="vision-brand">
@@ -80,7 +91,7 @@
         </div>
         <div class="brand-divider"></div>
         <div class="pdc-brand municipality-brand" aria-label="أمانة محافظة جدة">
-          <img class="pdc-logo municipality-logo" src="/assets/jeddah-municipality.png" alt="أمانة محافظة جدة">
+          <img class="pdc-logo municipality-logo" src="/assets/jeddah-municipality-transparent.png" alt="أمانة محافظة جدة">
         </div>
       </div>
 
@@ -208,8 +219,16 @@ if(!reduceMotion && window.matchMedia?.('(pointer:fine)').matches){
   });
 }
 
+
+function syncArtworkDesktopMode(){
+  const mobileDevice=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  document.documentElement.classList.toggle('desktop-artwork',!mobileDevice);
+}
+syncArtworkDesktopMode();
+window.addEventListener('resize',syncArtworkDesktopMode,{passive:true});
+
 requestAnimationFrame(()=>document.body.classList.add('is-ready'));
 </script>
-<script src="/logo-effects.js?v=jeddah-tech-20261004-1"></script>
+<script src="/logo-effects.js?v=all-jeddah-tech-20261004-1"></script>
 </body>
 </html>

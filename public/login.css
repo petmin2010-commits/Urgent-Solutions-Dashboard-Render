@@ -773,3 +773,308 @@ body.is-ready .login-card{opacity:1;transform:translateY(0) scale(1)}.login-card
   .water-grid,.pipe-line,.flow-node,.water-flow{animation:none!important;transform:none!important;transition:none!important}
   .login-vd-brand-overlay,.login-municipality-hotspot{transform:none!important;transition:none!important}
 }
+
+
+/* =========================================================
+   FULL JEDDAH TECHNIQUE PARITY — Urgent Solutions — 2026-10-04
+   Structural + zoom + motion + interaction parity.
+   ========================================================= */
+
+html.desktop-artwork,html.desktop-artwork body{
+  width:100%;height:100%;overflow:hidden!important;background:#041c30!important;
+}
+html.desktop-artwork .login-page{
+  display:block!important;position:relative!important;width:100vw!important;height:100vh!important;
+  min-height:100vh!important;overflow:hidden!important;background:#041c30!important;isolation:isolate!important;
+}
+html.desktop-artwork .login-page:before{
+  content:""!important;position:absolute!important;inset:-1.8%!important;z-index:-2!important;
+  background-image:url("/assets/agreed-water-login-clean-vd.webp?v=alltech-clean-20261004-1")!important;
+  background-repeat:no-repeat!important;background-position:center center!important;
+  background-size:103.6% 103.6%!important;filter:none!important;
+  transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.018)!important;
+  transform-origin:center center!important;transition:transform .24s cubic-bezier(.2,.72,.22,1)!important;
+  animation:urgentCityBreath 16s ease-in-out infinite alternate!important;will-change:transform!important;
+}
+html.desktop-artwork .login-page:after{display:none!important}
+
+html.desktop-artwork .city-visual{
+  display:block!important;position:absolute!important;inset:0!important;z-index:3!important;
+  width:100vw!important;height:100vh!important;min-height:100vh!important;overflow:hidden!important;
+  pointer-events:none!important;background:transparent!important;isolation:isolate!important;
+}
+html.desktop-artwork .city-visual .city-photo,
+html.desktop-artwork .city-visual .city-shade,
+html.desktop-artwork .city-visual .city-project,
+html.desktop-artwork .city-visual:before,
+html.desktop-artwork .city-visual:after{display:none!important}
+html.desktop-artwork .water-grid{
+  display:block!important;inset:-1.5%!important;width:103%!important;height:103%!important;opacity:.29!important;
+  mix-blend-mode:screen!important;
+  transform:translate3d(calc(var(--mx,0px)*.08),calc(var(--my,0px)*.055),0) scale(1.015)!important;
+  transition:transform .28s cubic-bezier(.2,.72,.22,1)!important;will-change:transform!important;
+}
+html.desktop-artwork .pipe-line{
+  stroke:rgba(116,226,250,.62)!important;stroke-width:1.65!important;stroke-dasharray:10 18!important;
+  filter:drop-shadow(0 0 6px rgba(74,204,238,.60))!important;animation:waterPipeFlow 6.2s linear infinite!important;
+}
+html.desktop-artwork .pipe-b{animation-duration:7.8s!important;animation-direction:reverse!important}
+html.desktop-artwork .pipe-c{animation-duration:9.4s!important}
+html.desktop-artwork .pipe-d{animation-duration:8.5s!important;animation-direction:reverse!important}
+html.desktop-artwork .flow-node{
+  fill:#ecfdff!important;stroke:#63d7f2!important;stroke-width:2.2!important;
+  filter:drop-shadow(0 0 11px rgba(92,220,248,.95))!important;animation:waterNodePulse 2.35s ease-in-out infinite!important;
+}
+html.desktop-artwork .water-flow{
+  display:block!important;opacity:.14!important;mix-blend-mode:screen!important;
+  filter:drop-shadow(0 0 14px rgba(77,205,240,.34))!important;
+}
+html.desktop-artwork .water-flow:before,
+html.desktop-artwork .water-flow:after{
+  border-top-width:1.35px!important;border-top-color:rgba(126,229,252,.56)!important;
+}
+html.desktop-artwork .water-badge{display:none!important}
+
+html.desktop-artwork .login-side{
+  position:absolute!important;inset:0!important;z-index:10!important;display:block!important;
+  min-height:0!important;height:100vh!important;width:100vw!important;padding:0!important;margin:0!important;
+  background:transparent!important;
+}
+html.desktop-artwork .login-side:before,
+html.desktop-artwork .login-side:after{display:none!important}
+html.desktop-artwork .login-card{
+  position:absolute!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;
+  padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;overflow:visible!important;opacity:1!important;transform:none!important;transition:none!important;
+}
+html.desktop-artwork .login-card:before,
+html.desktop-artwork .login-card-glow,
+html.desktop-artwork .brand-row,
+html.desktop-artwork .login-heading,
+html.desktop-artwork .secure-access,
+html.desktop-artwork .login-footer-note{display:none!important}
+
+/* Jeddah-style card sheen without rebuilding the approved artwork */
+html.desktop-artwork .login-card:after{
+  content:"";position:absolute;z-index:11;pointer-events:none;
+  left:3.15vw;top:5.55vh;width:39.2vw;height:88.1vh;border-radius:2.1vw;
+  overflow:hidden;background:linear-gradient(112deg,transparent 0 43%,rgba(159,235,252,.085) 49%,transparent 56%);
+  transform:translateX(-125%);animation:urgentCardShine 8.2s 1.7s ease-in-out infinite;
+  mix-blend-mode:screen;
+}
+@keyframes urgentCardShine{0%,58%{transform:translateX(-125%)}80%,100%{transform:translateX(135%)}}
+
+/* One real, unified logo row. Both logos now scale and zoom together. */
+html.desktop-artwork .login-brand-pair{
+  --pair-x:0px;--pair-y:0px;
+  position:absolute!important;z-index:25!important;
+  left:4.45vw!important;top:7.35vh!important;width:33.75vw!important;height:14.7vh!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:1.15vw!important;
+  direction:ltr!important;padding:.8vh 1vw!important;
+  background:linear-gradient(90deg,rgba(5,45,72,.985),rgba(6,55,82,.975),rgba(5,45,72,.985))!important;
+  border:1px solid rgba(111,215,241,.055)!important;border-radius:1.15vw!important;
+  box-shadow:inset 0 0 2.4vw rgba(65,187,219,.035),0 .65vw 2.4vw rgba(0,18,34,.10)!important;
+  overflow:hidden!important;transform:translate3d(var(--pair-x),var(--pair-y),0)!important;
+}
+html.desktop-artwork .login-brand-pair:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 30% 30%,rgba(74,202,236,.055),transparent 32%),
+             linear-gradient(120deg,transparent 0 48%,rgba(255,255,255,.025) 50%,transparent 52%);
+}
+html.desktop-artwork .live-brand{
+  --vd-rot-x:0deg;--vd-rot-y:0deg;--vd-shift-x:0px;--vd-shift-y:0px;--vd-glow:0;
+  position:relative;z-index:2;height:100%;display:flex;align-items:center;gap:.72vw;direction:ltr;
+  transform:perspective(900px) translate3d(var(--vd-shift-x),var(--vd-shift-y),0)
+            rotateX(var(--vd-rot-x)) rotateY(var(--vd-rot-y))!important;
+  transform-style:preserve-3d!important;transform-origin:center center!important;
+  transition:transform .22s cubic-bezier(.2,.75,.25,1),filter .24s ease!important;will-change:transform,filter!important;
+}
+html.desktop-artwork .municipality-live{width:14.7vw!important;justify-content:flex-start!important}
+html.desktop-artwork .vision-live{width:15.7vw!important;justify-content:flex-start!important}
+html.desktop-artwork .live-brand-divider{
+  position:relative;z-index:2;width:1px;height:66%;flex:0 0 1px;
+  background:linear-gradient(180deg,transparent,rgba(181,231,245,.38),transparent);
+  box-shadow:0 0 .7vw rgba(76,199,232,.08);
+}
+html.desktop-artwork .live-brand-logo{
+  position:relative;z-index:2;height:72%;aspect-ratio:1/1;flex:0 0 auto;border-radius:1vw;
+  background:#fff;display:grid;place-items:center;padding:.38vw;
+  box-shadow:0 .42vw 1.1vw rgba(0,0,0,.18),0 0 0 1px rgba(255,219,133,.14);
+  transform:translateZ(20px);
+}
+html.desktop-artwork .municipality-live-logo{height:69%;aspect-ratio:1.12/1}
+html.desktop-artwork .live-brand-logo img{width:100%;height:100%;object-fit:contain;display:block}
+html.desktop-artwork .municipality-live-logo img{transform:scale(.92)}
+html.desktop-artwork .vision-live-logo img{border-radius:.55vw}
+html.desktop-artwork .live-brand-copy{
+  position:relative;z-index:2;min-width:0;direction:rtl;text-align:right;line-height:1.17;color:#fff;
+  transform:translateZ(12px);white-space:nowrap;
+}
+html.desktop-artwork .municipality-live-copy strong{
+  display:block;font-size:min(1.16vw,2.05vh);font-weight:800;color:#f5fbfe;
+}
+html.desktop-artwork .municipality-live-copy span{
+  display:block;margin-top:.45vh;font-size:min(.54vw,.98vh);letter-spacing:.08em;color:#93dff2;direction:ltr;text-align:left;
+}
+html.desktop-artwork .vision-live-copy strong{
+  display:block;font-size:min(1.05vw,1.9vh);font-weight:800;color:#fff;
+}
+html.desktop-artwork .vision-live-copy span{
+  display:block;margin-top:.24vh;font-size:min(.56vw,1.02vh);color:#d9eff7;
+}
+html.desktop-artwork .vision-live-copy em{
+  display:block;margin-top:.35vh;font-style:normal;font-size:min(.46vw,.84vh);letter-spacing:.075em;color:#8bdcf2;direction:ltr;text-align:left;
+}
+html.desktop-artwork .live-brand-shine{
+  position:absolute;z-index:4;top:-20%;bottom:-20%;left:-32%;width:18%;opacity:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-18deg);
+}
+html.desktop-artwork .live-brand.is-near,
+html.desktop-artwork .live-brand:hover{
+  filter:brightness(1.055) drop-shadow(0 0 calc(.55vw + .85vw * var(--vd-glow)) rgba(78,205,237,.26))!important;
+}
+html.desktop-artwork .live-brand.is-near .live-brand-logo,
+html.desktop-artwork .live-brand:hover .live-brand-logo{
+  box-shadow:0 .6vw 1.45vw rgba(0,0,0,.22),0 0 calc(.65vw + 1.1vw * var(--vd-glow)) rgba(66,196,232,.20);
+}
+html.desktop-artwork .live-brand.is-near .live-brand-shine,
+html.desktop-artwork .live-brand:hover .live-brand-shine{opacity:.5;animation:pairLogoSweep 1.15s ease both}
+@keyframes pairLogoSweep{from{left:-32%}to{left:118%}}
+
+/* Real input/button interaction aligned to the artwork */
+html.desktop-artwork #loginForm{
+  position:absolute!important;left:7.66vw!important;top:56.1vh!important;width:31.2vw!important;height:auto!important;
+  margin:0!important;padding:0!important;direction:ltr!important;z-index:20!important;
+}
+html.desktop-artwork .login-card label,
+html.desktop-artwork .input-icon{display:none!important}
+html.desktop-artwork .input-wrap{
+  position:relative!important;width:100%!important;height:6.8vh!important;min-height:0!important;
+  margin:0 0 2.1vh!important;padding:0!important;border:0!important;border-radius:.9vw!important;
+  background:transparent!important;box-shadow:none!important;
+  transition:background .22s ease,box-shadow .22s ease,transform .22s ease!important;
+}
+html.desktop-artwork .input-wrap:nth-of-type(2){margin-bottom:4.55vh!important}
+html.desktop-artwork .input-wrap:focus-within{
+  border:0!important;background:rgba(75,190,225,.05)!important;
+  box-shadow:inset 0 0 0 1px rgba(112,222,249,.23),0 0 1.6vw rgba(54,182,220,.08)!important;
+  transform:translateY(-.08vh)!important;
+}
+html.desktop-artwork .input-wrap input{
+  display:block!important;width:100%!important;height:100%!important;padding:0 4.3vw 0 1.15vw!important;
+  border:0!important;outline:0!important;background:transparent!important;color:#e8f8ff!important;
+  caret-color:#8eeaff!important;font-size:min(.95vw,1.7vh)!important;font-weight:500!important;
+  direction:ltr!important;text-align:left!important;text-shadow:0 .15vh .35vw rgba(0,18,34,.88)!important;
+}
+html.desktop-artwork .input-wrap input::placeholder{color:transparent!important}
+html.desktop-artwork .password-toggle{
+  position:absolute!important;top:0!important;right:0!important;width:4vw!important;height:100%!important;
+  padding:0!important;border:0!important;background:transparent!important;opacity:0!important;cursor:pointer!important;
+}
+html.desktop-artwork .login-message{
+  position:absolute!important;left:0!important;right:0!important;top:21.2vh!important;z-index:30!important;
+  margin:0!important;padding:.75vh .7vw!important;border-radius:.65vw!important;font-size:min(.7vw,1.3vh)!important;text-align:center!important;
+}
+html.desktop-artwork .login-button{
+  position:relative!important;width:100%!important;height:7.8vh!important;min-height:0!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:.95vw!important;background:transparent!important;box-shadow:none!important;color:transparent!important;
+  animation:none!important;transform:none!important;cursor:pointer!important;
+  transition:background .2s ease,box-shadow .2s ease,transform .2s ease!important;
+}
+html.desktop-artwork .login-button:hover{
+  transform:translateY(-.08vh)!important;background:rgba(91,210,242,.045)!important;
+  box-shadow:inset 0 0 0 1px rgba(108,220,248,.16),0 .55vw 1.7vw rgba(0,30,52,.10)!important;
+}
+html.desktop-artwork .login-button:active{transform:translateY(0) scale(.995)!important}
+html.desktop-artwork .button-energy,
+html.desktop-artwork .button-text{visibility:hidden!important}
+html.desktop-artwork .button-loader{
+  width:1.2vw!important;height:1.2vw!important;border:.14vw solid rgba(255,255,255,.28)!important;
+  border-top-color:#85eaff!important;position:absolute!important;left:50%!important;top:50%!important;
+  margin:-.6vw 0 0 -.6vw!important;
+}
+
+/* Same footer pattern as Jeddah */
+html.desktop-artwork .login-corporate-footer{
+  display:grid!important;grid-template-columns:1fr auto 1fr!important;position:absolute!important;z-index:32!important;
+  left:0!important;right:0!important;bottom:0!important;height:6.45vh!important;padding:0 1.4vw!important;
+  align-items:center!important;gap:1.25vw!important;background:transparent!important;pointer-events:none!important;
+}
+html.desktop-artwork .login-socials{display:flex!important;justify-self:start!important;pointer-events:auto!important;gap:.62vw!important}
+html.desktop-artwork .login-social-icon{
+  width:2.2vw!important;height:2.2vw!important;border-radius:.62vw!important;
+}
+html.desktop-artwork .login-social-icon svg{width:1.38vw!important;height:1.38vw!important}
+html.desktop-artwork .login-social-letter{font-size:1.35vw!important}
+html.desktop-artwork .login-corporate-center{
+  display:flex!important;justify-self:center!important;pointer-events:none!important;font-size:min(.56vw,1vh)!important;gap:.7vw!important;
+}
+html.desktop-artwork .login-corporate-credit{
+  display:block!important;justify-self:end!important;pointer-events:none!important;font-size:min(.62vw,1.12vh)!important;
+}
+
+/* Prevent old desktop overlays from ever reappearing */
+html.desktop-artwork .login-vd-brand-overlay,
+html.desktop-artwork .login-municipality-hotspot{display:none!important}
+
+/* Zoom safety: desktop artwork mode is driven by physical screen/pointer class, not innerWidth breakpoints. */
+html.desktop-artwork .login-brand-pair,
+html.desktop-artwork #loginForm,
+html.desktop-artwork .login-corporate-footer{
+  box-sizing:border-box!important;
+}
+
+/* Mobile/tablet keeps the existing responsive DOM card and logo row. */
+html:not(.desktop-artwork) .login-brand-pair{display:none!important}
+
+/* Motion accessibility */
+@media(prefers-reduced-motion:reduce){
+  html.desktop-artwork .login-page:before{animation:none!important;transform:none!important;transition:none!important}
+  html.desktop-artwork .water-grid,
+  html.desktop-artwork .pipe-line,
+  html.desktop-artwork .flow-node,
+  html.desktop-artwork .water-flow{animation:none!important;transform:none!important;transition:none!important}
+  html.desktop-artwork .live-brand{transform:none!important;transition:none!important}
+  html.desktop-artwork .login-card:after{display:none!important}
+}
+
+
+/* Brand artwork cleanup + seamless dual-logo header */
+html.desktop-artwork .login-page:before{
+  background-image:url("/assets/agreed-water-login-clean-brands.webp?v=clean-both-20261004-1")!important;
+}
+html.desktop-artwork .login-brand-pair{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  padding:.55vh .65vw!important;
+}
+html.desktop-artwork .login-brand-pair:before{display:none!important}
+html.desktop-artwork .municipality-live-logo{
+  background:transparent!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+  height:72%!important;
+  aspect-ratio:1.22/1!important;
+}
+html.desktop-artwork .municipality-live-logo img{
+  transform:scale(1.06)!important;
+  filter:drop-shadow(0 .18vw .42vw rgba(0,22,36,.18));
+}
+html.desktop-artwork .municipality-live-copy strong{
+  font-size:min(1.12vw,2vh)!important;
+}
+html.desktop-artwork .municipality-live-copy span{
+  font-size:min(.51vw,.94vh)!important;
+}
+html.desktop-artwork .live-brand-divider{
+  height:62%!important;
+  background:linear-gradient(180deg,transparent,rgba(193,231,241,.34),transparent)!important;
+}
+html.desktop-artwork .live-brand.is-near .municipality-live-logo,
+html.desktop-artwork .live-brand:hover .municipality-live-logo{
+  box-shadow:none!important;
+}

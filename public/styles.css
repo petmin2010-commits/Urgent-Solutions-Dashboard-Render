@@ -233,3 +233,69 @@ body.map-fullscreen-open{overflow:hidden}
  .map-panel-advanced .map-canvas{height:760px}
  .map-floating-legend{right:8px;bottom:8px;max-width:calc(100% - 70px)}
 }
+
+
+/* === Sidebar hierarchy contrast aligned with Jeddah 2026-10-05 === */
+.sidebar .nav-group{
+  margin:6px 0;
+  padding:0;
+  border:1px solid rgba(109,212,255,.22);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(3,35,58,.24);
+}
+.sidebar .nav-group-head{
+  width:100%;
+  height:41px;
+  padding:0 9px;
+  border:0;
+  border-radius:0;
+  background:rgba(2,43,72,.78);
+  color:#f2f9fc;
+  box-shadow:inset 0 -1px rgba(132,216,245,.12);
+}
+.sidebar .nav-group-head:hover{
+  background:rgba(7,67,101,.86);
+  color:#fff;
+}
+.sidebar .nav-group-head span:first-child{
+  color:#68d4f4;
+}
+.sidebar .nav-group-head b{
+  font-size:11px;
+  font-weight:800;
+  color:#f6fbfd;
+}
+.sidebar .nav-group-head i{
+  color:#8edcf3;
+}
+.sidebar .nav-group-items{
+  padding:5px 5px 7px;
+  background:rgba(1,27,46,.20);
+}
+.sidebar .nav-group.is-open .nav-group-items{
+  display:block;
+}
+.sidebar .nav-group .nav-item{
+  min-height:40px;
+  margin:2px 0;
+  padding:9px 10px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:#c9e1ea;
+}
+.sidebar .nav-group .nav-item:hover{
+  background:rgba(255,255,255,.055);
+  border-color:rgba(135,213,239,.10);
+  color:#fff;
+}
+.sidebar .nav-group .nav-item.active{
+  background:linear-gradient(90deg,rgba(27,139,184,.58),rgba(20,102,143,.31));
+  border-color:rgba(126,223,244,.22);
+  color:#fff;
+  box-shadow:inset -3px 0 #8ee7f5,0 5px 14px rgba(0,0,0,.08);
+}
+.sidebar .nav-group .nav-item.active b{
+  font-weight:800;
+}

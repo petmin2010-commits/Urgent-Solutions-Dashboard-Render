@@ -1,0 +1,6 @@
+(()=>{'use strict';
+function badge(){let el=document.querySelector('#vdSystemBadge');if(el)return el;const top=document.querySelector('.userbox');if(!top)return null;el=document.createElement('button');el.id='vdSystemBadge';el.type='button';el.className='vd-system-badge';el.innerHTML='<i></i><span>LIVE</span>';el.title='حالة الاتصال ومراقبة البيانات';top.parentNode.insertBefore(el,top);el.onclick=show;return el}
+async function check(){const el=badge();if(!el)return;try{const r=await fetch('/api/monitor/summary',{cache:'no-store'}),j=await r.json(),ok=r.ok&&j.ok!==false;el.classList.toggle('warn',!ok||(j.sourceMode&&j.sourceMode!=='live'));el.querySelector('span').textContent=ok?(j.sourceMode==='live'?'LIVE':'CACHE'):'OFFLINE';el.dataset.info=JSON.stringify(j)}catch{el.classList.add('warn');el.querySelector('span').textContent='OFFLINE'}}
+function show(){const el=badge();if(!el)return;let j={};try{j=JSON.parse(el.dataset.info||'{}')}catch{};window.VDUrgent?.showInfo?.('مراقبة النظام','المصدر: '+(j.sourceMode||'—')+' | المشاريع: '+(j.projects??'—')+' | الجودة: '+(j.qualityIssues??'—'))}
+document.addEventListener('DOMContentLoaded',()=>{check();setInterval(check,60000)});window.addEventListener('vd:urgent-data',check);
+})();

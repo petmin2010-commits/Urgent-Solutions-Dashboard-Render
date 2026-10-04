@@ -1188,6 +1188,7 @@ function renderPage(){
  renderFilters();
  const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMasterV2;
  fn();wireTableSearch();wireInteractiveCards();decorateInfo();renderFilterSummary();animateCounts();
+ window.dispatchEvent(new CustomEvent('vd:page-rendered',{detail:{page:state.page,data:state.data}}));
 }
 function canAccess(item){
  const p=state.user?.permissions||[];if(!p.length||p.includes('*'))return true;
@@ -1214,6 +1215,7 @@ async function loadData(force=false){
 async function boot(){
  try{
   const r=await fetch('/api/auth/me',{cache:'no-store'});if(!r.ok)return location.replace('/login');const j=await r.json();state.user=j.user;
+  window.dispatchEvent(new CustomEvent('vd:user-ready',{detail:state.user}));
   $('#userName').textContent=state.user.name||state.user.username;$('#userRole').textContent=state.user.role||'';
   if(state.user.image){const photo=$('#userPhoto');photo.hidden=false;photo.onerror=()=>{photo.hidden=true;photo.removeAttribute('src')};photo.src='/api/auth/photo?v='+Date.now()}
   applyPermissions();
@@ -1235,5 +1237,6 @@ $('#vdInfoModal')?.addEventListener('click',e=>{if(e.target.id==='vdInfoModal')c
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInfo()});
 $('#themeBtn').addEventListener('click',()=>{state.theme=(state.theme+1)%3;document.body.classList.remove('theme-soft','theme-sand');if(state.theme===1)document.body.classList.add('theme-soft');if(state.theme===2)document.body.classList.add('theme-sand');localStorage.setItem('vd.urgent.theme',String(state.theme))});
 state.theme=Number(localStorage.getItem('vd.urgent.theme')||0)%3;if(state.theme===1)document.body.classList.add('theme-soft');if(state.theme===2)document.body.classList.add('theme-sand');
+window.VDUrgent={getState:()=>state,openPage,renderPage,loadData,printCurrent,activeFilterCount,PAGE_META,FILTERS,toast,reportName,showInfo:(title,body)=>{const modal=document.getElementById('vdInfoModal'),t=document.getElementById('vdInfoTitle'),b=document.getElementById('vdInfoBody');if(t)t.textContent=title||'تفاصيل الاحتساب';if(b)b.innerHTML='<div style="white-space:pre-wrap;line-height:1.9">'+esc(body||PAGE_SOURCES[state.page]||'يعتمد على البيانات المفلترة الحالية ومصادر Google Sheets المرتبطة.')+'</div>';if(modal){modal.classList.add('show');modal.setAttribute('aria-hidden','false')}}};
 boot();
 })();

@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { google } = require('googleapis');
 const { DateTime } = require('luxon');
 const XLSX = require('xlsx');
+const installParityServer = require('./parity-server');
 
 function loadEnv(){
   const file=path.join(__dirname,'.env');
@@ -23,6 +24,7 @@ function loadEnv(){
 loadEnv();
 
 const app=express();
+app.set('trust proxy',1);
 const PORT=Number(process.env.PORT||3012);
 const SPREADSHEET_ID=String(process.env.SPREADSHEET_ID||'').trim();
 const CREDENTIALS_PATH=String(process.env.GOOGLE_CREDENTIALS_PATH||'').trim();
@@ -30,6 +32,8 @@ const AUTH_SHEET=String(process.env.AUTH_SHEET||'Dashboard Users').trim();
 const CACHE_MS=20*1000;
 const SNAPSHOT_PATH=path.join(__dirname,'data-snapshot.json');
 let cache={at:0,data:null};
+const STALE_CACHE_MS=5*60*1000;
+let buildDataInFlight=null;
 function readSnapshot(){
   try{
     if(!fs.existsSync(SNAPSHOT_PATH))return null;
@@ -51,7 +55,8 @@ app.use(session({
   secret:SESSION_SECRET,
   resave:false,
   saveUninitialized:false,
-  cookie:{httpOnly:true,sameSite:'lax',secure:false,maxAge:8*60*60*1000}
+  rolling:true,
+  cookie:{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:8*60*60*1000}
 }));
 
 const clean=v=>String(v==null?'':v).replace(/\s+/g,' ').trim();
@@ -182,9 +187,18 @@ app.get('/api/auth/photo',async(req,res)=>{
   }
 });
 
-app.get('/api/auth/me',(req,res)=>{
+app.get('/api/auth/me',async(req,res)=>{
   if(!req.session?.user) return res.status(401).json({ok:false});
-  res.set('Cache-Control','no-store').json({ok:true,user:req.session.user});
+  try{
+    const users=await readUsers();
+    const key=String(req.session.user.username||'').trim().toLowerCase();
+    const user=users.find(u=>u.username===key&&u.active);
+    if(!user){req.session.destroy(()=>{});return res.status(401).json({ok:false})}
+    req.session.user=publicUser(user);
+    return res.set('Cache-Control','no-store').json({ok:true,user:req.session.user});
+  }catch(error){
+    return res.set('Cache-Control','no-store').json({ok:true,user:req.session.user,staleAuth:true});
+  }
 });
 app.post('/api/auth/login',async(req,res)=>{
   try{
@@ -450,6 +464,8 @@ function sum(rows,field){return Math.round(rows.reduce((a,x)=>a+num(x[field]),0)
 
 async function buildData(force=false){
   if(!force && cache.data && Date.now()-cache.at<CACHE_MS) return cache.data;
+  if(!force && buildDataInFlight) return buildDataInFlight;
+  const runner=(async()=>{
   if(!SPREADSHEET_ID) throw new Error('SPREADSHEET_ID is missing');
   const sheets=await sheetsApi();
   const ranges=[
@@ -557,6 +573,18 @@ async function buildData(force=false){
   };
   cache={at:Date.now(),data};
   return data;
+  })();
+  buildDataInFlight=runner;
+  try{
+    return await runner;
+  }catch(error){
+    if(cache.data && Date.now()-cache.at<STALE_CACHE_MS){
+      return {...cache.data,sourceMode:'stale-cache',liveError:error.message};
+    }
+    throw error;
+  }finally{
+    if(buildDataInFlight===runner)buildDataInFlight=null;
+  }
 }
 
 app.get('/api/data',requireAuth,async(req,res)=>{
@@ -593,6 +621,14 @@ function exportRowIsReal(sheet,row){
   if(sheet==='owners')return row.some(v=>clean(v)!=='');
   return row.some(v=>clean(v)!=='');
 }
+installParityServer({
+  app,requireAuth,buildData,
+  getCache:()=>cache,
+  clearCache:()=>{cache={at:0,data:null}},
+  clean,norm,XLSX,DateTime,sheetsApi,SPREADSHEET_ID,q,
+  RAW_EXPORT_SOURCES,exportRowIsReal,columnLetter
+});
+
 app.get('/api/export/source',requireAuth,async(req,res)=>{
   try{
     const sheet=clean(req.query.sheet);

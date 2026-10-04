@@ -1,0 +1,143 @@
+/* Urgent Solutions unified filters v2 — matches PDC Makkah/Jeddah visual structure */
+:root{--uf-blue:#2f7fe8;--uf-green:#086942;--uf-ink:#101d31;--uf-muted:#73839a;--uf-line:#d8e4f1;--uf-soft:#f6f9fd}
+.main>.vd-unified-controls{
+  width:100%!important;display:block!important;direction:rtl!important;overflow:visible!important;
+  background:#fff!important;border:1px solid #dce7f3!important;border-radius:26px!important;
+  padding:18px 22px 20px!important;margin:10px 0 18px!important;
+  box-shadow:0 12px 34px rgba(45,78,118,.08)!important
+}
+.main>.vd-unified-controls .vd-unified-filter-slot{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:10px 16px!important;align-items:end!important;padding:0 0 16px!important;
+  border-bottom:1px solid var(--uf-line)!important;overflow:visible!important
+}
+.main>.vd-unified-controls .filters-host{display:contents!important}
+.main>.vd-unified-controls .multi-filter{position:relative!important;min-width:0!important;padding-top:22px!important}
+.main>.vd-unified-controls .mf-trigger{
+  width:100%!important;height:58px!important;min-height:58px!important;
+  border:1px solid #cedced!important;border-radius:14px!important;background:#fff!important;
+  padding:0 15px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  box-shadow:0 3px 0 rgba(188,205,226,.22)!important;color:#24364d!important;
+  font:600 13px Cairo,Arial,sans-serif!important;cursor:pointer!important
+}
+.main>.vd-unified-controls .mf-trigger b{
+  position:absolute!important;top:0!important;right:8px!important;left:auto!important;
+  max-width:calc(100% - 16px)!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  color:#101010!important;font:800 11px Cairo,Arial,sans-serif!important;line-height:16px!important;white-space:nowrap!important
+}
+.main>.vd-unified-controls .mf-trigger span{
+  width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  color:#334156!important;font:600 13px Cairo,Arial,sans-serif!important
+}
+.main>.vd-unified-controls .mf-pop{
+  top:86px!important;right:0!important;left:auto!important;width:min(280px,92vw)!important;
+  z-index:450!important;border-radius:14px!important;border:1px solid #d4e1ef!important;
+  box-shadow:0 18px 50px rgba(23,44,73,.18)!important
+}
+.main>.vd-unified-controls .mf-search{height:38px!important;border-radius:10px!important;font-size:11px!important}
+.main>.vd-unified-controls .mf-option{font-size:11px!important;padding:7px 5px!important}
+
+.main>.vd-unified-controls .vd-unified-period-slot{
+  display:grid!important;grid-template-columns:200px 190px 190px minmax(520px,1fr)!important;
+  gap:12px!important;align-items:end!important;padding:16px 0!important;
+  border-bottom:1px solid var(--uf-line)!important
+}
+.main>.vd-unified-controls .vd-period-title{align-self:center!important;text-align:right!important;padding-right:2px!important}
+.main>.vd-unified-controls .vd-period-title h3{
+  margin:0 0 8px!important;color:var(--uf-ink)!important;font:900 16px/1.35 Cairo,Arial,sans-serif!important
+}
+.main>.vd-unified-controls .vd-period-title small{
+  display:block!important;color:#71829a!important;font:700 10px/1.4 Cairo,Arial,sans-serif!important
+}
+.main>.vd-unified-controls .vd-date-field{display:flex!important;flex-direction:column!important;gap:6px!important}
+.main>.vd-unified-controls .vd-date-field>span{color:#101c2e!important;font:800 11px Cairo,Arial,sans-serif!important}
+.main>.vd-unified-controls .vd-date-field input{
+  width:100%!important;height:52px!important;margin:0!important;border:1px solid #cedced!important;
+  border-radius:14px!important;background:#fff!important;padding:0 14px!important;
+  color:#111!important;font:700 12px Arial,Cairo,sans-serif!important;box-shadow:none!important
+}
+.main>.vd-unified-controls .vd-period-presets{
+  display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important;align-items:end!important
+}
+.main>.vd-unified-controls .vd-period-presets button{
+  height:52px!important;margin:0!important;border:1px solid #cedced!important;border-radius:14px!important;
+  background:#fff!important;color:#111!important;font:800 11px Cairo,Arial,sans-serif!important;
+  box-shadow:none!important;cursor:pointer!important;white-space:nowrap!important
+}
+.main>.vd-unified-controls .vd-period-presets button.active{
+  background:var(--uf-blue)!important;border-color:var(--uf-blue)!important;color:#fff!important;
+  box-shadow:0 7px 16px rgba(47,127,232,.18)!important
+}
+.main>.vd-unified-controls .vd-period-presets button:hover{border-color:#91b8eb!important;transform:translateY(-1px)!important}
+
+.main>.vd-unified-controls .vd-unified-bottom{
+  display:grid!important;grid-template-columns:220px 220px minmax(300px,1fr) auto!important;
+  gap:12px!important;align-items:stretch!important;padding-top:16px!important
+}
+.main>.vd-unified-controls .vd-summary-card,
+.main>.vd-unified-controls .vd-active-filter-box{
+  min-width:0!important;min-height:76px!important;margin:0!important;padding:12px 15px!important;
+  border:1px solid #e0e8f3!important;border-radius:16px!important;background:var(--uf-soft)!important;
+  box-shadow:none!important;text-align:right!important
+}
+.main>.vd-unified-controls .vd-summary-card>span,
+.main>.vd-unified-controls .vd-active-filter-title{
+  display:block!important;margin:0 0 5px!important;color:#718198!important;font:800 10px Cairo,Arial,sans-serif!important
+}
+.main>.vd-unified-controls .vd-summary-main,
+.main>.vd-unified-controls #resultCount>b{
+  display:block!important;color:#0f1d31!important;font:900 15px/1.35 Cairo,Arial,sans-serif!important
+}
+.main>.vd-unified-controls .vd-summary-card small,
+.main>.vd-unified-controls #resultCount small{
+  display:block!important;margin-top:3px!important;color:#7d8da1!important;font:700 9px Cairo,Arial,sans-serif!important
+}
+.main>.vd-unified-controls .vd-filter-chips{
+  min-height:28px!important;display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important
+}
+.main>.vd-unified-controls .vd-no-active-filters{color:#8d9bad!important;font:700 10px Cairo,Arial,sans-serif!important}
+.main>.vd-unified-controls .vd-filter-chip{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;margin:0!important;padding:5px 9px!important;
+  border:1px solid #cbdcef!important;border-radius:999px!important;background:#fff!important;color:#2d435f!important;
+  font:700 10px Cairo,Arial,sans-serif!important;box-shadow:none!important
+}
+.main>.vd-unified-controls .vd-filter-chip b{color:#8295ae!important;font-size:13px!important}
+
+.main>.vd-unified-controls .vd-unified-actions{
+  min-width:max-content!important;display:flex!important;direction:rtl!important;align-items:center!important;
+  justify-content:flex-start!important;gap:10px!important
+}
+.main>.vd-unified-controls .vd-unified-actions button{
+  height:58px!important;margin:0!important;padding:0 18px!important;border-radius:14px!important;
+  font:800 11px Cairo,Arial,sans-serif!important;white-space:nowrap!important;cursor:pointer!important
+}
+.main>.vd-unified-controls #clearFiltersBtn{background:#fff!important;border:1px solid #cfdced!important;color:#16253a!important}
+.main>.vd-unified-controls .vd-preview-btn{background:#f7fbff!important;border:1px solid #97bff2!important;color:#1764bd!important}
+.main>.vd-unified-controls .vd-pdf-btn{background:var(--uf-green)!important;border:1px solid var(--uf-green)!important;color:#fff!important;box-shadow:0 7px 16px rgba(8,105,66,.16)!important}
+
+.main>.vd-unified-controls.no-manual-filters .vd-unified-filter-slot{display:none!important}
+.main>.vd-unified-controls .vd-unified-period-slot.is-disabled{opacity:.58!important}
+.main>.vd-unified-controls .vd-unified-period-slot.is-disabled input,
+.main>.vd-unified-controls .vd-unified-period-slot.is-disabled button{pointer-events:none!important}
+
+@media(max-width:1500px){
+  .main>.vd-unified-controls .vd-unified-filter-slot{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .main>.vd-unified-controls .vd-unified-period-slot{grid-template-columns:180px 175px 175px minmax(430px,1fr)!important}
+  .main>.vd-unified-controls .vd-unified-bottom{grid-template-columns:200px 200px minmax(260px,1fr)!important}
+  .main>.vd-unified-controls .vd-unified-actions{grid-column:1/-1!important;justify-content:flex-start!important}
+}
+@media(max-width:1180px){
+  .main>.vd-unified-controls .vd-unified-filter-slot{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .main>.vd-unified-controls .vd-unified-period-slot{grid-template-columns:180px 1fr 1fr!important}
+  .main>.vd-unified-controls .vd-period-presets{grid-column:1/-1!important}
+}
+@media(max-width:820px){
+  .main>.vd-unified-controls{padding:14px!important;border-radius:20px!important}
+  .main>.vd-unified-controls .vd-unified-filter-slot{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .main>.vd-unified-controls .vd-unified-period-slot{grid-template-columns:1fr 1fr!important}
+  .main>.vd-unified-controls .vd-period-title,.main>.vd-unified-controls .vd-period-presets{grid-column:1/-1!important}
+  .main>.vd-unified-controls .vd-period-presets{grid-template-columns:repeat(3,1fr)!important}
+  .main>.vd-unified-controls .vd-unified-bottom{grid-template-columns:1fr!important}
+  .main>.vd-unified-controls .vd-unified-actions{grid-column:auto!important;flex-wrap:wrap!important}
+}
+@media print{.main>.vd-unified-controls{display:none!important}}

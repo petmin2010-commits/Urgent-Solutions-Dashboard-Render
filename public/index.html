@@ -10,14 +10,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<link rel="stylesheet" href="/styles.css?v=vision-logo-makkah-20261004-1">
+<link rel="stylesheet" href="/styles.css?v=urgent-unified-filters-v2-20261004-1">
 <link rel="stylesheet" href="/parity-core.css?v=jeddah-parity-20261004-1">
 <link rel="stylesheet" href="/project-news.css?v=urgent-news-speed-4x-20261004-1">
 <link rel="stylesheet" href="/technology-parity.css?v=jeddah-parity-20261004-1">
 <link rel="stylesheet" href="/report-export.css?v=jeddah-makkah-format-20261004-1">
-<link rel="stylesheet" href="/unified-report-controls.css?v=unified-filters-20261004-1">
+<link rel="stylesheet" href="/unified-report-controls.css?v=unified-filters-v2-20261004-1">
 <link rel="stylesheet" href="/urgent-topbar-parity.css?v=20261004-toolbar-weather-1">
 <link rel="stylesheet" href="/tab-hero-designs.css?v=unique-tab-heroes-20261004-1">
+<link rel="stylesheet" href="/urgent-filters-v2.css?v=20261004-2">
 </head>
 <body>
 <div id="boot" class="boot"><div class="boot-card"><div class="spinner"></div><b>جاري تحميل بيانات الحلول العاجلة</b><span>يتم قراءة البيانات مباشرة من Google Sheets</span></div></div>
@@ -143,9 +144,9 @@
       </div>
     </div>
     <div class="vd-unified-bottom">
+      <div class="vd-summary-card vd-period-summary"><span>الفترة المختارة</span><div><span id="periodSummaryMain" class="vd-summary-main">كامل المدة</span><small id="periodSummarySub">بدون تقييد زمني</small></div></div>
+      <div class="vd-summary-card vd-result-summary"><span>النتائج المطابقة</span><strong id="resultCount"><b>—</b><small>من — إجمالي</small></strong></div>
       <div class="vd-active-filter-box"><div class="vd-active-filter-title">⌯ الفلاتر النشطة</div><div id="activeFilters" class="vd-filter-chips"><span class="vd-no-active-filters">لا توجد فلاتر نشطة</span></div></div>
-      <div class="vd-summary-card"><span>النتائج المطابقة</span><strong id="resultCount"><b>—</b><small>من — إجمالي</small></strong></div>
-      <div class="vd-summary-card"><span>الفترة المختارة</span><div><span id="periodSummaryMain" class="vd-summary-main">كامل المدة</span><small id="periodSummarySub">بدون تقييد زمني</small></div></div>
       <div class="vd-unified-actions"><button id="clearFiltersBtn" type="button">مسح الفلاتر</button><button id="previewReportBtn" class="vd-preview-btn" type="button">◉ معاينة التقرير</button><button id="printBtn" class="vd-pdf-btn" type="button">↓ تصدير التقرير PDF</button></div>
     </div>
   </section>

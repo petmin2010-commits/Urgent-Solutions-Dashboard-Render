@@ -96,6 +96,26 @@ const FILTERS={
  analytics:[
   {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
   {field:'riskLevel',label:'مستوى المخاطر'}
+ ],
+ smartCenter:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'}
+ ],
+ temporalMemory:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'}
+ ],
+ investigationRoom:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'}
+ ],
+ explainableDecision:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'}
+ ],
+ smartThursday:[
+  {field:'municipality',label:'البلدية'},{field:'contractor',label:'المقاول'},{field:'owner',label:'المالك'},
+  {field:'riskLevel',label:'مستوى المخاطر'}
  ]
 };
 
@@ -126,14 +146,14 @@ const PAGE_SOURCES={
 const CHART_FILTERS={
  master:{cPermitStatus:['permitStatus','حالة التصريح'],cLineType:['type','نوع الخط'],cDesign:['designStatus','حالة التصميم'],cGuarantee:['guaranteeStatus','حالة الضمان'],cYears:['year','السنة'],cMun:['municipality','البلدية'],cRisk:['riskLevel','مستوى المخاطر'],cExt:['extensionPressure','ضغط التمديدات']},
  projects:{pStatus:['contractStatus','حالة العقد'],pType:['projectType','نوع المشروع'],pPermit:['permitStatus','حالة التصريح'],pMun:['municipality','البلدية'],pRisk:['riskLevel','مستوى المخاطر'],pExt:['extensionPressure','ضغط التمديدات']},
- permits:{peYear:['year','السنة'],peMun:['municipality','البلدية'],peCon:['contractor','المقاول'],peOwner:['owner','المالك'],peExpiry:['expiryBand','نافذة الانتهاء']},
- lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم'],lApproval:['approvalBand','مدة الاعتماد'],lAging:['designAgeBand','عمر المتابعة'],lDiameter:['diameter','قطر التصميم']},
- settlements:{sStatus:['status','حالة التسوية'],sContractor:['contractor','المقاول'],sCoverage:['coverageBand','نسبة التغطية']},
- guarantees:{gStatus:['guaranteeStatus','حالة الضمان'],gContractor:['contractor','المقاول']},
+ permits:{peYear:['year','السنة'],peMun:['municipality','البلدية'],peCon:['contractor','المقاول'],peOwner:['owner','المالك'],peExpiry:['expiryBand','نافذة الانتهاء'],peMetersYear:['year','السنة']},
+ lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم'],lApproval:['approvalBand','مدة الاعتماد'],lAging:['designAgeBand','عمر المتابعة'],lDiameter:['diameter','قطر التصميم'],lDiff:['ref','مرجع الخط']},
+ settlements:{sStatus:['status','حالة التسوية'],sContractor:['contractor','المقاول'],sCoverage:['coverageBand','نسبة التغطية'],sDueDone:['contractor','المقاول']},
+ guarantees:{gStatus:['guaranteeStatus','حالة الضمان'],gContractor:['contractor','المقاول'],gWindow:['guaranteeDays','نافذة الأيام','guaranteeWindow']},
  complaints:{coStatus:['status','حالة الشكوى']},
  execution:{exStatus:['executionStatus','حالة التنفيذ'],exType:['type','نوع الخط']},
  parties:{paCon:['contractor','المقاول'],paOwner:['owner','المالك']},
- municipalities:{muProjects:['municipality','البلدية'],muPermit:['municipality','البلدية'],muLines:['municipality','البلدية'],muRisk:['municipality','البلدية']},
+ municipalities:{muProjects:['municipality','البلدية'],muPermit:['municipality','البلدية'],muLines:['municipality','البلدية'],muRisk:['municipality','البلدية'],muCoverage:['municipality','البلدية']},
  traceability:{trRisk:['riskLevel','مستوى المخاطر'],trMatch:['matchMethod','طريقة الربط']},
  quality:{qCat:['category','التصنيف'],qSource:['source','المصدر']},
  risks:{rLevel:['riskLevel','مستوى المخاطر'],rExt:['extensionPressure','ضغط التمديدات'],rMun:['municipality','البلدية']},
@@ -220,6 +240,7 @@ function filterSource(){
  if(state.page==='settlements')return d.settlements||[];
  if(state.page==='complaints')return d.complaints||[];
  if(state.page==='parties')return [...(d.projects||[]),...(d.lines||[])];
+ if(['smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].includes(state.page))return [...(d.projects||[]),...(d.actualPermits||[]),...(d.lines||[]),...(d.settlements||[])];
  if(state.page==='municipalities')return d.municipalitySummary||[];
  if(state.page==='traceability')return d.traceability||[];
  if(state.page==='quality')return d.quality||[];
@@ -234,7 +255,7 @@ function primaryRows(){
  if(state.page==='quality')return d.quality||[];
  if(state.page==='municipalities')return d.municipalitySummary||[];
  if(state.page==='traceability')return d.traceability||[];
- if(state.page==='parties'||state.page==='risks')return d.projects||[];
+ if(state.page==='parties'||state.page==='risks'||['smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].includes(state.page))return d.projects||[];
  return d.projects||[];
 }
 function optionsFor(field){
@@ -250,7 +271,21 @@ function selectedFor(field){
  return {values,set};
 }
 function rulePass(row,rule){
- if(!rule||!rule.field||!Object.prototype.hasOwnProperty.call(row,rule.field))return true;
+ if(!rule)return true;
+ if(rule.mode==='allOf')return (rule.rules||[]).every(r=>rulePass(row,r));
+ if(rule.mode==='projectRef')return norm(row?.no)===norm(rule.value)||norm(row?.name)===norm(rule.value);
+ if(rule.mode==='guaranteeWindow'){
+  const status=clean(row?.guaranteeStatus),expiry=clean(row?.guaranteeExpiry),days=n(row?.guaranteeDays),band=clean(rule.value);
+  if(band==='تعهد/بدون تاريخ')return /تعهد/i.test(status)||!expiry;
+  if(!expiry)return false;
+  if(band==='منتهي')return days<=0;
+  if(band==='0–14 يوم')return days>0&&days<=14;
+  if(band==='15–30 يوم')return days>14&&days<=30;
+  if(band==='31–60 يوم')return days>30&&days<=60;
+  if(band==='>60 يوم')return days>60;
+  return true;
+ }
+ if(!rule.field||!Object.prototype.hasOwnProperty.call(row,rule.field))return true;
  const raw=row[rule.field],v=clean(raw);
  if(rule.mode==='blank')return !v;
  if(rule.mode==='notblank')return !!v;
@@ -292,7 +327,12 @@ const PERIOD_META={
  traceability:{basis:'لا يوجد تاريخ موحد في سجل التتبع الحالي',disabled:true},
  quality:{basis:'لا يوجد تاريخ مستقل لسجل جودة البيانات',disabled:true},
  risks:{basis:'الأساس: تاريخ بداية المشروع',fields:['startDate']},
- analytics:{basis:'الأساس: تاريخ المصدر التشغيلي',fields:['startDate','start','assignmentDate']}
+ analytics:{basis:'الأساس: تاريخ المصدر التشغيلي',fields:['startDate','start','assignmentDate']},
+ smartCenter:{basis:'الأساس: تاريخ المصدر التشغيلي',fields:['startDate','start','assignmentDate']},
+ temporalMemory:{basis:'الأساس: تاريخ المصدر التشغيلي للقراءة الحالية',fields:['startDate','start','assignmentDate']},
+ investigationRoom:{basis:'الأساس: تاريخ المصدر التشغيلي',fields:['startDate','start','assignmentDate']},
+ explainableDecision:{basis:'الأساس: تاريخ بداية المشروع',fields:['startDate']},
+ smartThursday:{basis:'الأساس: تاريخ المصدر التشغيلي',fields:['startDate','start','assignmentDate']}
 };
 function periodState(){
  if(!state.periods.has(state.page))state.periods.set(state.page,{from:'',to:'',preset:'all'});
@@ -442,14 +482,15 @@ const valuePlugin={
   });ctx.restore();
  }
 };
-function chartRule(id,label){
+function chartRule(id,label,index,opts={}){
+ const custom=opts.filterRules?.[index];if(custom)return{...custom,displayValue:custom.displayValue||clean(label)};
  const cfg=CHART_FILTERS[state.page]?.[id];if(!cfg)return null;
- const [field,title]=cfg,value=clean(label);
- if(value==='غير محدد')return{field,mode:'blank',value:'',label:title,displayValue:value};
- return{field,mode:'exact',value,label:title,displayValue:value};
+ const [field,title,mode='exact']=cfg,value=clean(label);
+ if(value==='غير محدد'&&mode==='exact')return{field,mode:'blank',value:'',label:title,displayValue:value};
+ return{field,mode,value,label:title,displayValue:value};
 }
-function handleChartClick(id,label){
- const rule=chartRule(id,label);if(!rule)return;
+function handleChartClick(id,label,index,opts={}){
+ const rule=chartRule(id,label,index,opts);if(!rule)return;
  toggleInteractiveFilter('chart:'+id,rule);
 }
 function makeChart(id,type,labels,values,opts={}){
@@ -459,8 +500,8 @@ function makeChart(id,type,labels,values,opts={}){
  const chart=new Chart(canvas,{
   type,data:{labels,datasets:[{label:opts.label||'',data:values,backgroundColor:type==='line'?'rgba(8,121,165,.14)':colors,borderColor:type==='line'?'#0879a5':colors,borderWidth:type==='line'?2:1,tension:.32,fill:type==='line'}]},
   options:{responsive:true,maintainAspectRatio:false,indexAxis:opts.horizontal?'y':'x',
-   onHover:(event,elements)=>{if(event?.native?.target)event.native.target.style.cursor=(elements.length&&CHART_FILTERS[state.page]?.[id])?'pointer':'default'},
-   onClick:(event,elements)=>{if(!elements.length||!CHART_FILTERS[state.page]?.[id])return;const idx=elements[0].index;handleChartClick(id,labels[idx])},
+   onHover:(event,elements)=>{if(event?.native?.target)event.native.target.style.cursor=(elements.length&&(CHART_FILTERS[state.page]?.[id]||opts.filterRules?.length))?'pointer':'default'},
+   onClick:(event,elements)=>{if(!elements.length)return;const idx=elements[0].index;if(!CHART_FILTERS[state.page]?.[id]&&!opts.filterRules?.[idx])return;handleChartClick(id,labels[idx],idx,opts)},
    plugins:{legend:{display:type==='doughnut',position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
    scales:type==='doughnut'?{}:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
   plugins:[]
@@ -477,11 +518,15 @@ function makeMultiBar(id,labels,datasets,opts={}){
   type:'bar',
   data:{labels,datasets:datasets.map((ds,i)=>({label:ds.label,data:ds.data,backgroundColor:COLORS[(i*2)%COLORS.length],borderColor:COLORS[(i*2)%COLORS.length],borderWidth:1}))},
   options:{responsive:true,maintainAspectRatio:false,indexAxis:opts.horizontal?'y':'x',
+   onHover:(event,elements)=>{if(event?.native?.target)event.native.target.style.cursor=(elements.length&&(CHART_FILTERS[state.page]?.[id]||opts.filterRules?.length))?'pointer':'default'},
+   onClick:(event,elements)=>{if(!elements.length)return;const idx=elements[0].index;if(!CHART_FILTERS[state.page]?.[id]&&!opts.filterRules?.[idx])return;handleChartClick(id,labels[idx],idx,opts)},
    plugins:{legend:{display:true,position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
    scales:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
   plugins:[]
  });
  state.charts.push(chart);
+ const panel=canvas.closest('.panel'),active=interactiveStore().get('chart:'+id);
+ if(panel)panel.classList.toggle('vd-filtered',!!active);
 }
 function avg(rows,field){
  const vals=(rows||[]).map(r=>n(r[field])).filter(v=>Number.isFinite(v));
@@ -965,7 +1010,7 @@ function renderProjectsV2(){
  x=topEntries(countBy(rows,'contractStatus'));makeChart('pStatus','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'permitStatus'));makeChart('pPermit','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'municipality'),12);makeChart('pMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
- const top=[...rows].sort((a,b)=>n(b.permitMeters)-n(a.permitMeters)).slice(0,12);makeChart('pMeters','bar',top.map(x=>x.no||x.name),top.map(x=>x.permitMeters),{horizontal:true});
+ const top=[...rows].sort((a,b)=>n(b.permitMeters)-n(a.permitMeters)).slice(0,12);makeChart('pMeters','bar',top.map(x=>x.no||x.name),top.map(x=>x.permitMeters),{horizontal:true,filterRules:top.map(x=>({mode:'projectRef',value:x.no||x.name,label:'المشروع'}))});
 }
 function renderPermitsV2(){
  const rows=filtered(state.data.actualPermits),expired=rows.filter(x=>x.expiryBand==='منتهي').length,soon=rows.filter(x=>['0–7 أيام','8–30 يوم'].includes(x.expiryBand)).length;
@@ -1056,7 +1101,7 @@ function renderSettlementsV2(){
  x=topEntries(countBy(rows,'coverageBand'));makeChart('sCoverage','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  const cm={};rows.forEach(r=>{const k=r.contractor||'غير محدد';cm[k]=(cm[k]||0)+n(r.balance)});x=Object.entries(cm).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,12);makeChart('sContractor','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
  const ag={};rows.forEach(r=>{const k=r.contractor||'غير محدد';ag[k]??={due:0,done:0};ag[k].due+=n(r.dueMeters);ag[k].done+=n(r.executedMeters)});const aa=Object.entries(ag).sort((a,b)=>b[1].due-a[1].due).slice(0,10);makeMultiBar('sDueDone',aa.map(x=>x[0]),[{label:'المستحق',data:aa.map(x=>x[1].due)},{label:'الخطوط',data:aa.map(x=>x[1].done)}],{horizontal:true});
- const gaps=[...rows].sort((a,b)=>Math.abs(b.balance)-Math.abs(a.balance)).slice(0,12);makeChart('sGaps','bar',gaps.map(x=>(x.owner||'')+' / '+(x.contractor||'')),gaps.map(x=>x.balance),{horizontal:true});
+ const gaps=[...rows].sort((a,b)=>Math.abs(b.balance)-Math.abs(a.balance)).slice(0,12);makeChart('sGaps','bar',gaps.map(x=>(x.owner||'')+' / '+(x.contractor||'')),gaps.map(x=>x.balance),{horizontal:true,filterRules:gaps.map(x=>({mode:'allOf',label:'المالك + المقاول',rules:[{field:'owner',mode:'exact',value:x.owner||''},{field:'contractor',mode:'exact',value:x.contractor||''}]}))});
 }
 function renderGuaranteesV2(){
  const rows=filtered(state.data.projects),expired=rows.filter(x=>/منتهي/i.test(x.guaranteeStatus)).length,soon=rows.filter(x=>/أوشك/i.test(x.guaranteeStatus)).length,waiting=rows.filter(x=>/بانتظار/i.test(x.guaranteeStatus)).length,undertaking=rows.filter(x=>/تعهد/i.test(x.guaranteeStatus)).length;
@@ -1146,7 +1191,7 @@ function renderRisks(){
  let x=topEntries(counts);makeChart('rLevel','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'extensionPressure'));makeChart('rExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  const mg={};rows.forEach(r=>{const k=r.municipality||'غير محدد';mg[k]??={sum:0,count:0};mg[k].sum+=n(r.riskScore);mg[k].count++});x=Object.entries(mg).map(([k,v])=>[k,Math.round(v.sum/v.count*10)/10]).sort((a,b)=>b[1]-a[1]).slice(0,12);makeChart('rMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
- const top=[...rows].sort((a,b)=>n(b.riskScore)-n(a.riskScore)).slice(0,12);makeChart('rTop','bar',top.map(x=>x.no||x.name),top.map(x=>x.riskScore),{horizontal:true});
+ const top=[...rows].sort((a,b)=>n(b.riskScore)-n(a.riskScore)).slice(0,12);makeChart('rTop','bar',top.map(x=>x.no||x.name),top.map(x=>x.riskScore),{horizontal:true,filterRules:top.map(x=>({mode:'projectRef',value:x.no||x.name,label:'المشروع'}))});
 }
 function renderMunicipalities(){
  const rows=filtered(state.data.municipalitySummary||[]);
@@ -1186,7 +1231,7 @@ function renderTraceability(){
  ],rows);
  let x=topEntries(countBy(rows,'riskLevel'));makeChart('trRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'matchMethod'));makeChart('trMatch','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
- const top=[...rows].sort((a,b)=>n(b.lineMeters)-n(a.lineMeters)).slice(0,12);makeChart('trLines','bar',top.map(x=>x.no||x.name),top.map(x=>x.lineMeters),{horizontal:true});
+ const top=[...rows].sort((a,b)=>n(b.lineMeters)-n(a.lineMeters)).slice(0,12);makeChart('trLines','bar',top.map(x=>x.no||x.name),top.map(x=>x.lineMeters),{horizontal:true,filterRules:top.map(x=>({mode:'projectRef',value:x.no||x.name,label:'المشروع'}))});
 }
 function renderAnalyticsV2(){
  const projects=commonFiltered(state.data.projects),permits=commonFiltered(state.data.actualPermits),lines=commonFiltered(state.data.lines),sett=commonFiltered(state.data.settlements||[]);
@@ -1407,6 +1452,6 @@ $('#vdInfoModal')?.addEventListener('click',e=>{if(e.target.id==='vdInfoModal')c
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInfo()});
 $('#themeBtn').addEventListener('click',()=>{state.theme=(state.theme+1)%3;document.body.classList.remove('theme-soft','theme-sand');if(state.theme===1)document.body.classList.add('theme-soft');if(state.theme===2)document.body.classList.add('theme-sand');localStorage.setItem('vd.urgent.theme',String(state.theme))});
 state.theme=Number(localStorage.getItem('vd.urgent.theme')||0)%3;if(state.theme===1)document.body.classList.add('theme-soft');if(state.theme===2)document.body.classList.add('theme-sand');
-window.VDUrgent={getState:()=>state,openPage,renderPage,loadData,printCurrent,activeFilterCount,PAGE_META,FILTERS,toast,reportName,showInfo:(title,body)=>{const modal=document.getElementById('vdInfoModal'),t=document.getElementById('vdInfoTitle'),b=document.getElementById('vdInfoBody');if(t)t.textContent=title||'تفاصيل الاحتساب';if(b)b.innerHTML='<div style="white-space:pre-wrap;line-height:1.9">'+esc(body||PAGE_SOURCES[state.page]||'يعتمد على البيانات المفلترة الحالية ومصادر Google Sheets المرتبطة.')+'</div>';if(modal){modal.classList.add('show');modal.setAttribute('aria-hidden','false')}}};
+window.VDUrgent={getState:()=>state,openPage,renderPage,loadData,printCurrent,activeFilterCount,filterRows:(rows)=>commonFiltered(rows||[]),PAGE_META,FILTERS,toast,reportName,showInfo:(title,body)=>{const modal=document.getElementById('vdInfoModal'),t=document.getElementById('vdInfoTitle'),b=document.getElementById('vdInfoBody');if(t)t.textContent=title||'تفاصيل الاحتساب';if(b)b.innerHTML='<div style="white-space:pre-wrap;line-height:1.9">'+esc(body||PAGE_SOURCES[state.page]||'يعتمد على البيانات المفلترة الحالية ومصادر Google Sheets المرتبطة.')+'</div>';if(modal){modal.classList.add('show');modal.setAttribute('aria-hidden','false')}}};
 boot();
 })();

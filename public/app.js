@@ -204,7 +204,7 @@ const CARD_RULES={
  }
 };
 
-const state={data:null,user:null,page:'master',filters:new Map(),interactiveFilters:new Map(),periods:new Map(),charts:[],map:null,theme:0,export:{sheet:'vd projects',source:null,cache:new Map(),columns:new Set(),filters:new Map(),initializedSheet:null}};
+const state={data:null,user:null,page:'master',filters:new Map(),filterOptionsCache:new Map(),interactiveFilters:new Map(),periods:new Map(),charts:[],map:null,theme:0,export:{sheet:'vd projects',source:null,cache:new Map(),columns:new Set(),filters:new Map(),initializedSheet:null}};
 
 const COLORS=['#0879a5','#19a5c8','#5bc6de','#83d9e8','#2f73b7','#79a8d8','#d0a351','#d36d56','#7d70b4','#69a99b'];
 if(window.Chart){Chart.defaults.color='#000000';}
@@ -260,15 +260,23 @@ function primaryRows(){
  return d.projects||[];
 }
 function optionsFor(field){
- return [...new Set(filterSource().map(r=>clean(r[field])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+ const key=filterKey(field);
+ if(state.filterOptionsCache.has(key))return state.filterOptionsCache.get(key);
+ const values=[...new Set(filterSource().map(r=>clean(r[field])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+ state.filterOptionsCache.set(key,values);
+ return values;
 }
 function selectedFor(field){
  const values=optionsFor(field),key=filterKey(field);
  if(!state.filters.has(key))state.filters.set(key,new Set(values));
  const set=state.filters.get(key);
- values.forEach(v=>{if(!set.has(v) && set.__initialized!==true){set.add(v)}});
- set.__initialized=true;
- [...set].forEach(v=>{if(!values.includes(v))set.delete(v)});
+ if(set.__optionsRef!==values){
+  if(set.__initialized!==true)values.forEach(v=>set.add(v));
+  set.__initialized=true;
+  const valueSet=new Set(values);
+  [...set].forEach(v=>{if(!valueSet.has(v))set.delete(v)});
+  set.__optionsRef=values;
+ }
  return {values,set};
 }
 function rulePass(row,rule){
@@ -455,7 +463,7 @@ function renderFilters(){
  $$('.mf-search',host).forEach(inp=>inp.addEventListener('input',()=>{const q=norm(inp.value);$$('.mf-option',inp.closest('.mf-pop')).forEach(x=>x.style.display=!q||x.dataset.text.includes(q)?'flex':'none')}));
  $$('.mf-actions button',host).forEach(btn=>btn.addEventListener('click',()=>{const box=btn.closest('.multi-filter'),field=box.dataset.field,{values,set}=selectedFor(field);set.clear();if(btn.dataset.act==='all')values.forEach(v=>set.add(v));renderPage()}));
  $$('.mf-option input',host).forEach(inp=>inp.addEventListener('change',()=>{const field=inp.closest('.multi-filter').dataset.field,{set}=selectedFor(field);inp.checked?set.add(inp.value):set.delete(inp.value);renderPage()}));
- renderPeriodControls();renderFilterSummary();
+ // Summary and period controls are rendered once after the page body is ready.
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.multi-filter'))$$('.multi-filter').forEach(x=>x.classList.remove('open'))});
 
@@ -1385,15 +1393,32 @@ function printCurrent(){
 }
 
 function renderPage(){
- document.body.dataset.vdPage=state.page;
- destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[state.page]||PAGE_META.master;
+ const pageAtRender=state.page,started=performance.now();
+ document.body.dataset.vdPage=pageAtRender;
+ destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[pageAtRender]||PAGE_META.master;
  $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • URGENT SOLUTIONS';
  renderFilters();
- const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,smartCenter:renderSmartShell,temporalMemory:renderSmartShell,investigationRoom:renderSmartShell,explainableDecision:renderSmartShell,smartThursday:renderSmartShell,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMasterV2;
- fn();wireTableSearch();wireInteractiveCards();decorateInfo();renderFilterSummary();if(window.VDCountUp)window.VDCountUp.refresh();else animateCounts();
- window.__urgentCurrentPage=state.page;
- window.dispatchEvent(new CustomEvent('vd:urgent-page',{detail:{page:state.page,data:state.data}}));
- window.dispatchEvent(new CustomEvent('vd:page-rendered',{detail:{page:state.page,data:state.data}}));
+ const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,smartCenter:renderSmartShell,temporalMemory:renderSmartShell,investigationRoom:renderSmartShell,explainableDecision:renderSmartShell,smartThursday:renderSmartShell,reports:renderReports,excelExport:renderExcelExport}[pageAtRender]||renderMasterV2;
+ try{
+  fn();
+ }catch(e){
+  console.error('[VD] page render failed:',pageAtRender,e);
+  const host=$('#pageHost');
+  if(host)host.innerHTML='<div class="empty"><b>تعذر فتح هذه الشاشة</b><span>'+esc(e?.message||'RENDER_ERROR')+'</span></div>';
+ }
+ window.__urgentCurrentPage=pageAtRender;
+ requestAnimationFrame(()=>{
+  if(state.page!==pageAtRender)return;
+  const safe=(label,work)=>{try{work()}catch(e){console.error('[VD] '+label+' failed:',pageAtRender,e)}};
+  safe('table search',wireTableSearch);
+  safe('interactive cards',wireInteractiveCards);
+  safe('info decoration',decorateInfo);
+  safe('filter summary',renderFilterSummary);
+  safe('count up',()=>{if(window.VDCountUp)window.VDCountUp.refresh();else animateCounts()});
+  window.dispatchEvent(new CustomEvent('vd:urgent-page',{detail:{page:pageAtRender,data:state.data}}));
+  window.dispatchEvent(new CustomEvent('vd:page-rendered',{detail:{page:pageAtRender,data:state.data}}));
+  console.debug('[VD] rendered',pageAtRender,Math.round(performance.now()-started)+'ms');
+ });
 }
 function canAccess(item){
  const p=state.user?.permissions||[];if(!p.length||p.includes('*'))return true;
@@ -1423,7 +1448,7 @@ async function loadData(force=false){
  const btn=$('#refreshBtn');if(btn)btn.disabled=true;
  try{
   const r=await fetch('/api/data'+(force?'?refresh=1':''),{cache:'no-store'});if(r.status===401)return location.replace('/login');const j=await r.json();if(!r.ok)throw new Error(j.message||'DATA');
-  state.data=j;window.__urgentDashboardData=j;window.dispatchEvent(new CustomEvent('vd:urgent-data',{detail:j}));$('#updatedAt').textContent=new Date(j.updatedAt).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'});renderPage();toast(force?'تم تحديث البيانات':'تم تحميل البيانات');
+  state.data=j;state.filterOptionsCache.clear();window.__urgentDashboardData=j;window.dispatchEvent(new CustomEvent('vd:urgent-data',{detail:j}));$('#updatedAt').textContent=new Date(j.updatedAt).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'});renderPage();toast(force?'تم تحديث البيانات':'تم تحميل البيانات');
  }catch(e){console.error(e);$('#pageHost').innerHTML='<div class="empty"><b>تعذر تحميل البيانات</b><span>'+esc(e.message)+'</span></div>';toast('تعذر الاتصال بمصدر البيانات')}
  finally{if(btn)btn.disabled=false;$('#boot').classList.add('hide')}
 }

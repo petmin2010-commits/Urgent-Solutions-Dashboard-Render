@@ -116,7 +116,31 @@ function inject(){
 function injectStyle(){
  const s=document.createElement('style');s.textContent='.vd-language-wrap{position:relative;display:inline-flex}.vd-language-button{height:38px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--green);font:700 9px Cairo;cursor:pointer}.vd-language-menu{position:absolute;top:44px;inset-inline-end:0;z-index:10050;width:145px;padding:6px;border:1px solid var(--line);border-radius:13px;background:#fff;box-shadow:0 15px 35px rgba(4,45,65,.18)}.vd-language-menu[hidden]{display:none!important}.vd-language-menu button{width:100%;display:flex;justify-content:space-between;border:0;background:transparent;padding:8px;border-radius:8px;font:700 9px Cairo;cursor:pointer;color:#234b5c}.vd-language-menu button.active,.vd-language-menu button:hover{background:#eaf7fb;color:#075f89}html[dir="ltr"] .nav-item,html[dir="ltr"] .nav-group-head,html[dir="ltr"] th,html[dir="ltr"] td{text-align:left}html[dir="ltr"] input,html[dir="ltr"] select{direction:ltr;text-align:left}@media print{.vd-language-wrap{display:none!important}}';document.head.appendChild(s);
 }
-const obs=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;walk(document,language);if(language==='en')translateCharts('en')})});
+const pendingRoots=new Set();
+const obs=new MutationObserver(mutations=>{
+ // The application renders Arabic natively. Re-walking the entire document for
+ // every DOM mutation (especially count-up frames) can lock the UI after a tab click.
+ if(language!=='en')return;
+ for(const mutation of mutations){
+  if(mutation.type==='childList'){
+   mutation.addedNodes.forEach(node=>{
+    const root=node.nodeType===Node.ELEMENT_NODE?node:node.parentElement;
+    if(root)pendingRoots.add(root);
+   });
+  }else{
+   const root=mutation.target?.nodeType===Node.ELEMENT_NODE?mutation.target:mutation.target?.parentElement;
+   if(root)pendingRoots.add(root);
+  }
+ }
+ if(queued)return;
+ queued=true;
+ requestAnimationFrame(()=>{
+  queued=false;
+  const roots=[...pendingRoots];pendingRoots.clear();
+  roots.forEach(root=>walk(root,'en'));
+  if(roots.length)translateCharts('en');
+ });
+});
 function boot(){injectStyle();inject();apply(language,false);obs.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['placeholder','title','aria-label']})}
 window.VDUrgentI18n={setLanguage:l=>apply(l,true),getLanguage:()=>language,t:(v,l=language)=>translateString(v,l,true)};
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',boot,{once:true}):boot();

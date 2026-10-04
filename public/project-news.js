@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clean=v=>String(v??'').replace(/\s+/g,' ').trim(),num=v=>Number(v||0),KEY='vd.urgent.smartNews.snapshot.v1';
-const SPEEDS=[0.75,1,1.5,2],SPEED_KEY='vd.urgent.projectNews.speed';
+const SPEEDS=[0.75,1,1.5,2,3,4],SPEED_KEY='vd.urgent.projectNews.speed';
 let paused=false,timer=null,offset=0,lastRows=[],speed=1;
 function tone(v){const s=clean(v);if(/عاجل|حرج/.test(s))return'urgent';if(/مهم|تنبيه|تراجع/.test(s))return'important';if(/تحسن|إنجاز|انجاز/.test(s))return'positive';return'update'}
 function stamp(){try{return new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date())}catch{return''}}

@@ -5,7 +5,7 @@ const labelOf=el=>String(el?.querySelector('b')?.textContent||el?.textContent||'
 function can(label,key=''){if(state.all)return true;const a=norm(label),k=norm(key);return state.allow.has(a)||state.allow.has(k)}
 function allowed(el){return can(labelOf(el),el?.dataset?.page||'')}
 function setPermissions(p){
- const arr=Array.isArray(p)?p:[];state.allow=new Set(arr.map(norm).filter(Boolean));state.all=!arr.length||arr.some(v=>['*','all','الكل','جميع الصفحات','كامل الصلاحيات'].includes(norm(v)));state.ready=true;
+ const arr=Array.isArray(p)?p:[];state.allow=new Set(arr.map(norm).filter(Boolean));state.all=!arr.length||arr.some(v=>String(v??'').trim()==='*'||['all','الكل','جميع الصفحات','كامل الصلاحيات'].includes(norm(v)));state.ready=true;
  window.vdCanAccessLabel=(label,key='')=>can(label,key);window.vdAllowedPages=()=>arr.slice();apply();
 }
 function apply(){

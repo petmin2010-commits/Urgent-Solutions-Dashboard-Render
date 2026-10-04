@@ -392,6 +392,7 @@ function renderFilterSummary(){
 
 function renderFilters(){
  const bar=$('#filterBar'),host=$('#filtersHost'),defs=pageFilterDefs();if(!bar||!host)return;
+ if(state.page==='reports'){bar.style.display='none';host.innerHTML='';return;}
  bar.style.display='block';bar.classList.toggle('no-manual-filters',!defs.length);
  host.innerHTML=defs.map(def=>{
   const {values,set}=selectedFor(def.field),label=!values.length?'لا توجد قيم':set.size===values.length?'الكل':set.size+'/'+values.length;

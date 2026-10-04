@@ -14,7 +14,10 @@
 <link rel="stylesheet" href="/parity-core.css?v=jeddah-parity-20261004-1">
 <link rel="stylesheet" href="/project-news.css?v=urgent-news-speed-4x-20261004-1">
 <link rel="stylesheet" href="/technology-parity.css?v=jeddah-parity-20261004-1">
+<link rel="stylesheet" href="/report-export.css?v=jeddah-makkah-format-20261004-1">
+<link rel="stylesheet" href="/unified-report-controls.css?v=unified-filters-20261004-1">
 <link rel="stylesheet" href="/urgent-topbar-parity.css?v=20261004-toolbar-weather-1">
+<link rel="stylesheet" href="/tab-hero-designs.css?v=unique-tab-heroes-20261004-1">
 </head>
 <body>
 <div id="boot" class="boot"><div class="boot-card"><div class="spinner"></div><b>جاري تحميل بيانات الحلول العاجلة</b><span>يتم قراءة البيانات مباشرة من Google Sheets</span></div></div>
@@ -102,7 +105,6 @@
         </div>
       </div>
       <button id="themeBtn" type="button" hidden aria-hidden="true">◐</button>
-      <button id="printBtn" type="button" hidden aria-hidden="true">تصدير التقرير PDF</button>
     </div>
     <div id="dashboardContext" class="dashboard-context" data-city="جدة" data-lat="21.5433" data-lon="39.1728" aria-label="التاريخ والوقت ودرجة الحرارة">
       <span class="dashboard-context-date" id="dashboardDate">—</span><span class="dashboard-context-sep" aria-hidden="true"></span><span class="dashboard-context-time" id="dashboardTime">—</span><span class="dashboard-context-sep" aria-hidden="true"></span><span class="dashboard-context-temp" id="dashboardTemp" title="درجة الحرارة الحالية"><i aria-hidden="true">🌡</i><b>--°م</b></span>
@@ -128,12 +130,23 @@
     <div class="hero-meta"><span>آخر تحديث</span><b id="updatedAt">—</b></div>
   </section>
 
-  <section id="filterBar" class="filter-bar">
-    <div class="filter-head"><div><b>الفلاتر التفاعلية</b><span id="filterHint">تطبق على الكروت والشارتات والجداول • ويمكن الفلترة بالضغط على الكروت والشارتات</span></div><button id="clearFiltersBtn" type="button">إعادة تعيين</button></div>
-    <div id="filtersHost" class="filters-host"></div>
-    <div id="filterSummary" class="filter-summary">
-      <div id="resultCount" class="result-count">—</div>
-      <div id="activeFilters" class="active-filters"><span class="no-active-filter">لا توجد فلاتر نشطة</span></div>
+  <section id="filterBar" class="vd-unified-controls">
+    <div class="vd-unified-filter-slot">
+      <div id="filtersHost" class="filters-host"></div>
+    </div>
+    <div id="periodControls" class="vd-unified-period-slot">
+      <div class="vd-period-title"><h3>الفترة الزمنية للتقرير</h3><small id="periodBasis">الأساس: تاريخ البيانات</small></div>
+      <label class="vd-date-field"><span>من تاريخ</span><input id="periodFrom" type="date" lang="en-GB"></label>
+      <label class="vd-date-field"><span>إلى تاريخ</span><input id="periodTo" type="date" lang="en-GB"></label>
+      <div class="vd-period-presets" aria-label="اختيارات سريعة للفترة">
+        <button type="button" data-period="all" class="active">كامل المدة</button><button type="button" data-period="week" title="من الجمعة إلى الخميس">آخر أسبوع</button><button type="button" data-period="month">هذا الشهر</button><button type="button" data-period="30">آخر 30 يوم</button><button type="button" data-period="90">آخر 90 يوم</button><button type="button" data-period="year">هذا العام</button>
+      </div>
+    </div>
+    <div class="vd-unified-bottom">
+      <div class="vd-active-filter-box"><div class="vd-active-filter-title">⌯ الفلاتر النشطة</div><div id="activeFilters" class="vd-filter-chips"><span class="vd-no-active-filters">لا توجد فلاتر نشطة</span></div></div>
+      <div class="vd-summary-card"><span>النتائج المطابقة</span><strong id="resultCount"><b>—</b><small>من — إجمالي</small></strong></div>
+      <div class="vd-summary-card"><span>الفترة المختارة</span><div><span id="periodSummaryMain" class="vd-summary-main">كامل المدة</span><small id="periodSummarySub">بدون تقييد زمني</small></div></div>
+      <div class="vd-unified-actions"><button id="clearFiltersBtn" type="button">مسح الفلاتر</button><button id="previewReportBtn" class="vd-preview-btn" type="button">◉ معاينة التقرير</button><button id="printBtn" class="vd-pdf-btn" type="button">↓ تصدير التقرير PDF</button></div>
     </div>
   </section>
 
@@ -155,14 +168,14 @@
 <script src="/global-chart-labels.js?v=full-parity-20261004-2"></script>
 <script src="/report-naming.js?v=full-parity-20261004-2"></script>
 <script src="/count-up.js?v=full-parity-20261004-2"></script>
-<script src="/app.js?v=13-full-jeddah-parity"></script>
+<script src="/app.js?v=14-unified-report-filters-20261004"></script>
 <script src="/technology-parity.js?v=full-parity-20261004-2"></script>
 <script src="/parity-core.js?v=full-parity-20261004-2"></script>
 <script src="/access-control.js?v=full-parity-20261004-2"></script>
 <script src="/project-news.js?v=urgent-news-speed-4x-20261004-1"></script>
 <script src="/smart-center.js?v=full-parity-20261004-2"></script>
 <script src="/reports-center.js?v=full-parity-20261004-2"></script>
-<script src="/report-export.js?v=full-parity-20261004-2"></script>
+<script src="/report-export.js?v=jeddah-makkah-format-20261004-1"></script>
 <script src="/i18n.js?v=4-full-parity"></script>
 <script src="/logo-effects.js?v=vision-logo-proximity-20261004-1"></script>
 <script src="/toolbar-context.js?v=20261004-toolbar-weather-1"></script>

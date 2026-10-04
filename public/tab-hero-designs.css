@@ -1,0 +1,331 @@
+/* =========================================================
+   UNIQUE TAB HERO DESIGNS — Urgent Solutions Dashboard
+   2026-10-04
+   Each navigation tab gets its own visual identity while
+   preserving the shared dashboard language and responsiveness.
+   ========================================================= */
+
+#pageHero{
+  --hero-accent:#67d7ff;
+  --hero-accent-2:#a9edff;
+  --hero-deep:#073d5a;
+  --hero-mid:#0876a1;
+  --hero-mark:"◉";
+  --hero-pattern:
+    radial-gradient(circle at 76% 18%,rgba(255,255,255,.16),transparent 24%),
+    linear-gradient(120deg,rgba(255,255,255,.04) 0 1px,transparent 1px 34px);
+  min-height:142px!important;
+  grid-template-columns:126px minmax(0,1fr) 190px!important;
+  border-radius:28px!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  background:
+    var(--hero-pattern),
+    linear-gradient(108deg,var(--hero-deep) 0%,var(--hero-mid) 58%,rgba(13,150,190,.72) 100%)!important;
+  box-shadow:0 18px 42px rgba(4,52,79,.18),inset 0 1px 0 rgba(255,255,255,.12)!important;
+  isolation:isolate;
+  transition:background .35s ease,box-shadow .35s ease,transform .25s ease!important;
+}
+
+#pageHero::before{
+  content:var(--hero-mark);
+  position:absolute;
+  left:17%;
+  top:50%;
+  transform:translate(-50%,-50%) rotate(-7deg);
+  font-size:112px;
+  line-height:1;
+  font-weight:800;
+  color:#fff;
+  opacity:.055;
+  z-index:0;
+  pointer-events:none;
+  filter:drop-shadow(0 0 24px rgba(255,255,255,.24));
+}
+
+#pageHero::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  pointer-events:none!important;
+  background:
+    linear-gradient(90deg,transparent 0 66%,rgba(255,255,255,.055) 66% 66.15%,transparent 66.15%),
+    radial-gradient(circle at 88% 18%,rgba(255,255,255,.16),transparent 18%),
+    radial-gradient(circle at 18% 82%,color-mix(in srgb,var(--hero-accent) 24%,transparent),transparent 28%)!important;
+  opacity:1!important;
+  mix-blend-mode:screen!important;
+}
+
+#pageHero>*{position:relative;z-index:2!important}
+
+#pageHero .hero-visual{
+  width:92px;
+  height:92px!important;
+  align-self:center;
+  justify-self:center;
+  border:1px solid rgba(255,255,255,.2)!important;
+  border-radius:26px!important;
+  background:
+    radial-gradient(circle at 32% 24%,rgba(255,255,255,.25),transparent 28%),
+    linear-gradient(145deg,color-mix(in srgb,var(--hero-accent) 26%,transparent),rgba(255,255,255,.035))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.045),0 14px 32px rgba(0,0,0,.14)!important;
+  backdrop-filter:blur(9px);
+  overflow:hidden;
+}
+
+#pageHero .hero-visual::before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border:1px dashed color-mix(in srgb,var(--hero-accent-2) 58%,transparent);
+  border-radius:20px;
+  opacity:.55;
+}
+
+#pageHero .hero-visual span{
+  font-size:40px!important;
+  color:#fff!important;
+  text-shadow:0 0 22px color-mix(in srgb,var(--hero-accent) 58%,transparent);
+  opacity:1!important;
+  transform:translateZ(0);
+}
+
+#pageHero .hero-copy{
+  padding:20px 12px 20px 18px!important;
+  min-width:0;
+}
+#pageHero .hero-copy small{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 9px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  color:var(--hero-accent-2)!important;
+  letter-spacing:.16em!important;
+  backdrop-filter:blur(6px);
+}
+#pageHero .hero-copy h1{
+  margin:7px 0 3px!important;
+  font-size:26px!important;
+  font-weight:800!important;
+  letter-spacing:-.02em;
+}
+#pageHero .hero-copy h1::after{
+  content:"";
+  display:inline-block;
+  width:42px;
+  height:3px;
+  margin-right:10px;
+  border-radius:99px;
+  vertical-align:middle;
+  background:linear-gradient(90deg,var(--hero-accent),transparent);
+}
+#pageHero .hero-copy p{
+  color:rgba(242,251,255,.88)!important;
+  font-size:11px!important;
+  max-width:850px!important;
+}
+
+#pageHero .hero-meta{
+  margin-left:18px;
+  padding:12px 15px!important;
+  min-width:154px!important;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:18px;
+  background:rgba(1,29,45,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(7px);
+}
+#pageHero .hero-meta span{color:var(--hero-accent-2)!important}
+#pageHero .hero-meta b{color:#fff;font-size:10px!important}
+
+/* 01 — الرئيسية: water + executive skyline */
+body:has(.nav-item[data-page="master"].active) #pageHero{
+  --hero-accent:#63d8ff;--hero-accent-2:#bcefff;--hero-deep:#06324d;--hero-mid:#0a759f;--hero-mark:"◉";
+  --hero-pattern:
+    linear-gradient(96deg,rgba(3,39,61,.96),rgba(6,104,142,.76)),
+    url('/assets/jeddah-water-bg.jpg') center 52%/cover no-repeat;
+}
+
+/* 02 — المشاريع: engineering grid / project control */
+body:has(.nav-item[data-page="projects"].active) #pageHero{
+  --hero-accent:#58c9ff;--hero-accent-2:#d0f3ff;--hero-deep:#122d4a;--hero-mid:#176699;--hero-mark:"▣";
+  --hero-pattern:
+    linear-gradient(rgba(118,202,244,.10) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(118,202,244,.10) 1px,transparent 1px),
+    linear-gradient(115deg,#102b47,#17648f 70%,#2688ad);
+  background-size:26px 26px,26px 26px,auto!important;
+}
+body:has(.nav-item[data-page="projects"].active) #pageHero .hero-visual{border-radius:18px 34px 18px 34px!important}
+
+/* 03 — الخريطة الجغرافية: radar / map rings */
+body:has(.nav-item[data-page="map"].active) #pageHero{
+  --hero-accent:#64e2cf;--hero-accent-2:#c5fff6;--hero-deep:#073f47;--hero-mid:#087f86;--hero-mark:"⌖";
+  --hero-pattern:
+    repeating-radial-gradient(circle at 76% 54%,rgba(166,255,240,.12) 0 1px,transparent 1px 24px),
+    linear-gradient(112deg,#063c45,#08777f 62%,#119a98);
+}
+body:has(.nav-item[data-page="map"].active) #pageHero .hero-visual{border-radius:50%!important}
+body:has(.nav-item[data-page="map"].active) #pageHero .hero-visual::before{border-radius:50%!important}
+
+/* 04 — التصاريح: document / authorization bands */
+body:has(.nav-item[data-page="permits"].active) #pageHero{
+  --hero-accent:#a9a8ff;--hero-accent-2:#e8e7ff;--hero-deep:#292c62;--hero-mid:#5357a5;--hero-mark:"▤";
+  --hero-pattern:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.055) 0 2px,transparent 2px 42px),
+    linear-gradient(108deg,#272b60,#5055a3 63%,#7378c8);
+}
+
+/* 05 — الخطوط البديلة والتصميم: flowing pipe lines */
+body:has(.nav-item[data-page="lines"].active) #pageHero{
+  --hero-accent:#65e9ef;--hero-accent-2:#d1fcff;--hero-deep:#0b4553;--hero-mid:#0a8293;--hero-mark:"⌁";
+  --hero-pattern:
+    repeating-linear-gradient(155deg,transparent 0 20px,rgba(124,236,242,.12) 20px 23px,transparent 23px 44px),
+    linear-gradient(110deg,#083f4c,#087887 58%,#10a4ac);
+}
+body:has(.nav-item[data-page="lines"].active) #pageHero .hero-visual{transform:skewX(-5deg)}
+body:has(.nav-item[data-page="lines"].active) #pageHero .hero-visual span{transform:skewX(5deg)}
+
+/* 06 — الأمتار والتسويات: measurement ticks / copper */
+body:has(.nav-item[data-page="settlements"].active) #pageHero{
+  --hero-accent:#ffd179;--hero-accent-2:#fff1c9;--hero-deep:#68451a;--hero-mid:#aa7528;--hero-mark:"⇄";
+  --hero-pattern:
+    repeating-linear-gradient(90deg,rgba(255,242,204,.15) 0 1px,transparent 1px 18px),
+    linear-gradient(112deg,#5e3e18,#9b6924 60%,#c98b31);
+}
+body:has(.nav-item[data-page="settlements"].active) #pageHero .hero-copy h1::after{height:5px;background:repeating-linear-gradient(90deg,var(--hero-accent) 0 6px,transparent 6px 10px)}
+
+/* 07 — الضمانات: secure / shield green */
+body:has(.nav-item[data-page="guarantees"].active) #pageHero{
+  --hero-accent:#78edbd;--hero-accent-2:#d7ffed;--hero-deep:#174c3c;--hero-mid:#24805f;--hero-mark:"◇";
+  --hero-pattern:
+    linear-gradient(135deg,rgba(172,255,222,.09) 25%,transparent 25% 50%,rgba(172,255,222,.09) 50% 75%,transparent 75%),
+    linear-gradient(110deg,#154738,#23785b 64%,#36a875);
+  background-size:38px 38px,auto!important;
+}
+body:has(.nav-item[data-page="guarantees"].active) #pageHero .hero-visual{border-radius:44px 44px 24px 24px!important}
+
+/* 08 — الشكاوى: attention / service issue */
+body:has(.nav-item[data-page="complaints"].active) #pageHero{
+  --hero-accent:#ff9c9c;--hero-accent-2:#ffe0e0;--hero-deep:#682b3a;--hero-mid:#9d4055;--hero-mark:"!";
+  --hero-pattern:
+    radial-gradient(circle at 78% 50%,rgba(255,183,183,.18),transparent 18%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.045) 0 8px,transparent 8px 18px),
+    linear-gradient(110deg,#5b2634,#923b50 62%,#b75463);
+}
+body:has(.nav-item[data-page="complaints"].active) #pageHero .hero-visual{border-radius:50% 50% 50% 18px!important}
+
+/* 09 — التنفيذ والتسليم: completion bands */
+body:has(.nav-item[data-page="execution"].active) #pageHero{
+  --hero-accent:#72ebd0;--hero-accent-2:#d7fff6;--hero-deep:#164a4a;--hero-mid:#197e78;--hero-mark:"✓";
+  --hero-pattern:
+    repeating-linear-gradient(0deg,transparent 0 17px,rgba(151,255,228,.10) 17px 19px),
+    linear-gradient(110deg,#124344,#18766f 63%,#20a58f);
+}
+body:has(.nav-item[data-page="execution"].active) #pageHero .hero-visual::before{border-style:solid;border-width:2px}
+
+/* 10 — المقاولون والملاك: network / relationships */
+body:has(.nav-item[data-page="parties"].active) #pageHero{
+  --hero-accent:#c4a6ff;--hero-accent-2:#efe6ff;--hero-deep:#3b315e;--hero-mid:#65539a;--hero-mark:"♙";
+  --hero-pattern:
+    radial-gradient(circle at 76% 24%,rgba(226,214,255,.17) 0 4px,transparent 5px),
+    radial-gradient(circle at 70% 74%,rgba(226,214,255,.14) 0 4px,transparent 5px),
+    linear-gradient(112deg,#342b56,#5f4f91 62%,#8069b7);
+}
+
+/* 11 — تحليل البلديات: civic / district tiles */
+body:has(.nav-item[data-page="municipalities"].active) #pageHero{
+  --hero-accent:#77d6ff;--hero-accent-2:#d9f5ff;--hero-deep:#16465e;--hero-mid:#2d7899;--hero-mark:"⌂";
+  --hero-pattern:
+    linear-gradient(45deg,rgba(255,255,255,.055) 25%,transparent 25% 75%,rgba(255,255,255,.055) 75%),
+    linear-gradient(-45deg,rgba(255,255,255,.04) 25%,transparent 25% 75%,rgba(255,255,255,.04) 75%),
+    linear-gradient(110deg,#123f56,#2a7190 62%,#3b94ad);
+  background-size:30px 30px,30px 30px,auto!important;
+}
+
+/* 12 — التتبع الشامل: connected trace nodes */
+body:has(.nav-item[data-page="traceability"].active) #pageHero{
+  --hero-accent:#61dfe2;--hero-accent-2:#d5feff;--hero-deep:#183e56;--hero-mid:#197788;--hero-mark:"⛓";
+  --hero-pattern:
+    radial-gradient(circle at 74% 28%,rgba(191,255,255,.19) 0 3px,transparent 4px),
+    radial-gradient(circle at 82% 62%,rgba(191,255,255,.15) 0 3px,transparent 4px),
+    linear-gradient(118deg,#15384e,#166e7d 64%,#2294a0);
+}
+body:has(.nav-item[data-page="traceability"].active) #pageHero .hero-visual{border-radius:18px 46px 18px 46px!important}
+
+/* 13 — جودة البيانات: precision matrix */
+body:has(.nav-item[data-page="quality"].active) #pageHero{
+  --hero-accent:#78bdff;--hero-accent-2:#ddf0ff;--hero-deep:#253b64;--hero-mid:#3969a1;--hero-mark:"◎";
+  --hero-pattern:
+    radial-gradient(circle,rgba(187,221,255,.13) 1.2px,transparent 1.5px),
+    linear-gradient(111deg,#20375d,#366498 64%,#487fba);
+  background-size:18px 18px,auto!important;
+}
+body:has(.nav-item[data-page="quality"].active) #pageHero .hero-visual{box-shadow:0 0 0 8px rgba(255,255,255,.04),0 14px 32px rgba(0,0,0,.14)!important}
+
+/* 14 — مخاطر المشاريع: hazard / critical */
+body:has(.nav-item[data-page="risks"].active) #pageHero{
+  --hero-accent:#ffb15d;--hero-accent-2:#ffe5c5;--hero-deep:#552d26;--hero-mid:#934a32;--hero-mark:"⚠";
+  --hero-pattern:
+    repeating-linear-gradient(135deg,rgba(255,188,103,.11) 0 10px,transparent 10px 22px),
+    linear-gradient(112deg,#4b2924,#86442f 61%,#b86037);
+}
+body:has(.nav-item[data-page="risks"].active) #pageHero .hero-visual{clip-path:polygon(50% 0,100% 88%,92% 100%,8% 100%,0 88%)}
+
+/* 15 — التحليل التنفيذي: insight / chart pulse */
+body:has(.nav-item[data-page="analytics"].active) #pageHero{
+  --hero-accent:#80d5ff;--hero-accent-2:#e0f5ff;--hero-deep:#182c55;--hero-mid:#275e91;--hero-mark:"⌁";
+  --hero-pattern:
+    radial-gradient(ellipse at 75% 70%,rgba(124,207,255,.15),transparent 30%),
+    repeating-linear-gradient(165deg,transparent 0 28px,rgba(255,255,255,.055) 28px 30px),
+    linear-gradient(110deg,#15294e,#255988 62%,#337aae);
+}
+body:has(.nav-item[data-page="analytics"].active) #pageHero .hero-copy h1{letter-spacing:.01em}
+
+/* 16 — مركز التقارير: document / executive print */
+body:has(.nav-item[data-page="reports"].active) #pageHero{
+  --hero-accent:#f2d27a;--hero-accent-2:#fff3ce;--hero-deep:#3f4658;--hero-mid:#626c84;--hero-mark:"⇩";
+  --hero-pattern:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.055) 0 1px,transparent 1px 20px),
+    linear-gradient(112deg,#39404f,#5d667b 62%,#7b8498);
+}
+body:has(.nav-item[data-page="reports"].active) #pageHero .hero-visual{border-radius:14px!important;transform:rotate(-2deg)}
+
+/* 17 — تصدير تقرير Excel: spreadsheet grid */
+body:has(.nav-item[data-page="excelExport"].active) #pageHero{
+  --hero-accent:#7ce1a7;--hero-accent-2:#dffff0;--hero-deep:#174c38;--hero-mid:#237a53;--hero-mark:"▧";
+  --hero-pattern:
+    linear-gradient(rgba(201,255,225,.10) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,255,225,.10) 1px,transparent 1px),
+    linear-gradient(112deg,#144632,#21724d 62%,#2f9967);
+  background-size:24px 24px,24px 24px,auto!important;
+}
+body:has(.nav-item[data-page="excelExport"].active) #pageHero .hero-visual{border-radius:12px!important}
+
+/* Responsive behavior */
+@media(max-width:980px){
+  #pageHero{grid-template-columns:104px minmax(0,1fr) 150px!important;min-height:132px!important}
+  #pageHero .hero-visual{width:78px;height:78px!important}
+  #pageHero .hero-copy h1{font-size:22px!important}
+}
+@media(max-width:720px){
+  #pageHero{grid-template-columns:86px minmax(0,1fr)!important;padding-left:10px!important}
+  #pageHero .hero-meta{display:none!important}
+  #pageHero .hero-visual{width:68px;height:68px!important;border-radius:20px!important}
+  #pageHero .hero-visual span{font-size:31px!important}
+  #pageHero .hero-copy{padding:16px 6px!important}
+  #pageHero .hero-copy small{font-size:7px!important;letter-spacing:.09em!important}
+  #pageHero .hero-copy h1{font-size:19px!important}
+  #pageHero .hero-copy p{font-size:9px!important}
+}
+@media print{
+  #pageHero{
+    min-height:86px!important;
+    box-shadow:none!important;
+    border:1px solid #d9e4e8!important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+}

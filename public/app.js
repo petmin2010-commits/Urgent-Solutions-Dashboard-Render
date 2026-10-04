@@ -918,9 +918,11 @@ function renderParties(){
 function renderQuality(){
  const archiveUrl='https://u.pcloud.link/publink/show?code=kZCKlU5ZwyDsJUjxzdhWgIKBxxljomcV74HX#/filemanager?folder=31795965088';
  const rows=filtered(state.data.quality),high=rows.filter(x=>x.severity==='high').length,medium=rows.filter(x=>x.severity==='medium').length;
- $('#pageHost').innerHTML='<section class="quality-archive-strip">'+
-  '<div class="quality-archive-icon">🗂️</div><div class="quality-archive-copy"><b>أرشيف جودة البيانات</b><span>الوصول المباشر إلى أرشيف ملفات ومستندات إدارة الحلول العاجلة على pCloud</span></div>'+
-  '<a class="quality-archive-link" href="'+archiveUrl+'" target="_blank" rel="noopener noreferrer">فتح الأرشيف ↗</a>'+
+ $('#pageHost').innerHTML='<section class="quality-archive-panel">'+
+  '<div class="quality-archive-head"><div><span>URGENT SOLUTIONS ARCHIVE</span><b>أرشيف جودة البيانات — pCloud</b></div>'+
+  '<a class="quality-archive-open" href="'+archiveUrl+'" target="_blank" rel="noopener noreferrer">فتح في نافذة مستقلة ↗</a></div>'+
+  '<div class="quality-archive-frame-wrap"><iframe id="qualityArchiveFrame" data-src="'+archiveUrl+'" title="أرشيف جودة البيانات على pCloud" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>'+
+  '<div class="quality-archive-note">يتم عرض الأرشيف داخل الداشبورد. إذا منع pCloud العرض المدمج استخدم زر «فتح في نافذة مستقلة».</div>'+
  '</section>'+
  '<div class="kpi-grid">'+kpi('إجمالي الملاحظات',rows.length)+kpi('مرتفعة',high,'تحتاج مراجعة مباشرة','danger')+kpi('متوسطة',medium,'تحتاج استكمال','warn')+kpi('منخفضة',rows.length-high-medium,'تحسين جودة')+'</div>'+
  '<div class="chart-grid">'+chartPanel('qCat','الملاحظات حسب التصنيف')+chartPanel('qSource','الملاحظات حسب المصدر')+'</div>'+
@@ -930,6 +932,8 @@ function renderQuality(){
  ],rows);
  let x=topEntries(countBy(rows,'category'));makeChart('qCat','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
  x=topEntries(countBy(rows,'source'));makeChart('qSource','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ const archiveFrame=$('#qualityArchiveFrame');
+ if(archiveFrame&&!archiveFrame.src)archiveFrame.src=archiveFrame.dataset.src||archiveUrl;
 }
 function renderAnalytics(){
  const projects=commonFiltered(state.data.projects),permits=commonFiltered(state.data.actualPermits),lines=commonFiltered(state.data.lines),sett=state.data.settlements.filter(r=>rowPasses(r,pageFilterDefs().filter(d=>['owner','contractor'].includes(d.field))));

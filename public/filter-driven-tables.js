@@ -32,7 +32,7 @@ const PAGE_SUMS={
  analytics:['تغطية مطابقة %']
 };
 
-const EXCLUDED=new Set(['reports','excelExport','parties','municipalities']);
+const EXCLUDED=new Set(['master','reports','excelExport','parties','municipalities']);
 
 function esc(v){
  return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));

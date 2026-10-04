@@ -113,6 +113,19 @@ async function sheetsApi(){
 }
 function q(name){return "'" + String(name).replace(/'/g,"''") + "'";}
 
+let sourceSheetLinksCache={at:0,map:{}};
+async function sourceSheetLinks_(sheets){
+  if(Date.now()-sourceSheetLinksCache.at<10*60*1000&&Object.keys(sourceSheetLinksCache.map).length)return sourceSheetLinksCache.map;
+  const r=await sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
+  const map={};
+  for(const sh of r.data.sheets||[]){
+    const p=sh.properties||{},title=clean(p.title);
+    if(title)map[title]='https://docs.google.com/spreadsheets/d/'+SPREADSHEET_ID+'/edit#gid='+String(p.sheetId);
+  }
+  sourceSheetLinksCache={at:Date.now(),map};
+  return map;
+}
+
 async function readUsers(){
   try{
     const sheets=await sheetsApi();
@@ -480,6 +493,8 @@ async function buildData(force=false){
     spreadsheetId:SPREADSHEET_ID,ranges,valueRenderOption:'FORMATTED_VALUE'
   });
   const [projectValues=[],lineValues=[],infoValues=[],ownerValues=[]]=(result.data.valueRanges||[]).map(x=>x.values||[]);
+  let sourceSheetLinks={};
+  try{sourceSheetLinks=await sourceSheetLinks_(sheets)}catch(error){console.warn('Source sheet-link metadata warning:',error.message)}
 
   let projects=projectValues.slice(1).map((r,i)=>projectRow(r,i+2)).filter(x=>x.no||x.name);
   let lines=lineValues.slice(1).map((r,i)=>lineRow(r,i+2)).filter(x=>x.ref||x.name);
@@ -571,7 +586,8 @@ async function buildData(force=false){
     projects,permits,actualPermits,lines,refLines,complaints,owners,settlements,municipalitySummary,traceability,quality,
     sourceHeaders:{
       projects:projectValues[0]||[],lines:lineValues[0]||[],info:infoValues[0]||[],owners:ownerValues[0]||[]
-    }
+    },
+    sourceSheetLinks
   };
   cache={at:Date.now(),data};
   return data;

@@ -916,8 +916,12 @@ function renderParties(){
  x=or.slice(0,12);makeChart('paOwner','bar',x.map(a=>a.name),x.map(a=>a.permitMeters),{horizontal:true});
 }
 function renderQuality(){
+ const archiveUrl='https://u.pcloud.link/publink/show?code=kZCKlU5ZwyDsJUjxzdhWgIKBxxljomcV74HX#/filemanager?folder=31795965088';
  const rows=filtered(state.data.quality),high=rows.filter(x=>x.severity==='high').length,medium=rows.filter(x=>x.severity==='medium').length;
  $('#pageHost').innerHTML='<div class="kpi-grid">'+kpi('إجمالي الملاحظات',rows.length)+kpi('مرتفعة',high,'تحتاج مراجعة مباشرة','danger')+kpi('متوسطة',medium,'تحتاج استكمال','warn')+kpi('منخفضة',rows.length-high-medium,'تحسين جودة')+'</div>'+
+ '<div class="report-actions" style="grid-template-columns:1fr;margin-bottom:12px">'+
+  '<article class="report-card"><b>🗂️ أرشفة جودة البيانات</b><p>أرشيف ملفات ومستندات إدارة الحلول العاجلة على pCloud.</p><button id="qualityArchiveBtn" type="button">فتح الأرشيف ↗</button></article>'+
+ '</div>'+
  '<div class="chart-grid">'+chartPanel('qCat','الملاحظات حسب التصنيف')+chartPanel('qSource','الملاحظات حسب المصدر')+'</div>'+
  tablePanel('نتائج التدقيق الذكي',[
   {key:'severity',label:'الأهمية',html:r=>pill(r.severity==='high'?'مرتفعة':r.severity==='medium'?'متوسطة':'منخفضة')},
@@ -925,6 +929,8 @@ function renderQuality(){
  ],rows);
  let x=topEntries(countBy(rows,'category'));makeChart('qCat','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
  x=topEntries(countBy(rows,'source'));makeChart('qSource','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ const archiveBtn=$('#qualityArchiveBtn');
+ if(archiveBtn)archiveBtn.addEventListener('click',()=>window.open(archiveUrl,'_blank','noopener,noreferrer'));
 }
 function renderAnalytics(){
  const projects=commonFiltered(state.data.projects),permits=commonFiltered(state.data.actualPermits),lines=commonFiltered(state.data.lines),sett=state.data.settlements.filter(r=>rowPasses(r,pageFilterDefs().filter(d=>['owner','contractor'].includes(d.field))));

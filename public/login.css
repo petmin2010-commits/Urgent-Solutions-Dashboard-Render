@@ -2121,3 +2121,64 @@ html.desktop-artwork .hud-node-small .hud-node-shell:before{
     radial-gradient(circle at 35% 28%,rgba(225,251,255,.14),transparent 22%),
     radial-gradient(circle,rgba(8,49,77,.97),rgba(3,28,52,.995))!important;
 }
+
+
+/* =========================================================
+   CLEAN NATIVE PNG BACKGROUND — highest available source quality
+   Uses the approved background-only artwork with NO baked HUD.
+   ========================================================= */
+html.desktop-artwork .login-page:before{
+  background-image:url("/assets/jeddah-water-clean-hq.png?v=clean-hq-20261004-1")!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+  filter:saturate(1.025) contrast(1.015) brightness(1.005)!important;
+  transform:translate3d(calc(var(--mx,0px)*-.11),calc(var(--my,0px)*-.075),0) scale(1.012)!important;
+  animation:cleanHqBgBreath 18s ease-in-out infinite alternate!important;
+  image-rendering:auto!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+  will-change:transform!important;
+}
+@keyframes cleanHqBgBreath{
+  0%{transform:translate3d(calc(var(--mx,0px)*-.11),calc(var(--my,0px)*-.075),0) scale(1.012)}
+  100%{transform:translate3d(calc(var(--mx,0px)*-.11),calc(var(--my,0px)*-.075),0) scale(1.020)}
+}
+
+/* Clean background means HUD glass can be translucent instead of concealing old artwork. */
+html.desktop-artwork .smart-water-node:not(.hud-node-small) .hud-node-shell:before{
+  inset:5px!important;
+  background:
+    radial-gradient(circle at 34% 28%,rgba(235,253,255,.18),transparent 23%),
+    radial-gradient(circle at 50% 52%,rgba(7,52,82,.82) 0%,rgba(5,42,72,.87) 58%,rgba(3,29,55,.92) 100%)!important;
+  border:1px solid rgba(196,246,255,.70)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    inset 0 -16px 28px rgba(0,18,37,.24),
+    0 0 17px rgba(125,231,255,.37),
+    0 0 42px rgba(61,193,234,.27),
+    0 0 78px rgba(38,168,213,.16)!important;
+  backdrop-filter:blur(7px) saturate(1.18)!important;
+  -webkit-backdrop-filter:blur(7px) saturate(1.18)!important;
+}
+html.desktop-artwork .hud-node-small .hud-node-shell:before{
+  inset:3px!important;
+  background:
+    radial-gradient(circle at 34% 28%,rgba(235,253,255,.16),transparent 23%),
+    radial-gradient(circle,rgba(7,52,82,.80),rgba(3,29,55,.91))!important;
+}
+
+/* Keep background unobstructed; login card and live code overlays are separate layers. */
+html.desktop-artwork .login-page:after{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+html.desktop-artwork .login-side{background:transparent!important}
+
+@media(prefers-reduced-motion:reduce){
+  html.desktop-artwork .login-page:before{
+    animation:none!important;
+    transform:scale(1.012)!important;
+  }
+}

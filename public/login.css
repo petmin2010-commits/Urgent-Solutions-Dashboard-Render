@@ -1078,3 +1078,567 @@ html.desktop-artwork .live-brand.is-near .municipality-live-logo,
 html.desktop-artwork .live-brand:hover .municipality-live-logo{
   box-shadow:none!important;
 }
+
+
+/* =========================================================
+   FINAL SEPARATED LOGIN CARD — Jeddah structural parity
+   Background and login card are independent visual layers.
+   ========================================================= */
+html.desktop-artwork .login-page{
+  display:block!important;
+  position:relative!important;
+  width:100vw!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  overflow:hidden!important;
+  background:#061f39!important;
+  isolation:isolate!important;
+}
+html.desktop-artwork .login-page:before{
+  content:""!important;
+  position:absolute!important;
+  inset:-2.2%!important;
+  z-index:-2!important;
+  background-image:url("/assets/agreed-water-login-clean-brands.webp?v=separate-card-20261004-1")!important;
+  background-repeat:no-repeat!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  filter:saturate(1.05) contrast(1.03) brightness(.91)!important;
+  transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.035)!important;
+  transform-origin:center center!important;
+  transition:transform .25s cubic-bezier(.2,.72,.22,1)!important;
+  animation:urgentSeparatedBgBreath 16s ease-in-out infinite alternate!important;
+  will-change:transform!important;
+}
+html.desktop-artwork .login-page:after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:-1!important;
+  pointer-events:none!important;
+  background:
+    linear-gradient(90deg,
+      rgba(4,31,55,.985) 0%,
+      rgba(4,31,55,.975) 35%,
+      rgba(4,31,55,.94) 43%,
+      rgba(4,31,55,.70) 51%,
+      rgba(4,31,55,.24) 62%,
+      rgba(4,31,55,.05) 73%,
+      transparent 100%)!important;
+}
+@keyframes urgentSeparatedBgBreath{
+  0%{transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.035)}
+  100%{transform:translate3d(calc(var(--mx,0px)*-.22),calc(var(--my,0px)*-.14),0) scale(1.055)}
+}
+
+/* Keep only the water motion layer above the background image. */
+html.desktop-artwork .city-visual{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:2!important;
+  width:100vw!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  background:transparent!important;
+}
+html.desktop-artwork .city-visual .city-photo,
+html.desktop-artwork .city-visual .city-shade,
+html.desktop-artwork .city-visual .city-project,
+html.desktop-artwork .city-visual:before,
+html.desktop-artwork .city-visual:after{display:none!important}
+html.desktop-artwork .water-grid{
+  display:block!important;
+  position:absolute!important;
+  inset:-1.5%!important;
+  width:103%!important;
+  height:103%!important;
+  opacity:.22!important;
+  mix-blend-mode:screen!important;
+  transform:translate3d(calc(var(--mx,0px)*.08),calc(var(--my,0px)*.055),0) scale(1.015)!important;
+  transition:transform .28s cubic-bezier(.2,.72,.22,1)!important;
+}
+html.desktop-artwork .water-flow{
+  display:block!important;
+  opacity:.10!important;
+  mix-blend-mode:screen!important;
+}
+html.desktop-artwork .water-badge{display:none!important}
+
+/* Dedicated login column. It no longer fills the whole screen. */
+html.desktop-artwork .login-side{
+  position:absolute!important;
+  z-index:10!important;
+  left:0!important;
+  top:0!important;
+  bottom:0!important;
+  width:min(46vw,680px)!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:4.8vh 3.2vw 7.4vh!important;
+  margin:0!important;
+  background:transparent!important;
+}
+html.desktop-artwork .login-side:before,
+html.desktop-artwork .login-side:after{display:none!important}
+
+/* True independent card — same logic as Jeddah, water-themed. */
+html.desktop-artwork .login-card{
+  position:relative!important;
+  inset:auto!important;
+  width:min(500px,38.5vw)!important;
+  height:auto!important;
+  max-width:500px!important;
+  min-width:390px!important;
+  padding:28px 32px 24px!important;
+  margin:0!important;
+  border-radius:25px!important;
+  background:rgba(255,255,255,.975)!important;
+  border:1px solid rgba(116,207,235,.62)!important;
+  box-shadow:
+    0 28px 75px rgba(0,16,34,.42),
+    0 0 0 1px rgba(255,255,255,.45) inset,
+    0 0 34px rgba(52,184,224,.07)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  transform:none!important;
+  transition:box-shadow .28s ease,transform .28s ease!important;
+}
+html.desktop-artwork .login-card:hover{
+  box-shadow:
+    0 32px 82px rgba(0,16,34,.46),
+    0 0 0 1px rgba(255,255,255,.48) inset,
+    0 0 40px rgba(52,184,224,.10)!important;
+}
+html.desktop-artwork .login-card:before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  border-radius:inherit!important;
+  pointer-events:none!important;
+  background:linear-gradient(120deg,transparent 0 42%,rgba(88,203,235,.10) 50%,transparent 58%)!important;
+  transform:translateX(-125%)!important;
+  animation:urgentIndependentCardShine 7.5s 1.5s ease-in-out infinite!important;
+}
+html.desktop-artwork .login-card:after{display:none!important}
+html.desktop-artwork .login-card-glow{
+  display:block!important;
+  position:absolute!important;
+  width:190px!important;
+  height:190px!important;
+  left:-86px!important;
+  top:-86px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(62,190,227,.16),transparent 68%)!important;
+  pointer-events:none!important;
+}
+@keyframes urgentIndependentCardShine{
+  0%,58%{transform:translateX(-125%)}
+  78%,100%{transform:translateX(125%)}
+}
+
+/* Use the normal card header, like Jeddah. */
+html.desktop-artwork .login-brand-pair{display:none!important}
+html.desktop-artwork .brand-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:18px!important;
+  margin:0 0 19px!important;
+  direction:ltr!important;
+}
+html.desktop-artwork .vision-brand{
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  direction:ltr!important;
+}
+html.desktop-artwork .logo-box{
+  width:66px!important;
+  height:66px!important;
+  border-radius:15px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:#fff!important;
+  padding:4px!important;
+  border:1px solid rgba(43,151,198,.14)!important;
+  box-shadow:0 8px 20px rgba(20,54,88,.12)!important;
+}
+html.desktop-artwork .logo-box img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+}
+html.desktop-artwork .brand-copy{
+  display:block!important;
+  direction:rtl!important;
+  text-align:right!important;
+  line-height:1.2!important;
+  color:#123b64!important;
+}
+html.desktop-artwork .brand-copy strong{display:block!important;font-size:13px!important}
+html.desktop-artwork .brand-copy span{display:block!important;font-size:9px!important;margin-top:3px!important}
+html.desktop-artwork .brand-copy em{
+  display:block!important;
+  font-style:normal!important;
+  font-size:7px!important;
+  letter-spacing:1.35px!important;
+  margin-top:4px!important;
+  direction:ltr!important;
+}
+html.desktop-artwork .brand-divider{
+  display:block!important;
+  height:62px!important;
+  width:1px!important;
+  background:#d7e2eb!important;
+}
+html.desktop-artwork .pdc-brand.municipality-brand{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:112px!important;
+  min-width:112px!important;
+  height:68px!important;
+  padding:4px 7px!important;
+  overflow:hidden!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  border:1px solid rgba(43,151,198,.12)!important;
+  box-shadow:0 8px 20px rgba(20,54,88,.10)!important;
+}
+html.desktop-artwork .municipality-logo{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  mix-blend-mode:normal!important;
+  transform:scale(.92)!important;
+}
+
+/* Heading / content inside the independent card. */
+html.desktop-artwork .login-heading{
+  display:block!important;
+  text-align:center!important;
+  margin:0 0 19px!important;
+}
+html.desktop-artwork .login-kicker{
+  display:inline-block!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  letter-spacing:1.45px!important;
+  color:#1689b6!important;
+  direction:ltr!important;
+}
+html.desktop-artwork .login-heading h1{
+  margin:3px 0 4px!important;
+  font-size:30px!important;
+  color:#0c355f!important;
+  line-height:1.25!important;
+}
+html.desktop-artwork .login-heading p{
+  margin:0!important;
+  color:#2f557a!important;
+  font-size:11px!important;
+}
+html.desktop-artwork .login-heading p b{color:#08789f!important}
+html.desktop-artwork .contract-chip{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  margin-top:8px!important;
+  padding:5px 10px!important;
+  border-radius:999px!important;
+  background:#eef9fc!important;
+  border:1px solid #c7eaf3!important;
+  color:#537887!important;
+  font-size:8px!important;
+}
+html.desktop-artwork .contract-chip strong{
+  font-size:9px!important;
+  color:#08789f!important;
+  direction:ltr!important;
+  letter-spacing:.8px!important;
+}
+
+/* Real form flow inside the card — no absolute overlay. */
+html.desktop-artwork #loginForm{
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  top:auto!important;
+  width:100%!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  direction:rtl!important;
+  z-index:2!important;
+}
+html.desktop-artwork .login-card label{
+  display:block!important;
+  margin:0 3px 6px!important;
+  color:#183f66!important;
+  font-size:9px!important;
+  font-weight:700!important;
+}
+html.desktop-artwork .input-wrap{
+  position:relative!important;
+  width:100%!important;
+  height:50px!important;
+  min-height:50px!important;
+  margin:0 0 14px!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  border:1px solid #d6e3ec!important;
+  border-radius:12px!important;
+  background:#f9fcfe!important;
+  box-shadow:none!important;
+  transition:border-color .22s ease,box-shadow .22s ease,background .22s ease,transform .22s ease!important;
+}
+html.desktop-artwork .input-wrap:nth-of-type(2){margin-bottom:15px!important}
+html.desktop-artwork .input-wrap:focus-within{
+  border-color:#2d9bc7!important;
+  background:#fff!important;
+  box-shadow:0 0 0 3px rgba(45,155,199,.10),0 7px 20px rgba(26,80,126,.07)!important;
+  transform:translateY(-1px)!important;
+}
+html.desktop-artwork .input-icon{
+  display:block!important;
+  width:43px!important;
+  flex:0 0 43px!important;
+  text-align:center!important;
+  color:#6d8296!important;
+  font-size:13px!important;
+}
+html.desktop-artwork .input-wrap input{
+  display:block!important;
+  flex:1!important;
+  width:auto!important;
+  min-width:0!important;
+  height:100%!important;
+  padding:0 3px!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:#153a5e!important;
+  caret-color:#1689b6!important;
+  font-size:11px!important;
+  font-weight:500!important;
+  direction:ltr!important;
+  text-align:left!important;
+  text-shadow:none!important;
+  -webkit-text-fill-color:#153a5e!important;
+}
+html.desktop-artwork .input-wrap input::placeholder{color:#9ba9b7!important;opacity:1!important}
+html.desktop-artwork .password-toggle{
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  width:44px!important;
+  height:100%!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#667e93!important;
+  opacity:1!important;
+  cursor:pointer!important;
+  font-size:13px!important;
+}
+
+/* Kill browser autofill white/yellow blocks completely. */
+html.desktop-artwork input:-webkit-autofill,
+html.desktop-artwork input:-webkit-autofill:hover,
+html.desktop-artwork input:-webkit-autofill:focus,
+html.desktop-artwork input:-webkit-autofill:active{
+  -webkit-text-fill-color:#153a5e!important;
+  caret-color:#1689b6!important;
+  -webkit-box-shadow:0 0 0 1000px #f9fcfe inset!important;
+  box-shadow:0 0 0 1000px #f9fcfe inset!important;
+  border-radius:10px!important;
+  transition:background-color 9999s ease-out 0s!important;
+}
+html.desktop-artwork input:-moz-autofill{
+  box-shadow:0 0 0 1000px #f9fcfe inset!important;
+  color:#153a5e!important;
+}
+
+/* Message and button back in normal card flow. */
+html.desktop-artwork .login-message{
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  z-index:2!important;
+  margin:-2px 0 11px!important;
+  padding:8px 10px!important;
+  border-radius:9px!important;
+  font-size:9px!important;
+  line-height:1.6!important;
+  text-align:center!important;
+}
+html.desktop-artwork .login-button{
+  position:relative!important;
+  width:100%!important;
+  height:51px!important;
+  min-height:51px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid rgba(78,192,226,.75)!important;
+  border-radius:13px!important;
+  cursor:pointer!important;
+  color:#fff!important;
+  font-weight:800!important;
+  font-size:12px!important;
+  background:linear-gradient(90deg,#07385f,#087ba5,#07385f)!important;
+  box-shadow:0 10px 24px rgba(9,66,111,.24)!important;
+  animation:buttonPulse 3.2s ease-in-out infinite!important;
+  transform:none!important;
+  transition:transform .18s ease,box-shadow .18s ease!important;
+}
+html.desktop-artwork .login-button:hover{
+  transform:translateY(-1px)!important;
+  background:linear-gradient(90deg,#07385f,#087ba5,#07385f)!important;
+  box-shadow:0 15px 30px rgba(9,66,111,.29),0 0 22px rgba(72,196,231,.18)!important;
+}
+html.desktop-artwork .login-button:active{transform:translateY(0) scale(.997)!important}
+html.desktop-artwork .button-energy{
+  visibility:visible!important;
+  display:block!important;
+}
+html.desktop-artwork .button-text{
+  visibility:visible!important;
+  display:inline!important;
+  color:#fff!important;
+}
+html.desktop-artwork .button-loader{
+  width:18px!important;
+  height:18px!important;
+  border:2px solid rgba(255,255,255,.3)!important;
+  border-top-color:#fff!important;
+  position:static!important;
+  margin:auto!important;
+}
+html.desktop-artwork .login-button.loading .button-text{display:none!important}
+html.desktop-artwork .login-button.loading .button-loader{display:block!important}
+
+/* Security/footer inside card restored. */
+html.desktop-artwork .secure-access{
+  display:flex!important;
+  margin-top:14px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  color:#77899a!important;
+  font-size:8px!important;
+}
+html.desktop-artwork .login-footer-note{
+  display:flex!important;
+  margin-top:16px!important;
+  padding-top:13px!important;
+  border-top:1px solid #e4eaf0!important;
+  justify-content:center!important;
+  gap:10px!important;
+  align-items:center!important;
+  color:#8a98a7!important;
+  font-size:7px!important;
+}
+html.desktop-artwork .login-footer-note b{
+  direction:ltr!important;
+  color:#5b7084!important;
+  font-size:7px!important;
+}
+
+/* Corporate footer remains independent from both card and background. */
+html.desktop-artwork .login-corporate-footer{
+  display:grid!important;
+  grid-template-columns:1fr auto 1fr!important;
+  position:absolute!important;
+  z-index:32!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  height:56px!important;
+  padding:0 20px!important;
+  align-items:center!important;
+  gap:18px!important;
+  background:transparent!important;
+  pointer-events:none!important;
+}
+html.desktop-artwork .login-socials{
+  display:flex!important;
+  justify-self:start!important;
+  pointer-events:auto!important;
+  gap:9px!important;
+}
+html.desktop-artwork .login-social-icon{
+  width:31px!important;
+  height:31px!important;
+  border-radius:9px!important;
+}
+html.desktop-artwork .login-social-icon svg{width:19px!important;height:19px!important}
+html.desktop-artwork .login-social-letter{font-size:19px!important}
+html.desktop-artwork .login-corporate-center{
+  display:flex!important;
+  justify-self:center!important;
+  pointer-events:none!important;
+  font-size:8px!important;
+  gap:10px!important;
+}
+html.desktop-artwork .login-corporate-credit{
+  display:block!important;
+  justify-self:end!important;
+  pointer-events:none!important;
+  font-size:9px!important;
+}
+
+/* Zoom-safe sizes for compact desktop viewports. */
+@media(max-height:760px){
+  html.desktop-artwork .login-side{padding-top:3vh!important;padding-bottom:8vh!important}
+  html.desktop-artwork .login-card{
+    width:min(470px,38vw)!important;
+    padding:20px 27px 18px!important;
+    border-radius:22px!important;
+  }
+  html.desktop-artwork .brand-row{margin-bottom:13px!important}
+  html.desktop-artwork .logo-box{width:56px!important;height:56px!important}
+  html.desktop-artwork .pdc-brand.municipality-brand{width:98px!important;min-width:98px!important;height:58px!important}
+  html.desktop-artwork .brand-divider{height:54px!important}
+  html.desktop-artwork .login-heading{margin-bottom:13px!important}
+  html.desktop-artwork .login-heading h1{font-size:26px!important}
+  html.desktop-artwork .input-wrap{height:44px!important;min-height:44px!important;margin-bottom:10px!important}
+  html.desktop-artwork .input-wrap:nth-of-type(2){margin-bottom:11px!important}
+  html.desktop-artwork .login-button{height:46px!important;min-height:46px!important}
+  html.desktop-artwork .secure-access{margin-top:10px!important}
+  html.desktop-artwork .login-footer-note{margin-top:11px!important;padding-top:10px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html.desktop-artwork .login-page:before{animation:none!important;transform:none!important;transition:none!important}
+  html.desktop-artwork .login-card:before{animation:none!important;display:none!important}
+}
+
+/* Final side/alignment correction */
+html.desktop-artwork .login-side{right:auto!important}
+html.desktop-artwork .login-page:after{
+  background:
+    linear-gradient(90deg,
+      #041f37 0%,
+      #041f37 43%,
+      rgba(4,31,55,.98) 47%,
+      rgba(4,31,55,.78) 53%,
+      rgba(4,31,55,.34) 62%,
+      rgba(4,31,55,.08) 74%,
+      transparent 100%)!important;
+}

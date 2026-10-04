@@ -1658,3 +1658,205 @@ html.desktop-artwork .login-page:after{
 html.desktop-artwork .login-side{
   background:transparent!important;
 }
+
+
+/* =========================================================
+   ULTRA 4K BACKGROUND + ENHANCED MOVING LIGHT FX — 2026-10-04
+   No dark side overlay; card remains independent.
+   ========================================================= */
+html.desktop-artwork .login-page:before{
+  background-image:url("/assets/jeddah-water-ultra-4k.webp?v=ultra4k-20261004-1")!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+  filter:saturate(1.08) contrast(1.045) brightness(.985)!important;
+  transform:translate3d(calc(var(--mx,0px)*-.19),calc(var(--my,0px)*-.13),0) scale(1.032)!important;
+  animation:ultraBgBreath 15s ease-in-out infinite alternate!important;
+  image-rendering:auto!important;
+  will-change:transform!important;
+}
+html.desktop-artwork .login-page:after{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+@keyframes ultraBgBreath{
+  0%{transform:translate3d(calc(var(--mx,0px)*-.19),calc(var(--my,0px)*-.13),0) scale(1.032)}
+  100%{transform:translate3d(calc(var(--mx,0px)*-.19),calc(var(--my,0px)*-.13),0) scale(1.052)}
+}
+
+/* Existing water-network lighting intensified slightly. */
+html.desktop-artwork .water-grid{
+  opacity:.33!important;
+  mix-blend-mode:screen!important;
+  filter:drop-shadow(0 0 10px rgba(92,218,248,.28))!important;
+}
+html.desktop-artwork .pipe-line{
+  stroke:rgba(135,237,255,.80)!important;
+  stroke-width:1.85!important;
+  filter:drop-shadow(0 0 8px rgba(94,218,246,.58))!important;
+}
+html.desktop-artwork .flow-node{
+  fill:#f3feff!important;
+  stroke:#7be3fa!important;
+  stroke-width:2.3!important;
+  filter:drop-shadow(0 0 14px rgba(103,224,250,.96))!important;
+  animation:waterNodePulse 2.05s ease-in-out infinite!important;
+}
+html.desktop-artwork .water-flow{
+  opacity:.18!important;
+  filter:drop-shadow(0 0 18px rgba(84,211,243,.38))!important;
+}
+
+/* New independent light-effects plane; never blocks the card. */
+html.desktop-artwork .ultra-light-effects{
+  position:absolute!important;
+  inset:0!important;
+  z-index:4!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+html.desktop-artwork .fx-orb{
+  position:absolute!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,
+    rgba(218,252,255,.62) 0%,
+    rgba(111,230,255,.34) 17%,
+    rgba(55,196,235,.14) 42%,
+    rgba(0,0,0,0) 72%)!important;
+  filter:blur(8px)!important;
+  mix-blend-mode:screen!important;
+  opacity:.36!important;
+  animation:fxOrbFloat 9s ease-in-out infinite alternate!important;
+  will-change:transform,opacity!important;
+}
+html.desktop-artwork .fx-orb-1{width:190px!important;height:190px!important;top:7%!important;left:59%!important;animation-duration:10.5s!important}
+html.desktop-artwork .fx-orb-2{width:135px!important;height:135px!important;top:20%!important;left:77%!important;animation-duration:8.8s!important;animation-delay:-2s!important}
+html.desktop-artwork .fx-orb-3{width:230px!important;height:230px!important;right:4%!important;bottom:10%!important;animation-duration:12.5s!important;animation-delay:-4s!important}
+html.desktop-artwork .fx-orb-4{width:160px!important;height:160px!important;left:68%!important;bottom:24%!important;animation-duration:11.2s!important;animation-delay:-1s!important}
+html.desktop-artwork .fx-orb-5{width:110px!important;height:110px!important;left:48%!important;top:39%!important;animation-duration:9.7s!important;animation-delay:-3s!important}
+@keyframes fxOrbFloat{
+  0%{transform:translate3d(-7px,8px,0) scale(.94);opacity:.22}
+  55%{opacity:.56}
+  100%{transform:translate3d(19px,-22px,0) scale(1.10);opacity:.38}
+}
+
+html.desktop-artwork .fx-beam{
+  position:absolute!important;
+  top:-28%!important;
+  width:19%!important;
+  height:165%!important;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(109,227,255,.035) 31%,
+    rgba(178,247,255,.16) 49%,
+    rgba(109,227,255,.045) 68%,
+    transparent 100%)!important;
+  filter:blur(7px)!important;
+  mix-blend-mode:screen!important;
+  opacity:.32!important;
+  transform:rotate(10deg)!important;
+  animation:fxBeamTravel 15s linear infinite!important;
+  will-change:transform,opacity!important;
+}
+html.desktop-artwork .fx-beam-1{left:-28%!important;animation-duration:14s!important}
+html.desktop-artwork .fx-beam-2{left:22%!important;animation-duration:19s!important;animation-delay:-7s!important;opacity:.24!important}
+@keyframes fxBeamTravel{
+  0%{transform:translate3d(-15vw,0,0) rotate(10deg);opacity:.06}
+  18%{opacity:.30}
+  55%{opacity:.42}
+  100%{transform:translate3d(135vw,0,0) rotate(10deg);opacity:.04}
+}
+
+html.desktop-artwork .fx-spark{
+  position:absolute!important;
+  width:8px!important;
+  height:8px!important;
+  border-radius:50%!important;
+  background:#effeff!important;
+  box-shadow:
+    0 0 7px rgba(214,252,255,.98),
+    0 0 17px rgba(100,225,253,.88),
+    0 0 32px rgba(61,194,235,.48)!important;
+  mix-blend-mode:screen!important;
+  animation:fxSparkPulse 2.25s ease-in-out infinite!important;
+}
+html.desktop-artwork .fx-spark-1{top:17%!important;left:64%!important}
+html.desktop-artwork .fx-spark-2{top:31%!important;left:82%!important;animation-delay:.5s!important}
+html.desktop-artwork .fx-spark-3{top:47%!important;left:72%!important;animation-delay:1s!important}
+html.desktop-artwork .fx-spark-4{bottom:24%!important;right:17%!important;animation-delay:1.45s!important}
+html.desktop-artwork .fx-spark-5{bottom:13%!important;left:61%!important;animation-delay:1.8s!important}
+@keyframes fxSparkPulse{
+  0%,100%{transform:scale(.72);opacity:.30}
+  45%{transform:scale(1.72);opacity:1}
+  62%{transform:scale(1.10);opacity:.68}
+}
+
+html.desktop-artwork .fx-wave{
+  position:absolute!important;
+  border-radius:50%!important;
+  border:1px solid rgba(148,240,255,.29)!important;
+  box-shadow:
+    0 0 16px rgba(111,226,249,.12),
+    inset 0 0 16px rgba(111,226,249,.05)!important;
+  mix-blend-mode:screen!important;
+  animation:fxWavePulse 5.4s ease-out infinite!important;
+}
+html.desktop-artwork .fx-wave-1{width:185px!important;height:185px!important;top:8.5%!important;right:12%!important}
+html.desktop-artwork .fx-wave-2{width:145px!important;height:145px!important;bottom:18%!important;right:23%!important;animation-delay:-2.1s!important}
+@keyframes fxWavePulse{
+  0%{transform:scale(.72);opacity:0}
+  25%{opacity:.30}
+  65%{opacity:.18}
+  100%{transform:scale(1.55);opacity:0}
+}
+
+html.desktop-artwork .fx-sweep{
+  position:absolute!important;
+  inset:-10%!important;
+  background:linear-gradient(112deg,
+    transparent 0%,
+    transparent 42%,
+    rgba(122,232,255,.035) 47%,
+    rgba(200,251,255,.13) 50%,
+    rgba(122,232,255,.035) 53%,
+    transparent 58%,
+    transparent 100%)!important;
+  mix-blend-mode:screen!important;
+  transform:translateX(-115%)!important;
+  animation:fxCitySweep 10.5s ease-in-out infinite!important;
+  will-change:transform,opacity!important;
+}
+@keyframes fxCitySweep{
+  0%,24%{transform:translateX(-115%);opacity:0}
+  35%{opacity:.92}
+  72%{transform:translateX(115%);opacity:.68}
+  100%{transform:translateX(115%);opacity:0}
+}
+
+/* Card stays visually clean and above all lighting. */
+html.desktop-artwork .login-side{z-index:10!important}
+html.desktop-artwork .login-card{z-index:11!important}
+
+/* High-density displays use the 4K asset without additional software scaling tricks. */
+@media(min-resolution:1.5dppx){
+  html.desktop-artwork .login-page:before{
+    background-image:url("/assets/jeddah-water-ultra-4k.webp?v=ultra4k-20261004-1")!important;
+  }
+}
+
+/* Motion accessibility and performance. */
+@media(prefers-reduced-motion:reduce){
+  html.desktop-artwork .ultra-light-effects .fx-orb,
+  html.desktop-artwork .ultra-light-effects .fx-beam,
+  html.desktop-artwork .ultra-light-effects .fx-spark,
+  html.desktop-artwork .ultra-light-effects .fx-wave,
+  html.desktop-artwork .ultra-light-effects .fx-sweep{
+    animation:none!important;
+  }
+  html.desktop-artwork .login-page:before{
+    animation:none!important;
+    transform:none!important;
+  }
+}

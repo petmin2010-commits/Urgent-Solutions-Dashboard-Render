@@ -11,13 +11,24 @@ function setPermissions(p){
 function apply(){
  if(!state.ready)return;
  const items=[...document.querySelectorAll('#nav .nav-item')];
- items.forEach(el=>{const ok=allowed(el);el.hidden=!ok;el.style.display=ok?'':'none';el.setAttribute('aria-hidden',ok?'false':'true');if(!ok)el.classList.remove('active')});
- document.querySelectorAll('#nav .nav-group').forEach(g=>{const ok=[...g.querySelectorAll('.nav-item')].some(x=>!x.hidden&&x.style.display!=='none');g.hidden=!ok;g.style.display=ok?'':'none'});
- const active=items.find(x=>x.classList.contains('active')&&!x.hidden&&x.style.display!=='none');if(!active){const first=items.find(x=>!x.hidden&&x.style.display!=='none');if(first)first.click()}
- document.querySelectorAll('[data-permission]').forEach(el=>{el.hidden=!can(el.dataset.permission,el.dataset.permission)});
+ items.forEach(el=>{
+  const ok=allowed(el),hidden=!ok,display=ok?'':'none',aria=ok?'false':'true';
+  if(el.hidden!==hidden)el.hidden=hidden;
+  if(el.style.display!==display)el.style.display=display;
+  if(el.getAttribute('aria-hidden')!==aria)el.setAttribute('aria-hidden',aria);
+  if(!ok&&el.classList.contains('active'))el.classList.remove('active');
+ });
+ document.querySelectorAll('#nav .nav-group').forEach(g=>{
+  const ok=[...g.querySelectorAll('.nav-item')].some(x=>!x.hidden&&x.style.display!=='none'),hidden=!ok,display=ok?'':'none';
+  if(g.hidden!==hidden)g.hidden=hidden;
+  if(g.style.display!==display)g.style.display=display;
+ });
+ const active=items.find(x=>x.classList.contains('active')&&!x.hidden&&x.style.display!=='none');
+ if(!active){const first=items.find(x=>!x.hidden&&x.style.display!=='none');if(first)first.click()}
+ document.querySelectorAll('[data-permission]').forEach(el=>{const hidden=!can(el.dataset.permission,el.dataset.permission);if(el.hidden!==hidden)el.hidden=hidden});
 }
 document.addEventListener('click',e=>{if(!state.ready)return;const item=e.target.closest?.('#nav .nav-item');if(!item||allowed(item))return;e.preventDefault();e.stopImmediatePropagation();window.VDUrgent?.toast?.('لا توجد صلاحية لهذه الشاشة')},true);
-async function start(){try{const r=await fetch('/api/auth/me',{credentials:'same-origin',cache:'no-store'});if(r.status===401)return location.replace('/login');if(!r.ok)throw new Error('PERMISSIONS_LOAD_FAILED');const j=await r.json();setPermissions(j?.user?.permissions||[]);const nav=document.getElementById('nav');if(nav){state.observer=new MutationObserver(apply);state.observer.observe(nav,{childList:true,subtree:true,attributes:true,attributeFilter:['class']})}}catch(e){console.error('Urgent access-control:',e)}}
+async function start(){try{const r=await fetch('/api/auth/me',{credentials:'same-origin',cache:'no-store'});if(r.status===401)return location.replace('/login');if(!r.ok)throw new Error('PERMISSIONS_LOAD_FAILED');const j=await r.json();setPermissions(j?.user?.permissions||[]);const nav=document.getElementById('nav');if(nav){state.observer=new MutationObserver(()=>requestAnimationFrame(apply));state.observer.observe(nav,{childList:true,subtree:true})}}catch(e){console.error('Urgent access-control:',e)}}
 window.addEventListener('vd:user-ready',e=>setPermissions(e.detail?.permissions||[]));
 window.VDUrgentAccess={apply,can:(label,key='')=>can(label,key)};
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();

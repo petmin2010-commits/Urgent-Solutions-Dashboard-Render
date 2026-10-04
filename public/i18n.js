@@ -3,6 +3,7 @@
 const STORAGE_KEY='vd_urgent_language';
 const PAIRS=[
 ['المتابعة التشغيلية','Operational Monitoring'],['المتابعة الادارية','Administrative Monitoring'],['التحليل الذكي و التقارير','Smart Analytics & Reports'],
+['ألوان الواجهة','Interface Colors'],['بحث في الصفحة الحالية...','Search current page...'],['المحلل الذكي','Smart Analyst'],['Project 360°','Project 360°'],['عرض المشروع عبر المشاريع والتصاريح والخطوط والتصميم والتنفيذ','View the project across projects, permits, lines, design and execution'],['QR — الرابط الحالي','QR — Current Link'],['مشاركة الصفحة الحالية بسرعة','Quickly share the current page'],
 ['الرئيسية','Dashboard'],['المشاريع','Projects'],['الخريطة الجغرافية','Geographic Map'],['التصاريح','Permits'],['الخطوط البديلة والتصميم','Alternative Lines & Design'],
 ['الأمتار والتسويات','Meter Settlements'],['الضمانات','Guarantees'],['الشكاوى','Complaints'],['التنفيذ والتسليم','Execution & Handover'],
 ['المقاولون والملاك','Contractors & Owners'],['تحليل البلديات','Municipality Analytics'],['التتبع الشامل','End-to-End Traceability'],['مخاطر المشاريع','Project Risks'],['جودة البيانات','Data Quality'],['التحليل التنفيذي','Executive Analytics'],['مركز التقارير','Report Center'],['تصدير تقرير Excel','Export Excel Report'],

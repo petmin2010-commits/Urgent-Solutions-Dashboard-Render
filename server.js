@@ -23,6 +23,7 @@ function loadEnv(){
 loadEnv();
 
 const app=express();
+app.set('trust proxy',1);
 const PORT=Number(process.env.PORT||3012);
 const SPREADSHEET_ID=String(process.env.SPREADSHEET_ID||'').trim();
 const CREDENTIALS_PATH=String(process.env.GOOGLE_CREDENTIALS_PATH||'').trim();
@@ -51,7 +52,8 @@ app.use(session({
   secret:SESSION_SECRET,
   resave:false,
   saveUninitialized:false,
-  cookie:{httpOnly:true,sameSite:'lax',secure:false,maxAge:8*60*60*1000}
+  rolling:true,
+  cookie:{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:8*60*60*1000}
 }));
 
 const clean=v=>String(v==null?'':v).replace(/\s+/g,' ').trim();
@@ -182,9 +184,20 @@ app.get('/api/auth/photo',async(req,res)=>{
   }
 });
 
-app.get('/api/auth/me',(req,res)=>{
-  if(!req.session?.user) return res.status(401).json({ok:false});
-  res.set('Cache-Control','no-store').json({ok:true,user:req.session.user});
+app.get('/api/auth/me',async(req,res)=>{
+  res.set('Cache-Control','no-store');
+  if(!req.session?.user)return res.status(401).json({ok:false,authenticated:false});
+  try{
+    const username=String(req.session.user.username||'').trim().toLowerCase();
+    const users=await readUsers();
+    const user=users.find(u=>u.username===username&&u.active);
+    if(!user){req.session.destroy(()=>{});return res.status(401).json({ok:false,authenticated:false})}
+    req.session.user=publicUser(user);
+    return res.json({ok:true,authenticated:true,user:req.session.user});
+  }catch(error){
+    console.error('Auth refresh error:',error);
+    return res.json({ok:true,authenticated:true,user:req.session.user,staleAuth:true});
+  }
 });
 app.post('/api/auth/login',async(req,res)=>{
   try{
@@ -559,11 +572,25 @@ async function buildData(force=false){
   return data;
 }
 
+let dataBuildInFlight=null;
+const DATA_STALE_MAX_MS=5*60*1000;
+async function buildDataCoalesced(force=false){
+  if(force)return buildData(true);
+  if(cache.data&&Date.now()-cache.at<CACHE_MS)return cache.data;
+  if(dataBuildInFlight)return dataBuildInFlight;
+  dataBuildInFlight=buildData(false).finally(()=>{dataBuildInFlight=null});
+  return dataBuildInFlight;
+}
+
 app.get('/api/data',requireAuth,async(req,res)=>{
   try{
-    const data=await buildData(req.query.refresh==='1');
+    const data=await buildDataCoalesced(req.query.refresh==='1');
     res.set('Cache-Control','no-store').json({ok:true,...data});
   }catch(error){
+    if(cache.data&&Date.now()-cache.at<DATA_STALE_MAX_MS){
+      console.warn('Live data unavailable, serving stale cache:',error.message);
+      return res.set('Cache-Control','no-store').json({ok:true,...cache.data,sourceMode:'stale-cache',liveError:error.message});
+    }
     const snapshot=readSnapshot();
     if(snapshot){
       console.warn('Live data unavailable, serving snapshot:',error.message);
@@ -660,6 +687,40 @@ app.post('/api/export/xlsx',requireAuth,(req,res)=>{
     console.error(error);
     res.status(500).json({ok:false,error:'EXPORT_FAILED'});
   }
+});
+
+
+app.get('/api/monitor/summary',requireAuth,async(req,res)=>{
+  try{const d=await buildDataCoalesced(false);res.set('Cache-Control','no-store').json({ok:true,updatedAt:d.updatedAt,sourceMode:d.sourceMode||'live',summaries:d.summaries,permitTiming:d.permitTiming,distributions:d.distributions})}
+  catch(error){res.status(500).json({ok:false,error:'MONITOR_FAILED',message:error.message})}
+});
+app.get('/api/monitor/full',requireAuth,async(req,res)=>{
+  try{const d=await buildDataCoalesced(false);res.set('Cache-Control','no-store').json({ok:true,...d})}
+  catch(error){res.status(500).json({ok:false,error:'MONITOR_FAILED',message:error.message})}
+});
+app.post('/api/rpc',requireAuth,async(req,res)=>{
+  try{
+    const method=clean(req.body?.method||req.body?.name),args=req.body?.args||req.body?.params||{};
+    if(method==='clearDashboardCache'){cache={at:0,data:null};dataBuildInFlight=null;return res.json({ok:true})}
+    const d=await buildDataCoalesced(false);
+    if(method==='getMonitorData')return res.json({ok:true,updatedAt:d.updatedAt,summaries:d.summaries,permitTiming:d.permitTiming,distributions:d.distributions});
+    if(method==='getFullMonitorData'||method==='getBootData')return res.json({ok:true,...d});
+    if(method==='getProjectNews')return res.json({ok:true,updatedAt:d.updatedAt,projects:d.projects,lines:d.lines,quality:d.quality,complaints:d.complaints,summaries:d.summaries,permitTiming:d.permitTiming});
+    if(method==='getProject360'){const qv=norm(args.project||args.no||args.query||'');const rows=(d.projects||[]).filter(x=>!qv||[x.no,x.name,x.owner,x.contractor,x.municipality].some(v=>norm(v).includes(qv))).slice(0,50);return res.json({ok:true,rows})}
+    return res.status(400).json({ok:false,error:'UNKNOWN_RPC_METHOD'});
+  }catch(error){res.status(500).json({ok:false,error:'RPC_FAILED',message:error.message})}
+});
+app.post('/api/ai/brief',requireAuth,async(req,res)=>{
+  try{
+    const key=String(process.env.OPENAI_API_KEY||'').trim();if(!key)return res.status(503).json({ok:false,error:'OPENAI_API_KEY_NOT_CONFIGURED'});
+    const d=await buildDataCoalesced(false),page=clean(req.body?.page||'master');
+    const facts={page,updatedAt:d.updatedAt,summaries:d.summaries,permitTiming:d.permitTiming,distributions:d.distributions,topRisks:(d.projects||[]).filter(x=>/مرتفع|حرج|high|critical/i.test(String(x.riskLevel||''))).slice(0,12).map(x=>({no:x.no,name:x.name,municipality:x.municipality,contractor:x.contractor,riskLevel:x.riskLevel,permitStatus:x.permitStatus,guaranteeStatus:x.guaranteeStatus}))};
+    const prompt='أنت محلل تنفيذي لمشاريع الحلول العاجلة بأمانة جدة. حلل البيانات التالية فقط دون اختلاق معلومات. اكتب بالعربية: ملخص تنفيذي قصير، أهم 5 مخاطر/ملاحظات، أولويات التدخل، وما يحتاج قرار إداري. البيانات: '+JSON.stringify(facts);
+    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-5-mini',input:prompt})});
+    const j=await response.json();if(!response.ok)throw new Error(j?.error?.message||'OPENAI_REQUEST_FAILED');
+    let text=String(j.output_text||'');if(!text&&Array.isArray(j.output)){for(const item of j.output){for(const c of item.content||[]){if(c.type==='output_text'&&c.text)text+=c.text+'\n'}}}
+    return res.json({ok:true,text:text.trim(),model:process.env.OPENAI_MODEL||'gpt-5-mini'});
+  }catch(error){console.error('AI brief error:',error);return res.status(500).json({ok:false,error:'AI_BRIEF_FAILED',message:error.message})}
 });
 
 app.get('/api/health',async(req,res)=>{

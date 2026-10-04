@@ -1227,7 +1227,7 @@ async function boot(){
  }catch(e){location.replace('/login')}
 }
 $$('.nav-item').forEach(item=>item.addEventListener('click',()=>openPage(item.dataset.page)));
-$$('.nav-group-head').forEach(h=>h.addEventListener('click',()=>h.closest('.nav-group').classList.toggle('is-open')));
+$$('.nav-group-head').forEach(h=>h.addEventListener('click',()=>{const g=h.closest('.nav-group'),willOpen=!g.classList.contains('is-open');$$('.nav-group').forEach(x=>x.classList.remove('is-open'));if(willOpen){g.classList.add('is-open');requestAnimationFrame(()=>g.scrollIntoView({block:'nearest',behavior:'smooth'}))}}));
 $('#navSearch').addEventListener('input',e=>{const q=norm(e.target.value);$$('.nav-item').forEach(x=>x.classList.toggle('search-hidden',!!q&&!norm(x.textContent).includes(q)));$$('.nav-group').forEach(g=>{if(q&&$$('.nav-item:not(.search-hidden)',g).length)g.classList.add('is-open')})});
 $('#navClear').addEventListener('click',()=>{$('#navSearch').value='';$('#navSearch').dispatchEvent(new Event('input'))});
 $('#sidebarToggle').addEventListener('click',()=>{document.body.classList.toggle('sidebar-collapsed');localStorage.setItem('vd.urgent.sidebar.collapsed',document.body.classList.contains('sidebar-collapsed')?'1':'0')});

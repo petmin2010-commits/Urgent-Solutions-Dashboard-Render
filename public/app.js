@@ -1267,6 +1267,8 @@ function renderSmartShell(){
  $('#pageHost').innerHTML='<section id="urgentSmartSuiteHost" class="urgent-smart-suite-host" data-smart-page="'+esc(state.page)+'"></section>';
 }
 function renderReports(){
+ const reportHub=document.querySelector('#vdReportHub');if(reportHub)reportHub.remove();
+ const filterBar=$('#filterBar');if(filterBar)filterBar.style.display='none';
  $('#pageHost').innerHTML='<div class="report-actions">'+
  ['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','risks','quality','analytics','smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].map(key=>{
   const m=PAGE_META[key];return '<article class="report-card"><b>'+esc(m.title)+'</b><p>'+esc(m.sub)+'</p><div class="report-card-actions"><button class="report-preview" type="button" data-preview="'+key+'">معاينة</button><button class="report-export" type="button" data-report="'+key+'">تصدير PDF</button></div></article>'

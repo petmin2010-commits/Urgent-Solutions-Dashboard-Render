@@ -354,6 +354,7 @@ function kpi(label,value,note='',cls=''){
  return '<article class="kpi-card '+cls+'"><span>'+esc(label)+'</span><strong data-count>'+esc(value)+'</strong><small>'+esc(note)+'</small></article>';
 }
 function animateCounts(){
+ if(window.VDCountUp){window.VDCountUp.refresh();return;}
  $$('[data-count]','#pageHost').forEach(el=>{
   const raw=clean(el.textContent).replace(/,/g,'');if(!/^[-+]?\d+(?:\.\d+)?$/.test(raw))return;
   const target=Number(raw);if(!Number.isFinite(target)||target===0)return;
@@ -394,7 +395,7 @@ function makeChart(id,type,labels,values,opts={}){
    onClick:(event,elements)=>{if(!elements.length||!CHART_FILTERS[state.page]?.[id])return;const idx=elements[0].index;handleChartClick(id,labels[idx])},
    plugins:{legend:{display:type==='doughnut',position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
    scales:type==='doughnut'?{}:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
-  plugins:[valuePlugin]
+  plugins:[]
  });
  state.charts.push(chart);
  const panel=canvas.closest('.panel'),active=interactiveStore().get('chart:'+id);
@@ -410,7 +411,7 @@ function makeMultiBar(id,labels,datasets,opts={}){
   options:{responsive:true,maintainAspectRatio:false,indexAxis:opts.horizontal?'y':'x',
    plugins:{legend:{display:true,position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
    scales:{x:{ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#566a64'},grid:{color:'rgba(0,0,0,.04)'}}}},
-  plugins:[valuePlugin]
+  plugins:[]
  });
  state.charts.push(chart);
 }
@@ -1167,6 +1168,7 @@ async function downloadXlsx(type,columns,rows){
  const blob=await r.blob(),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function reportName(type,forceFiltered=false){
+ if(window.VDReportNaming){const raw=String(type||''),pageTitle=PAGE_META[state.page]?.title||'',reportType=(!raw||raw===pageTitle)?window.VDReportNaming.type(state.page):raw.replace(/\s+/g,'_');return window.VDReportNaming.build({key:state.page,type:reportType,scope:forceFiltered?'Filtered':''});}
  const d=new Date(),pad=x=>String(x).padStart(2,'0'),stamp=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+'-'+pad(d.getMinutes())+'-'+pad(d.getSeconds()),scope=(forceFiltered||activeFilterCount())?'Filtered':'General';
  return 'VD_UrgentSolutions_'+String(type).replace(/\s+/g,'_')+'_'+scope+'_'+stamp;
 }
@@ -1187,7 +1189,9 @@ function renderPage(){
  $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • JEDDAH WATER PROJECTS';
  renderFilters();
  const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,reports:renderReports,excelExport:renderExcelExport}[state.page]||renderMasterV2;
- fn();wireTableSearch();wireInteractiveCards();decorateInfo();renderFilterSummary();animateCounts();
+ fn();wireTableSearch();wireInteractiveCards();decorateInfo();renderFilterSummary();if(window.VDCountUp)window.VDCountUp.refresh();else animateCounts();
+ window.__urgentCurrentPage=state.page;
+ window.dispatchEvent(new CustomEvent('vd:urgent-page',{detail:{page:state.page,data:state.data}}));
  window.dispatchEvent(new CustomEvent('vd:page-rendered',{detail:{page:state.page,data:state.data}}));
 }
 function canAccess(item){

@@ -173,9 +173,16 @@ function requireAuth(req,res,next){
   return res.status(401).json({ok:false,error:'AUTH_REQUIRED'});
 }
 
-app.get('/login',(req,res)=>res.sendFile(path.join(__dirname,'public','login.html')));
-app.get('/index.html',(req,res)=>req.session?.user?res.sendFile(path.join(__dirname,'public','index.html')):res.redirect('/login'));
-app.get('/',(req,res)=>req.session?.user?res.sendFile(path.join(__dirname,'public','index.html')):res.redirect('/login'));
+app.get('/login',(req,res)=>{res.set('Cache-Control','no-store, max-age=0');res.sendFile(path.join(__dirname,'public','login.html'))});
+function sendDashboard(req,res){
+  if(!req.session?.user)return res.redirect('/login');
+  res.set('Cache-Control','no-store, max-age=0, must-revalidate');
+  res.set('Pragma','no-cache');
+  res.set('Expires','0');
+  return res.sendFile(path.join(__dirname,'public','index.html'));
+}
+app.get('/index.html',sendDashboard);
+app.get('/',sendDashboard);
 
 app.get('/api/auth/photo',async(req,res)=>{
   try{

@@ -1,0 +1,41 @@
+/* Unified contextual card icons — Urgent Solutions */
+.vd-card-icon{
+ width:32px;height:32px;display:grid;place-items:center;flex:0 0 32px;
+ border-radius:11px;border:1px solid #cfe6ef;background:linear-gradient(145deg,#f8fcfe,#e9f6fb);
+ color:#13759b;box-shadow:0 6px 16px rgba(20,92,122,.08),inset 0 1px 0 #fff;
+}
+.vd-card-icon svg{width:17px;height:17px;display:block}
+.kpi-card.vd-has-card-icon,.us-kpi.vd-has-card-icon,.insight-card.vd-has-card-icon,.report-card.vd-has-card-icon,.quality-item.vd-has-card-icon,.dq-overview-card.vd-has-card-icon{position:relative;padding-left:52px!important}
+.kpi-card>.vd-card-icon,.us-kpi>.vd-card-icon,.insight-card>.vd-card-icon,.report-card>.vd-card-icon,.quality-item>.vd-card-icon,.dq-overview-card>.vd-card-icon{position:absolute;left:11px;top:11px}
+.kpi-card.vd-has-card-icon .vd-info-btn{left:49px}
+.dq-overview-card>.vd-card-icon{top:10px;left:10px;width:29px;height:29px;border-radius:10px}
+.dq-overview-card>.vd-card-icon svg{width:16px;height:16px}
+.dq-card>i.vd-card-icon,.dq-smart-card>i.vd-card-icon{font-style:normal!important;border-radius:9px!important}
+.dq-card>i.vd-card-icon svg,.dq-smart-card>i.vd-card-icon svg{width:15px;height:15px}
+.rc-card-icon.vd-card-icon{width:36px;height:36px;position:static;border-radius:11px}
+.rc-card-icon.vd-card-icon svg{width:18px;height:18px}
+.vd-card-icon[data-icon-key="risk"],[data-vd-card-icon-key="risk"]>.vd-card-icon{color:#b83a31;background:#fff1ef;border-color:#f2cbc6}
+.vd-card-icon[data-icon-key="permit"],[data-vd-card-icon-key="permit"]>.vd-card-icon{color:#5d57a5;background:#f2f1ff;border-color:#dcd9ff}
+.vd-card-icon[data-icon-key="route"],[data-vd-card-icon-key="route"]>.vd-card-icon{color:#0d7d86;background:#eafafa;border-color:#c8ecee}
+.vd-card-icon[data-icon-key="ruler"],[data-vd-card-icon-key="ruler"]>.vd-card-icon{color:#8c6315;background:#fff7df;border-color:#f0dfaa}
+.vd-card-icon[data-icon-key="shield"],[data-vd-card-icon-key="shield"]>.vd-card-icon{color:#18765f;background:#ebf8f3;border-color:#cbeadf}
+.vd-card-icon[data-icon-key="complaint"],[data-vd-card-icon-key="complaint"]>.vd-card-icon{color:#a54a62;background:#fff0f4;border-color:#f1ccd6}
+.vd-card-icon[data-icon-key="quality"],[data-vd-card-icon-key="quality"]>.vd-card-icon{color:#16805f;background:#ecf9f4;border-color:#ccebdd}
+.vd-card-icon[data-icon-key="smart"],[data-vd-card-icon-key="smart"]>.vd-card-icon{color:#6b55b5;background:#f4f0ff;border-color:#dfd6fb}
+.vd-card-icon[data-icon-key="audit"],[data-vd-card-icon-key="audit"]>.vd-card-icon{color:#7c3aed;background:#f5f0ff;border-color:#e2d5fb}
+.vd-card-icon[data-icon-key="memory"],[data-vd-card-icon-key="memory"]>.vd-card-icon{color:#3d6d98;background:#eef6ff;border-color:#d3e6f7}
+.vd-card-icon[data-icon-key="decision"],[data-vd-card-icon-key="decision"]>.vd-card-icon{color:#995e17;background:#fff5e8;border-color:#f1dcc0}
+.vd-card-icon[data-icon-key="municipality"],[data-vd-card-icon-key="municipality"]>.vd-card-icon{color:#466386;background:#f0f5fa;border-color:#d6e1ec}
+.vd-card-icon[data-icon-key="map"],[data-vd-card-icon-key="map"]>.vd-card-icon{color:#0d766e;background:#eaf8f6;border-color:#c9e8e4}
+.vd-card-icon[data-icon-key="alertclock"],[data-vd-card-icon-key="alertclock"]>.vd-card-icon{color:#b05f08;background:#fff4e6;border-color:#efd5b4}
+.vd-card-icon[data-icon-key="execution"],[data-vd-card-icon-key="execution"]>.vd-card-icon{color:#167b66;background:#ecf8f5;border-color:#cce9e1}
+.vd-card-icon[data-icon-key="analytics"],[data-vd-card-icon-key="analytics"]>.vd-card-icon{color:#236e9b;background:#edf7fc;border-color:#cee6f2}
+.vd-card-icon[data-icon-key="project"],[data-vd-card-icon-key="project"]>.vd-card-icon{color:#196d99;background:#edf7fc;border-color:#cfe6f1}
+.vd-card-icon[data-icon-key="users"],[data-vd-card-icon-key="users"]>.vd-card-icon{color:#4e6388;background:#f0f4fa;border-color:#d7e0ed}
+@media(max-width:720px){
+ .vd-card-icon{width:28px;height:28px;border-radius:9px}.vd-card-icon svg{width:15px;height:15px}
+ .kpi-card.vd-has-card-icon,.us-kpi.vd-has-card-icon,.insight-card.vd-has-card-icon,.report-card.vd-has-card-icon,.quality-item.vd-has-card-icon,.dq-overview-card.vd-has-card-icon{padding-left:45px!important}
+}
+@media print{
+ .vd-card-icon{box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}

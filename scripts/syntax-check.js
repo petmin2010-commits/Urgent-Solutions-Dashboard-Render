@@ -1,0 +1,1 @@
+const fs=require('fs');const vm=require('vm');for(const f of ['server-async.js','src/db.js','public/app.js']){const s=fs.readFileSync(f,'utf8');new vm.Script(s,{filename:f});console.log('OK',f)}

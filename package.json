@@ -4,15 +4,17 @@
   "private": true,
   "description": "PWA business application for Madinah Water operations",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server-async.js",
+    "dev": "node server-async.js"
   },
   "dependencies": {
+    "connect-pg-simple": "^10.0.0",
     "express": "^5.1.0",
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",
     "luxon": "^3.7.1",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "puppeteer-core": "^25.12.0"

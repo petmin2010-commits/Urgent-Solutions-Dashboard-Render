@@ -20,3 +20,31 @@
 /* Keep the urgent toolbar visually identical to PDC Jeddah/Makkah. */
 .topbar #vdQrBtn,.topbar #vd360Btn,.topbar #vdAiBtn,.topbar #vdSystemBadge,.topbar #topFavoriteBtn{display:none!important}
 .topbar .vd-theme-wrap{display:none!important}
+
+/* Urgent Solutions only: top toolbar and smart-news strip scroll with page */
+.top-shell.topbar{
+ position:relative!important;
+ top:auto!important;right:auto!important;left:auto!important;
+ width:100%!important;
+ margin:0 0 10px!important;
+ z-index:120!important
+}
+#projectNewsTicker.project-news{
+ position:relative!important;
+ top:auto!important;right:auto!important;left:auto!important;
+ width:100%!important;
+ margin:0 0 14px!important;
+ z-index:110!important
+}
+.vd-news-ticker{
+ position:relative!important;
+ top:auto!important
+}
+.main{padding-top:18px!important}
+body.sidebar-collapsed .top-shell.topbar,
+body.sidebar-collapsed #projectNewsTicker.project-news{
+ right:auto!important;left:auto!important
+}
+@media(max-width:720px){
+ .main{padding-top:10px!important}
+}

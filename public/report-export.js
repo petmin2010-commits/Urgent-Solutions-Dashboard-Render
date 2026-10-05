@@ -62,6 +62,9 @@ function freezeControls(root,mode='remove',keepLegend=false){
   a.replaceWith(span);
  });
 }
+function removeExportBars(root){
+ root?.querySelectorAll?.('.sheet-report-hero,.followup-single-pdf,.us-smart-hero,.dq-hero,.rc-hero,.page-hero,.report-hero,.hero-bar,.tab-hero').forEach(x=>x.remove());
+}
 function cloneWithCharts(source,options={}){
  const clone=source.cloneNode(true);
  const src=[...source.querySelectorAll('canvas')],dst=[...clone.querySelectorAll('canvas')];
@@ -82,6 +85,7 @@ function cloneWithCharts(source,options={}){
    }
   }catch(_){c.remove()}
  });
+ removeExportBars(clone);
  freezeControls(clone,options.buttons||'remove',!!options.keepLegend);
  return clone;
 }
@@ -174,7 +178,7 @@ function buildMapPage(report,root){
  p.querySelector('.vd-report-section-body').appendChild(wrap);report.appendChild(p);
 }
 function buildMisc(report,elements,title='تفاصيل إضافية'){
- const usable=elements.filter(x=>visible(x,host()||document.body)&&clean(x.textContent).length>10&&!x.querySelector('canvas,table'));
+ const usable=elements.filter(x=>visible(x,host()||document.body)&&clean(x.textContent).length>10&&!x.matches('.sheet-report-hero,.followup-single-pdf,.us-smart-hero,.dq-hero,.rc-hero,.page-hero,.report-hero,.hero-bar,.tab-hero')&&!x.querySelector('canvas,table'));
  chunk(usable,2).forEach((grp,i)=>{
   const p=createPage(title,usable.length>2?'صفحة '+(i+1):'محتوى الشاشة الحالية','vd-report-misc-page');
   const g=document.createElement('div');g.className='vd-report-misc-grid';
@@ -191,11 +195,11 @@ function qualityKpis(root){
 }
 function buildQualityReport(report,root){
  const kpis=qualityKpis(root);buildCover(report,kpis);
- const hero=root.querySelector('.dq-hero'),overview=root.querySelector('.dq-overview');
- if(hero||overview){
+ const overview=root.querySelector('.dq-overview');
+ if(overview){
   const p=createPage('ملخص جودة البيانات','الوضع الحالي ونسب الاكتمال','vd-report-dq-page vd-report-dq-summary');
   const b=p.querySelector('.vd-report-section-body');
-  [hero,overview].filter(Boolean).forEach(x=>{const c=cloneWithCharts(x,{buttons:'freeze'});c.classList.add('vd-report-dq-source');b.appendChild(c)});
+  const c=cloneWithCharts(overview,{buttons:'freeze'});c.classList.add('vd-report-dq-source');b.appendChild(c);
   report.appendChild(p);
  }
  [...root.querySelectorAll('.dq-section')].filter(x=>visible(x,root)).forEach(section=>{
@@ -220,11 +224,11 @@ function buildQualityReport(report,root){
 }
 function buildSmartReport(report,root){
  const kpis=findKpis(root);buildCover(report,kpis);
- const hero=root.querySelector('.us-smart-hero'),mainKpis=root.querySelector('.us-kpis'),week=root.querySelector('.us-week-window');
- if(hero||mainKpis||week){
+ const mainKpis=root.querySelector('.us-kpis'),week=root.querySelector('.us-week-window');
+ if(mainKpis||week){
   const p=createPage('الملخص الذكي',pageName(),'vd-report-smart-page vd-report-smart-summary');
   const b=p.querySelector('.vd-report-section-body');
-  [hero,week,mainKpis].filter(Boolean).forEach(x=>b.appendChild(cloneWithCharts(x,{buttons:'freeze'})));
+  [week,mainKpis].filter(Boolean).forEach(x=>b.appendChild(cloneWithCharts(x,{buttons:'freeze'})));
   report.appendChild(p);
  }
  const banners=[...root.querySelectorAll('.us-what-banner,.us-memory-ask')].filter(x=>visible(x,root));
@@ -248,7 +252,7 @@ function buildSmartReport(report,root){
 }
 function buildFollowupReport(report,root){
  const kpis=[...root.querySelectorAll('.kpi-card')].filter(x=>visible(x,root));buildCover(report,kpis);
- const summary=[root.querySelector('.sheet-report-hero'),root.querySelector('.sheet-report-kpis'),...root.querySelectorAll('.sheet-report-warning')].filter(Boolean);
+ const summary=[root.querySelector('.sheet-report-kpis'),...root.querySelectorAll('.sheet-report-warning')].filter(Boolean);
  if(summary.length){
   const p=createPage('المتابعة','ملخص تقارير ورقة reports','vd-report-followup-summary');
   const b=p.querySelector('.vd-report-section-body');summary.forEach(x=>b.appendChild(cloneWithCharts(x,{buttons:'freeze'})));report.appendChild(p);

@@ -99,7 +99,7 @@ async function exportFollowupTarget(target,label,button){
  const clone=source.cloneNode(true);
  clone.querySelectorAll('.table-search').forEach(x=>x.remove());
  const tableTitle=clone.querySelector('.table-tools b');if(tableTitle)tableTitle.textContent=label;
- host.innerHTML='<section class="sheet-report-hero followup-single-pdf"><div><small>VISION DIMENSIONS • FOLLOW-UP REPORT</small><h3>'+esc(label)+'</h3><p>تقرير PDF مباشر من جداول «المتابعة» المطابقة لورقة reports في Google Sheets.</p></div></section>'+clone.outerHTML;
+ host.innerHTML=clone.outerHTML;
  const metaObj=window.VDUrgent?.PAGE_META?.followup,metaTitle=metaObj?.title;if(metaObj)metaObj.title=label;
  let done=false;
  const finish=()=>{

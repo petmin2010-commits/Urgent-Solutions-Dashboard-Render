@@ -157,16 +157,53 @@ function init(options={}){
  active={map,layers};
  const say=msg=>typeof options.toast==='function'?options.toast(msg):void 0;
  const summary=()=>typeof options.onSummary==='function'&&options.onSummary(uploads.filter(x=>x.visible).length,uploads.length);
- const rowHtml=u=>'<div class="map-kmz-row" data-kmz-row="'+esc(u.id)+'"><button type="button" class="map-kmz-toggle '+(u.visible?'active':'')+'" data-kmz-action="toggle" title="إظهار/إخفاء الطبقة"><i></i></button><div class="map-kmz-name"><b>'+esc(u.name)+'</b><span>'+u.features.length+' عنصر</span></div><div class="map-kmz-actions"><button type="button" data-kmz-action="zoom" title="تكبير إلى حدود الطبقة">⌖</button><button type="button" data-kmz-action="remove" title="حذف الطبقة">×</button></div></div>';
+ const sourceIds=new Set();
+ (options.sources||[]).forEach(s=>{
+  const id=clean(s.id)||('sheet-kmz-'+s.row);if(!id)return;sourceIds.add(id);
+  let u=uploads.find(x=>x.id===id);
+  if(!u){
+   u={id,name:clean(s.name)||('KMZ - صف '+s.row),fileName:'',features:[],visible:false,loaded:false,loading:false,sourceKind:'sheet',sourceUrl:s.sourceUrl,originalUrl:s.originalUrl||'',sourceRow:s.row};
+   uploads.push(u);
+  }else if(u.sourceKind==='sheet'){
+   if(u.originalUrl&&s.originalUrl&&u.originalUrl!==s.originalUrl){u.features=[];u.loaded=false;u.visible=false}
+   u.name=clean(s.name)||u.name;u.sourceUrl=s.sourceUrl;u.originalUrl=s.originalUrl||u.originalUrl;u.sourceRow=s.row;
+  }
+ });
+ for(let i=uploads.length-1;i>=0;i--)if(uploads[i].sourceKind==='sheet'&&!sourceIds.has(uploads[i].id))uploads.splice(i,1);
+ const statusText=u=>u.loading?'جاري تحميل KMZ…':u.sourceKind==='sheet'?(u.loaded?(u.features.length+' عنصر • من AL'):'جاهز من العمود AL • اضغط للإضافة'):(u.features.length+' عنصر • ملف مرفوع');
+ const rowHtml=u=>'<div class="map-kmz-row '+(u.sourceKind==='sheet'?'sheet-source':'')+'" data-kmz-row="'+esc(u.id)+'"><button type="button" class="map-kmz-toggle '+(u.visible?'active':'')+'" data-kmz-action="toggle" title="إظهار/إخفاء الطبقة"><i></i></button><div class="map-kmz-name"><b>'+esc(u.name)+'</b><span>'+esc(statusText(u))+'</span></div><div class="map-kmz-actions"><button type="button" data-kmz-action="zoom" title="تحميل/تكبير إلى حدود الطبقة">⌖</button><button type="button" data-kmz-action="remove" title="'+(u.sourceKind==='sheet'?'إزالة الرسم مع إبقاء رابط AL متاحًا':'حذف الطبقة')+'">×</button></div></div>';
  const render=()=>{
   layers.forEach(layer=>{try{if(map.hasLayer(layer))map.removeLayer(layer)}catch{}});
   layers.clear();
-  uploads.forEach(u=>{const layer=buildLayer(map,u);layers.set(u.id,layer);if(u.visible)layer.addTo(map)});
+  uploads.forEach(u=>{
+   if(u.loaded===false&&!u.features?.length)return;
+   const layer=buildLayer(map,u);layers.set(u.id,layer);if(u.visible)layer.addTo(map);
+  });
   host.innerHTML=uploads.length?uploads.map(rowHtml).join(''):'';
   host.classList.toggle('show',uploads.length>0);
   summary();
  };
  const fitUpload=u=>{const layer=layers.get(u.id),b=layerBounds(layer);if(b)map.fitBounds(b,{padding:[42,42],maxZoom:17})};
+ const loadRemote=async u=>{
+  if(u.loaded)return true;
+  u.loading=true;render();
+  try{
+   const response=await fetch(u.sourceUrl,{credentials:'same-origin',cache:'no-store'});
+   if(!response.ok){
+    let msg='تعذر تحميل طبقة KMZ';
+    try{const j=await response.json();if(j?.message)msg=j.message}catch{}
+    throw new Error(msg);
+   }
+   const type=(response.headers.get('x-kmz-type')||'kmz').toLowerCase()==='kml'?'kml':'kmz';
+   const blob=await response.blob();
+   const parsed=await readUpload(new File([blob],u.name+'.'+type,{type:blob.type||''}));
+   if(!parsed.features.length)throw new Error('لا توجد عناصر قابلة للرسم داخل الملف');
+   u.features=parsed.features;u.fileName=parsed.fileName;u.loaded=true;u.visible=true;u.loading=false;
+   render();fitUpload(u);say('تمت إضافة طبقة '+u.name+' من العمود AL');return true;
+  }catch(e){
+   u.loading=false;u.visible=false;render();say(u.name+': '+(e?.message||'تعذر تحميل KMZ'));return false;
+  }
+ };
  const loadFiles=async files=>{
   const list=[...files].filter(Boolean);if(!list.length)return;
   button.classList.add('loading');button.disabled=true;
@@ -175,7 +212,7 @@ function init(options={}){
    try{
     const u=await readUpload(file);
     if(!u.features.length){say('لا توجد عناصر قابلة للرسم في '+file.name);continue}
-    uploads.push(u);added++;last=u;
+    u.sourceKind='upload';u.loaded=true;uploads.push(u);added++;last=u;
    }catch(e){say(file.name+': '+(e?.message||'تعذر قراءة الملف'))}
   }
   render();
@@ -184,15 +221,25 @@ function init(options={}){
  };
  button.addEventListener('click',()=>input.click());
  input.addEventListener('change',()=>loadFiles(input.files));
- host.addEventListener('click',e=>{
+ host.addEventListener('click',async e=>{
   const action=e.target.closest('[data-kmz-action]');if(!action)return;
   const row=action.closest('[data-kmz-row]'),u=uploads.find(x=>x.id===row?.dataset.kmzRow);if(!u)return;
   const kind=action.dataset.kmzAction;
-  if(kind==='toggle'){u.visible=!u.visible;render();return}
-  if(kind==='zoom'){if(!u.visible){u.visible=true;render()}fitUpload(u);return}
+  if(kind==='toggle'){
+   if(u.sourceKind==='sheet'&&!u.loaded){await loadRemote(u);return}
+   u.visible=!u.visible;render();return;
+  }
+  if(kind==='zoom'){
+   if(u.sourceKind==='sheet'&&!u.loaded){await loadRemote(u);return}
+   if(!u.visible){u.visible=true;render()}fitUpload(u);return;
+  }
   if(kind==='remove'){
-   const i=uploads.findIndex(x=>x.id===u.id);if(i>=0)uploads.splice(i,1);
-   render();say('تم حذف طبقة '+u.name);
+   if(u.sourceKind==='sheet'){
+    u.visible=false;u.loaded=false;u.loading=false;u.features=[];render();say('تمت إزالة الرسم، ورابط AL ما زال متاحًا');
+   }else{
+    const i=uploads.findIndex(x=>x.id===u.id);if(i>=0)uploads.splice(i,1);
+    render();say('تم حذف طبقة '+u.name);
+   }
   }
  });
  if(stage){

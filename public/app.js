@@ -709,6 +709,10 @@ function renderMap(){
  const lineDefs=pageFilterDefs().filter(d=>(state.data.lines||[]).some(r=>Object.prototype.hasOwnProperty.call(r,d.field)));
  const lineAll=(state.data.lines||[]).filter(r=>rowPasses(r,lineDefs)&&rowPassesPeriod(r));
  const projects=projectAll.filter(validCoord),lines=lineAll.filter(validCoord);
+ const linkedKmzSources=[...new Map(lineAll.filter(r=>/^https?:\/\//i.test(clean(r.kmzUrl))).map(r=>{
+  const url=clean(r.kmzUrl),label=clean((r.ref||'')+(r.name?' — '+r.name:''))||('خط بديل - صف '+r.row);
+  return [url,{id:'sheet-kmz-'+r.row,row:r.row,name:label,sourceUrl:'/api/map/kmz/'+r.row,originalUrl:url,contractor:r.contractor,owner:r.owner,municipality:r.municipality}];
+ })).values()];
  const missingProjects=projectAll.length-projects.length,missingLines=lineAll.length-lines.length;
  const coverageTotal=projectAll.length+lineAll.length,coverageMapped=projects.length+lines.length;
  const pctMapped=coverageTotal?Math.round(coverageMapped/coverageTotal*100):0;
@@ -725,6 +729,7 @@ function renderMap(){
   kpi('مواقع المشاريع',projects.length,missingProjects?'مفقود '+missingProjects+' موقع':'جميع المواقع المتاحة')+
   kpi('الخطوط البديلة',lines.length,missingLines?'مفقود '+missingLines+' إحداثية':'إحداثيات الخطوط المتاحة')+
   kpi('تغطية الإحداثيات',pctMapped+'%','من '+coverageTotal+' عنصرًا جغرافيًا')+
+  kpi('طبقات KMZ من الشيت',linkedKmzSources.length,'روابط العمود AL')+
   kpi('إجمالي أطوال الخطوط',fmt(sum(lines,'length')),'متر')+
  '</div>'+
  '<section class="map-panel map-panel-advanced" id="advancedMapPanel">'+
@@ -841,7 +846,7 @@ function renderMap(){
  const fitBtn=$('#mapFitBtn'),resetBtn=$('#mapResetBtn'),fullBtn=$('#mapFullscreenBtn'),panel=$('#advancedMapPanel'),searchInput=$('#mapSearchInput'),searchResults=$('#mapSearchResults');
  kmzManager=window.VDKMZ?.init({
   map:state.map,input:$('#mapKmzFileInput'),button:$('#mapKmzUploadBtn'),host:$('#mapKmzLayers'),
-  stage:panel?.querySelector('.map-stage'),toast,
+  stage:panel?.querySelector('.map-stage'),toast,sources:linkedKmzSources,
   onSummary:visible=>{const summary=$('#mapVisibleSummary');if(summary)summary.textContent=visibleProjectCount+' مشروع • '+visibleLineCount+' خط'+(visible?' • '+visible+' KMZ':'')}
  })||null;
  fitVisible();

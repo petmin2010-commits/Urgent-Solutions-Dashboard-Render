@@ -126,6 +126,41 @@ async function sourceSheetLinks_(sheets){
   return map;
 }
 
+function sheetCellLink_(cell){
+  const direct=clean(cell?.hyperlink);
+  if(/^https?:\/\//i.test(direct))return direct;
+  const formula=clean(cell?.userEnteredValue?.formulaValue);
+  const m=formula.match(/^=HYPERLINK\(\s*"([^"]+)"/i);
+  return m&&/^https?:\/\//i.test(m[1])?m[1]:'';
+}
+async function sheetColumnHyperlinks_(sheets,sheetName,column,startRow,endRow){
+  const range=q(sheetName)+'!'+column+startRow+':'+column+endRow;
+  const r=await sheets.spreadsheets.get({
+    spreadsheetId:SPREADSHEET_ID,
+    ranges:[range],
+    includeGridData:true,
+    fields:'sheets(data(startRow,rowData(values(hyperlink,userEnteredValue,formattedValue))))'
+  });
+  const out=new Map();
+  for(const sh of r.data.sheets||[]){
+    for(const block of sh.data||[]){
+      const base=Number(block.startRow||0);
+      (block.rowData||[]).forEach((row,i)=>{
+        const url=sheetCellLink_((row.values||[])[0]);
+        if(url)out.set(base+i+1,url);
+      });
+    }
+  }
+  return out;
+}
+let lineKmzLinksCache={at:0,map:new Map()};
+async function alternativeLineKmzLinks_(sheets){
+  if(Date.now()-lineKmzLinksCache.at<2*60*1000)return lineKmzLinksCache.map;
+  const map=await sheetColumnHyperlinks_(sheets,'Alternative lines','AL',1,982);
+  lineKmzLinksCache={at:Date.now(),map};
+  return map;
+}
+
 const SMART_HISTORY_SHEET='Dashboard History';
 const SMART_HISTORY_HEADERS=[
   'date','timestamp','project','projects','permits','permitMeters','lines','lineMeters','coverage',
@@ -485,7 +520,8 @@ function lineRow(r,rowNumber){
     diameter:clean(r[17]),designLink:clean(r[18]),designStatus:clean(r[19]),transactionNo:clean(r[20]),
     submissionDate:clean(r[21]),approvalDate:clean(r[22]),approvalLink:clean(r[23]),rev:clean(r[24]),
     executionStatus:clean(r[25]),completion:clean(r[26]),completionReport:clean(r[27]),handoverLetter:clean(r[28]),
-    handoverDate:clean(r[29]),notes:clean(r[30]),ownerDue:num(r[31]),remaining:num(r[32]),year:clean(r[33])
+    handoverDate:clean(r[29]),notes:clean(r[30]),ownerDue:num(r[31]),remaining:num(r[32]),year:clean(r[33]),
+    kmzUrl:clean(r[37])
   };
 }
 function refLineRow(r,rowNumber){
@@ -743,7 +779,7 @@ async function buildData(force=false){
   const sheets=await sheetsApi();
   const ranges=[
     q('vd projects')+'!A1:AX1009',
-    q('Alternative lines')+'!A1:AK982',
+    q('Alternative lines')+'!A1:AL982',
     q('info. new')+'!A1:AB1000',
     q('owners')+'!A1:H300',
     q('reports')+'!A1:DI100'
@@ -752,11 +788,13 @@ async function buildData(force=false){
     spreadsheetId:SPREADSHEET_ID,ranges,valueRenderOption:'FORMATTED_VALUE'
   });
   const [projectValues=[],lineValues=[],infoValues=[],ownerValues=[],reportValues=[]]=(result.data.valueRanges||[]).map(x=>x.values||[]);
-  let sourceSheetLinks={};
+  let sourceSheetLinks={},lineKmzLinks=new Map();
   try{sourceSheetLinks=await sourceSheetLinks_(sheets)}catch(error){console.warn('Source sheet-link metadata warning:',error.message)}
+  try{lineKmzLinks=await alternativeLineKmzLinks_(sheets)}catch(error){console.warn('Alternative-lines KMZ metadata warning:',error.message)}
 
   let projects=projectValues.slice(1).map((r,i)=>projectRow(r,i+2)).filter(x=>x.no||x.name);
-  let lines=lineValues.slice(1).map((r,i)=>lineRow(r,i+2)).filter(x=>x.ref||x.name);
+  let lines=lineValues.slice(1).map((r,i)=>lineRow(r,i+2)).filter(x=>x.ref||x.name)
+    .map(x=>({...x,kmzUrl:lineKmzLinks.get(x.row)||(/^https?:\/\//i.test(clean(x.kmzUrl))?clean(x.kmzUrl):'')}));
   let permits=infoValues.slice(1).map((r,i)=>permitRow(r,i+2)).filter(x=>x.id);
   const refLines=infoValues.slice(1).map((r,i)=>refLineRow(r,i+2)).filter(x=>x.ref||x.name);
   const complaints=infoValues.slice(1).map((r,i)=>complaintRow(r,i+2)).filter(x=>x.text);
@@ -1092,9 +1130,61 @@ app.get('/api/data',requireAuth,async(req,res)=>{
   }
 });
 
+const KMZ_PROXY_MAX_BYTES=50*1024*1024;
+async function fetchRemote_(url){
+  return fetch(url,{redirect:'follow',signal:AbortSignal.timeout(20000),headers:{'User-Agent':'Vision-Dimensions-Urgent-Solutions/1.0'}});
+}
+function pcloudDownloadLink_(html){
+  const m=String(html||'').match(/"downloadlink"\s*:\s*"([^"]+)"/i);
+  if(!m)return '';
+  try{return JSON.parse('"'+m[1].replace(/"/g,'\\"')+'"')}catch{return m[1].replace(/\\\//g,'/')}
+}
+async function loadKmzSource_(sourceUrl){
+  let response=await fetchRemote_(sourceUrl);
+  if(!response.ok)throw new Error('Remote KMZ source returned HTTP '+response.status);
+  let contentType=clean(response.headers.get('content-type')).toLowerCase();
+  const sourceHost=(()=>{try{return new URL(sourceUrl).hostname.toLowerCase()}catch{return ''}})();
+  if(contentType.includes('text/html')&&sourceHost.endsWith('pcloud.link')){
+    const html=await response.text();
+    const direct=pcloudDownloadLink_(html);
+    if(!direct)throw new Error('pCloud download link could not be resolved');
+    response=await fetchRemote_(direct);
+    if(!response.ok)throw new Error('pCloud KMZ download returned HTTP '+response.status);
+    contentType=clean(response.headers.get('content-type')).toLowerCase();
+  }
+  const declared=Number(response.headers.get('content-length')||0);
+  if(declared>KMZ_PROXY_MAX_BYTES)throw new Error('KMZ file exceeds 50MB');
+  const buffer=Buffer.from(await response.arrayBuffer());
+  if(buffer.length>KMZ_PROXY_MAX_BYTES)throw new Error('KMZ file exceeds 50MB');
+  const isZip=buffer.length>3&&buffer[0]===0x50&&buffer[1]===0x4b;
+  const isKml=!isZip&&(contentType.includes('kml')||buffer.slice(0,200).toString('utf8').includes('<kml'));
+  if(!isZip&&!isKml)throw new Error('Linked file is not a valid KMZ/KML payload');
+  return {buffer,type:isZip?'kmz':'kml'};
+}
+app.get('/api/map/kmz/:row',requireAuth,async(req,res)=>{
+  try{
+    const row=Number(req.params.row);
+    if(!Number.isInteger(row)||row<2)return res.status(400).json({ok:false,error:'INVALID_ROW'});
+    const data=await buildDataCoalesced(false);
+    const line=(data.lines||[]).find(x=>Number(x.row)===row);
+    if(!line?.kmzUrl)return res.status(404).json({ok:false,error:'KMZ_LINK_NOT_FOUND'});
+    const file=await loadKmzSource_(line.kmzUrl);
+    res.set({
+      'Cache-Control':'private, max-age=300',
+      'Content-Type':file.type==='kml'?'application/vnd.google-earth.kml+xml':'application/vnd.google-earth.kmz',
+      'X-KMZ-Type':file.type,
+      'X-Content-Type-Options':'nosniff'
+    });
+    res.send(file.buffer);
+  }catch(error){
+    console.error('KMZ proxy error:',error.message);
+    res.status(502).json({ok:false,error:'KMZ_FETCH_FAILED',message:error.message});
+  }
+});
+
 const RAW_EXPORT_SOURCES={
   'vd projects':'A1:AX1009',
-  'Alternative lines':'A1:AK982',
+  'Alternative lines':'A1:AL982',
   'info. new':'A1:AB1000',
   'owners':'A1:H300'
 };

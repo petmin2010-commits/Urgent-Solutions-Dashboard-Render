@@ -6,6 +6,14 @@
   padding:18px 22px 20px!important;margin:10px 0 18px!important;
   box-shadow:0 12px 34px rgba(45,78,118,.08)!important
 }
+/* Smart-suite pages own their controls internally; never show the global report/filter block there. */
+body[data-vd-page="smartCenter"] .main>#filterBar,
+body[data-vd-page="temporalMemory"] .main>#filterBar,
+body[data-vd-page="investigationRoom"] .main>#filterBar,
+body[data-vd-page="explainableDecision"] .main>#filterBar,
+body[data-vd-page="smartThursday"] .main>#filterBar{
+  display:none!important;
+}
 .main>.vd-unified-controls .vd-unified-filter-slot{
   display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
   gap:10px 16px!important;align-items:end!important;padding:0 0 16px!important;

@@ -1,4 +1,21 @@
+const session=require('express-session');
+const PgStore=require('connect-pg-simple')(session);
 const {all,get,run,initDatabase,id,nowIso,usePostgres,pool}=require('../src/db');
+
+const SMOKE_SESSION_ID='mw-production-smoke-session';
+
+function sessionStore(){
+  return new PgStore({pool,createTableIfMissing:true});
+}
+function storeSet(store,sid,value){
+  return new Promise((resolve,reject)=>store.set(sid,value,err=>err?reject(err):resolve()));
+}
+function storeGet(store,sid){
+  return new Promise((resolve,reject)=>store.get(sid,(err,value)=>err?reject(err):resolve(value)));
+}
+function storeDestroy(store,sid){
+  return new Promise((resolve,reject)=>store.destroy(sid,err=>err?reject(err):resolve()));
+}
 
 async function requirePostgres(){
   if(!usePostgres) throw new Error('This maintenance script is production/PostgreSQL only.');
@@ -22,12 +39,14 @@ async function existingSmoke(){
 }
 
 async function cleanup(){
+  const store=sessionStore();
+  try{await storeDestroy(store,SMOKE_SESSION_ID);}catch{}
   const workId=await existingSmoke();
-  if(!workId) return {cleaned:false,reason:'none'};
+  if(!workId) return {cleaned:false,reason:'none',sessionDestroyed:true};
   await run("DELETE FROM audit_log WHERE entity_type='WORK' AND entity_id=?",[workId]);
   await run("DELETE FROM works WHERE work_id=?",[workId]);
   await run("DELETE FROM app_settings WHERE setting_key='production_smoke_work_id'");
-  return {cleaned:true,workId};
+  return {cleaned:true,workId,sessionDestroyed:true};
 }
 
 async function create(){
@@ -60,7 +79,13 @@ async function create(){
   await run("INSERT INTO app_settings(setting_key,setting_value,updated_at) VALUES(?,?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at",[
     'production_smoke_work_id',workId,now
   ]);
-  return {created:true,workId,caseCode,wfm,mediaId};
+  const store=sessionStore();
+  await storeSet(store,SMOKE_SESSION_ID,{
+    cookie:{maxAge:60*60*1000},
+    smoke:true,
+    createdAt:now
+  });
+  return {created:true,workId,caseCode,wfm,mediaId,sessionCreated:true};
 }
 
 async function verify(){
@@ -68,17 +93,26 @@ async function verify(){
   if(!workId) throw new Error('No smoke record marker found.');
   const work=await get("SELECT work_id,case_code,wfm_no,source FROM works WHERE work_id=?",[workId]);
   const media=await get("SELECT media_id,size_bytes,octet_length(file_data) AS bytes FROM work_media WHERE work_id=? ORDER BY uploaded_at DESC LIMIT 1",[workId]);
+  const store=sessionStore();
+  const smokeSession=await storeGet(store,SMOKE_SESSION_ID);
   const sessionTable=await get("SELECT to_regclass('public.session') AS name");
   const sessions=sessionTable?.name?await get('SELECT COUNT(*) AS n FROM session'):null;
+  const persisted=!!work;
+  const mediaPersisted=!!media&&Number(media.bytes)>0;
+  const sessionPersisted=!!smokeSession&&smokeSession.smoke===true;
+  if(!persisted) throw new Error('Work record did not persist across deploy.');
+  if(!mediaPersisted) throw new Error('Media blob did not persist across deploy.');
+  if(!sessionPersisted) throw new Error('PostgreSQL session did not persist across deploy.');
   return {
-    persisted:!!work,
+    persisted,
     workId,
     caseCode:work?.case_code||null,
     wfm:work?.wfm_no||null,
     source:work?.source||null,
-    mediaPersisted:!!media&&Number(media.bytes)>0,
+    mediaPersisted,
     mediaBytes:media?Number(media.bytes):0,
     sessionTable:!!sessionTable?.name,
+    sessionPersisted,
     sessionRows:sessions?Number(sessions.n):0
   };
 }

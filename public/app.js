@@ -140,7 +140,7 @@ const PAGE_SOURCES={
  investigationRoom:'تحليل تجميعي للظواهر حسب البلدية والمقاول والمالك ومصدر المشكلة',
  explainableDecision:'قواعد قرار مفسرة مبنية على المخاطر والتصاريح والضمانات والتسويات وجودة البيانات',
  smartThursday:'ملخص الجمعة–الخميس ومقارنة أحدث لقطة زمنية بالخط الأساس السابق',
- reports:'شاشات الداشبورد الحالية وفق الفلاتر النشطة',
+ reports:'Google Sheets — ورقة reports: Pivot Tables + معادلات التسوية',
  excelExport:'القيم النهائية من Google Sheets'
 };
 const CHART_FILTERS={
@@ -1313,15 +1313,34 @@ function renderAnalyticsV2(){
 function renderSmartShell(){
  $('#pageHost').innerHTML='<section id="urgentSmartSuiteHost" class="urgent-smart-suite-host" data-smart-page="'+esc(state.page)+'"></section>';
 }
+function reportGrandValue(table,index){
+ const rows=table?.rows||[],grand=rows.find(r=>norm(r?.[0])===norm('Grand Total'));
+ return clean(grand?.[index]??'');
+}
+function sheetReportTable(title,table,note=''){
+ const id='rpt_'+Math.random().toString(36).slice(2),headers=table?.headers||[],rows=table?.rows||[];
+ return '<section class="table-panel wide sheet-report-table"><div class="table-tools"><div><b>'+esc(title)+'</b>'+(note?'<small>'+esc(note)+'</small>':'')+'</div><input class="table-search" data-table="'+id+'" type="search" placeholder="بحث داخل التقرير..."></div>'+
+ '<div class="table-scroll"><table id="'+id+'"><thead><tr>'+headers.map(h=>'<th>'+esc(h||'—')+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+headers.map((_,i)=>'<td>'+esc(r?.[i]??'')+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></section>';
+}
+function contractorSheetReport(rep){
+ const total=clean(rep?.total),tone=total.startsWith('-')?'negative':(total&&total!=='0'?'positive':'neutral');
+ return '<article class="sheet-contractor-report"><div class="sheet-contractor-head"><div><small>مطابقة المالك + المقاول</small><h4>'+esc(rep?.title||'تقرير مقاول')+'</h4></div><span class="sheet-balance '+tone+'"><small>صافي الأمتار</small><b>'+esc(total||'0')+'</b></span></div>'+sheetReportTable('تفاصيل التسوية',rep,'المستحق من vd projects مقابل أطوال Alternative lines ثم الفرق + الخصم/الإضافة + حالة السداد')+'</article>';
+}
 function renderReports(){
  const reportHub=document.querySelector('#vdReportHub');if(reportHub)reportHub.remove();
  const filterBar=$('#filterBar');if(filterBar)filterBar.style.display='none';
- $('#pageHost').innerHTML='<div class="report-actions">'+
- ['master','projects','map','permits','lines','settlements','guarantees','complaints','execution','parties','municipalities','traceability','risks','quality','analytics'].map(key=>{
-  const m=PAGE_META[key];return '<article class="report-card"><b>'+esc(m.title)+'</b><p>'+esc(m.sub)+'</p><div class="report-card-actions"><button class="report-preview" type="button" data-preview="'+key+'">معاينة</button><button class="report-export" type="button" data-report="'+key+'">تصدير PDF</button></div></article>'
- }).join('')+'</div>';
- $$('[data-preview]','#pageHost').forEach(btn=>btn.addEventListener('click',()=>{openPage(btn.dataset.preview);toast('تم فتح معاينة التقرير — استخدم زر تصدير التقرير PDF بالأعلى')}));
- $$('[data-report]','#pageHost').forEach(btn=>btn.addEventListener('click',()=>{openPage(btn.dataset.report);setTimeout(()=>printCurrent(),350)}));
+ const r=state.data?.sheetReports;
+ if(!r){$('#pageHost').innerHTML='<div class="empty"><b>تعذر تحميل تقارير ورقة reports</b><span>أعد تحديث البيانات المباشرة.</span></div>';return;}
+ const projectCount=reportGrandValue(r.projectsByOwner,1),permitCount=reportGrandValue(r.permitsByYear,1),permitMeters=reportGrandValue(r.permitsByYear,2),lineCount=reportGrandValue(r.linesByYear,2),lineMeters=reportGrandValue(r.linesByYear,3),audit=r.audit||{};
+ const warning=audit.countMismatch?'<div class="sheet-report-warning"><b>ملاحظة تدقيق على Pivot الحي</b><span>إجمالي COUNTA الظاهر في البايفت = '+esc(audit.districtPivotGrandCount||'—')+'، منها '+esc(audit.blankDistrictCount||'—')+' تحت حي فارغ، بينما عدد سجلات الخطوط البديلة الفعلية = '+esc(audit.actualAlternativeLineRows||'—')+'. تم الإبقاء على أرقام الشيت كما هي مع إظهار التنبيه.</span></div>':'';
+ $('#pageHost').innerHTML='<section class="sheet-report-hero"><div><small>GOOGLE SHEETS • reports</small><h3>تقارير البايفت والمعادلات</h3><p>النتائج تُقرأ مباشرة من ورقة <b>reports</b> بعد تنفيذ Google Sheets للـ Pivot Tables والمعادلات؛ لا يتم إعادة احتسابها بمنطق بديل داخل المتصفح.</p></div><div class="sheet-report-actions"><button type="button" data-report-anchor="projects">المشاريع</button><button type="button" data-report-anchor="permits">التصاريح</button><button type="button" data-report-anchor="lines">الخطوط البديلة</button><button type="button" data-report-anchor="contractors">تسويات المقاولين</button><button type="button" id="printSheetReports">تصدير PDF</button></div></section>'+warning+
+ '<div class="kpi-grid sheet-report-kpis">'+kpi('عدد البايفتات',r.pivotCount||15,'مكتشفة في ورقة reports')+kpi('مشاريع الضخ',projectCount||'—','Grand Total من Pivot الملاك')+kpi('التصاريح',permitCount||'—',(permitMeters||'—')+' متر مستحق')+kpi('الخطوط البديلة',lineCount||'—',(lineMeters||'—')+' متر')+'</div>'+
+ '<section class="sheet-report-section" id="sheet-report-projects"><div class="sheet-report-section-head"><div><small>01</small><h3>تقارير المشاريع</h3></div><p>نفس Pivot عدد مشاريع الضخ حسب الجهة المالكة.</p></div>'+sheetReportTable('عدد مشاريع الضخ للجهة المالكة',r.projectsByOwner,'Pivot: الجهة المالكة ← COUNTA اسم المشروع')+'</section>'+
+ '<section class="sheet-report-section" id="sheet-report-permits"><div class="sheet-report-section-head"><div><small>02</small><h3>تقارير التصاريح</h3></div><p>عدد التصاريح، الأمتار المستحقة، والتجميع حسب السنة/المقاول/الجهة المالكة.</p></div><div class="sheet-report-grid">'+sheetReportTable('عدد وأطوال التصاريح بكل عام',r.permitsByYear,'COUNTA التصاريح + SUM الأمتار المستحقة')+sheetReportTable('الأمتار المستحقة حسب المقاول',r.permitsByContractor,'جميع الملاك — جميع السنوات')+sheetReportTable('الأمتار المستحقة حسب الجهة المالكة',r.permitsByOwner,'جميع المقاولين — جميع السنوات')+'</div></section>'+
+ '<section class="sheet-report-section" id="sheet-report-lines"><div class="sheet-report-section-head"><div><small>03</small><h3>تقارير الخطوط البديلة</h3></div><p>نفس Pivot السنة والمقاول والمالك والحي مع عدد الخطوط ومجموع الأطوال.</p></div><div class="sheet-report-grid">'+sheetReportTable('عدد وأطوال الخطوط البديلة بكل عام',r.linesByYear,'السنة ← نوع الخط ← العدد والطول')+sheetReportTable('الخطوط البديلة حسب المقاول',r.linesByContractor,'المقاول ← نوع الخط')+sheetReportTable('الخطوط البديلة حسب المالك',r.linesByOwner,'المالك ← نوع الخط')+sheetReportTable('الخطوط البديلة حسب الحي',r.linesByDistrict,'مطابق لـ Pivot DG3:DI')+'</div></section>'+
+ '<section class="sheet-report-section" id="sheet-report-contractors"><div class="sheet-report-section-head"><div><small>04</small><h3>تقارير تسوية المقاولين</h3></div><p>منطق الشيت: مطابقة المالك والمقاول، جلب إجمالي الأمتار المستحقة من vd projects، وجلب إجمالي أطوال الخطوط من Alternative lines، ثم الفرق والخصم/الإضافة والتصنيف: عليه أمتار / له أمتار / مستوفي الأمتار.</p></div><div class="sheet-contractor-stack">'+(r.contractors||[]).map(contractorSheetReport).join('')+'</div></section>';
+ $$('[data-report-anchor]','#pageHost').forEach(b=>b.addEventListener('click',()=>document.getElementById('sheet-report-'+b.dataset.reportAnchor)?.scrollIntoView({behavior:'smooth',block:'start'})));
+ $('#printSheetReports')?.addEventListener('click',printCurrent);
 }
 const EXPORT_SHEETS=[
  {key:'vd projects',label:'vd projects — المشاريع'},

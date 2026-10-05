@@ -333,6 +333,56 @@ function buildSettlements(projects,lines){
 }
 
 
+function sheetColIndex(label){
+  let n=0;
+  for(const ch of String(label||'').toUpperCase())n=n*26+(ch.charCodeAt(0)-64);
+  return Math.max(0,n-1);
+}
+function reportTableFromValues(values,startCol,endCol,startRow=3,endRow=100){
+  const a=sheetColIndex(startCol),b=sheetColIndex(endCol),rows=[];
+  for(let r=startRow-1;r<Math.min(endRow,values.length);r++){
+    const src=values[r]||[],row=[];
+    for(let c=a;c<=b;c++)row.push(clean(src[c]??''));
+    if(row.some(v=>v!==''))rows.push(row);
+  }
+  return {headers:rows[0]||[],rows:rows.slice(1)};
+}
+function contractorReportFromValues(values,startCol){
+  const s=sheetColIndex(startCol),pick=[0,1,2,3,4,6,7,8,9,10,11];
+  const title=clean(values[1]?.[s]??''),total=clean(values[1]?.[s+10]??'');
+  const headers=pick.map(i=>clean(values[2]?.[s+i]??''));
+  const rows=[];
+  for(let r=3;r<Math.min(100,values.length);r++){
+    const src=values[r]||[],raw=Array.from({length:12},(_,i)=>clean(src[s+i]??''));
+    const meaningful=[0,1,2,3,4,6,7,8,10,11].some(i=>raw[i]!=='');
+    if(meaningful)rows.push(pick.map(i=>raw[i]));
+  }
+  return {title,total,headers,rows};
+}
+function buildSheetReports(values){
+  const contractors=['AA','AM','AY','BK','BW','CI','CU'].map(c=>contractorReportFromValues(values,c));
+  const neighborhood=reportTableFromValues(values,'DG','DI',3,100);
+  const findGrand=table=>table.rows.find(r=>norm(r[0])===norm('Grand Total'))||[];
+  const findBlank=table=>table.rows.find(r=>clean(r[0])==='')||[];
+  return {
+    sourceSheet:'reports',pivotCount:15,
+    projectsByOwner:reportTableFromValues(values,'A','B',3,100),
+    permitsByYear:reportTableFromValues(values,'D','F',3,30),
+    permitsByContractor:reportTableFromValues(values,'G','I',3,40),
+    permitsByOwner:reportTableFromValues(values,'J','L',3,100),
+    linesByYear:reportTableFromValues(values,'N','Q',3,60),
+    linesByContractor:reportTableFromValues(values,'R','U',3,60),
+    linesByOwner:reportTableFromValues(values,'V','Y',3,100),
+    contractors,
+    linesByDistrict:neighborhood,
+    audit:{
+      districtPivotGrandCount:clean(findGrand(neighborhood)[2]||''),
+      blankDistrictCount:clean(findBlank(neighborhood)[2]||''),
+      districtPivotGrandMeters:clean(findGrand(neighborhood)[1]||'')
+    }
+  };
+}
+
 function splitPermitRefs(v){
   return clean(v).split(/[,،]+/).map(clean).filter(x=>x&&norm(x)!==norm('تحت الاصدار')&&norm(x)!==norm('مشروع ملغي'));
 }
@@ -503,12 +553,13 @@ async function buildData(force=false){
     q('vd projects')+'!A1:AX1009',
     q('Alternative lines')+'!A1:AK982',
     q('info. new')+'!A1:AB1000',
-    q('owners')+'!A1:H300'
+    q('owners')+'!A1:H300',
+    q('reports')+'!A1:DI100'
   ];
   const result=await sheets.spreadsheets.values.batchGet({
     spreadsheetId:SPREADSHEET_ID,ranges,valueRenderOption:'FORMATTED_VALUE'
   });
-  const [projectValues=[],lineValues=[],infoValues=[],ownerValues=[]]=(result.data.valueRanges||[]).map(x=>x.values||[]);
+  const [projectValues=[],lineValues=[],infoValues=[],ownerValues=[],reportValues=[]]=(result.data.valueRanges||[]).map(x=>x.values||[]);
   let sourceSheetLinks={};
   try{sourceSheetLinks=await sourceSheetLinks_(sheets)}catch(error){console.warn('Source sheet-link metadata warning:',error.message)}
 
@@ -547,6 +598,9 @@ async function buildData(force=false){
   const extensionPressure=countBy(projects,'extensionPressure');
   const designApprovalDays=lines.filter(x=>Number.isFinite(x.approvalDays)&&x.approvalDays>=0);
   const pendingDesignAging=lines.filter(x=>x.designAgeDays>0).sort((a,b)=>b.designAgeDays-a.designAgeDays);
+  const sheetReports=buildSheetReports(reportValues);
+  sheetReports.audit.actualAlternativeLineRows=lines.length;
+  sheetReports.audit.countMismatch=clean(sheetReports.audit.districtPivotGrandCount)!==clean(lines.length);
   const data={
     updatedAt:DateTime.now().setZone('Asia/Riyadh').toISO(),
     projectTitle:'إدارة الحلول العاجلة',
@@ -599,7 +653,7 @@ async function buildData(force=false){
       permitYears:countBy(actualPermits,'year'),
       settlementStatus:countBy(settlements,'status')
     },
-    projects,permits,actualPermits,lines,refLines,complaints,owners,settlements,municipalitySummary,traceability,quality,
+    projects,permits,actualPermits,lines,refLines,complaints,owners,settlements,municipalitySummary,traceability,quality,sheetReports,
     sourceHeaders:{
       projects:projectValues[0]||[],lines:lineValues[0]||[],info:infoValues[0]||[],owners:ownerValues[0]||[]
     },

@@ -77,7 +77,7 @@ function render(){
   '</div></section>';
  }).join('');
  const total=GROUPS.reduce((n,g)=>n+g.items.filter(([k])=>available(k)).length,0);
- host.innerHTML='<section id="vdReportHub" class="vd-report-hub"><div class="rc-hero"><div><span>VISION DIMENSIONS • REPORT CENTER</span><h2>مركز التقارير</h2><p>مركز موحد على منطق جدة: معاينة التقرير أو إنشاء تقرير عام PDF بعد تصفير الفلاتر مؤقتًا ثم استعادتها تلقائيًا.</p></div><div class="rc-total"><b>'+total+'</b><span>تقرير متاح</span></div></div><div class="rc-export-note">التصدير من هذا المركز «عام» بدون الفلاتر الحالية. التصدير من داخل أي تاب يحترم الفلاتر النشطة في ذلك التاب.</div>'+groups+'</section>';
+ host.innerHTML='<section id="vdReportHub" class="vd-report-hub"><div class="rc-hero"><div><span>VISION DIMENSIONS • REPORT CENTER</span><h2>مركز التقارير</h2><p>مركز موحد لمعاينة التقارير أو إنشاء تقرير عام PDF بعد تصفير الفلاتر مؤقتًا ثم استعادتها تلقائيًا.</p></div><div class="rc-total"><b>'+total+'</b><span>تقرير متاح</span></div></div><div class="rc-export-note">التصدير من هذا المركز «عام» بدون الفلاتر الحالية. التصدير من داخل أي تاب يحترم الفلاتر النشطة في ذلك التاب.</div>'+groups+'</section>';
  host.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>window.VDUrgent?.openPage?.(b.dataset.open)));
  host.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>exportGeneral(b.dataset.export,b)));
 }

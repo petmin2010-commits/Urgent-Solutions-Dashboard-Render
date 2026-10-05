@@ -194,7 +194,7 @@ function riskTable(rows){
 
 function renderMemory(){
  const h=host(),hist=history(),cur=metricSnapshot(data()),first=hist[0],prev=hist[hist.length-1],trend=memoryFindings(hist);
- h.innerHTML=smartHeader('PROJECT TEMPORAL MEMORY • 15 MIN SNAPSHOTS','ذاكرة المشروع الزمنية','نفس فلسفة جدة: ذاكرة زمنية تحفظ اللقطات كل 15 دقيقة، تقارن التسلسل، وتجيب عن أسئلة «متى بدأ التغير؟» مع إظهار حدود الدليل.','<button class="us-primary" id="usMemorySnap">＋ حفظ لقطة الآن</button>')+
+ h.innerHTML=smartHeader('PROJECT TEMPORAL MEMORY • 15 MIN SNAPSHOTS','ذاكرة المشروع الزمنية','ذاكرة زمنية تحفظ اللقطات كل 15 دقيقة، تقارن التسلسل، وتجيب عن أسئلة «متى بدأ التغير؟» مع إظهار حدود الدليل.','<button class="us-primary" id="usMemorySnap">＋ حفظ لقطة الآن</button>')+
  '<div class="us-kpis">'+kpi('عدد اللقطات',fmt(hist.length),'محفوظة على هذا الجهاز')+kpi('أول لقطة',first?dateLabel(first.capturedAt):'—','بداية الذاكرة')+kpi('آخر لقطة',cur?nowLabel(cur.capturedAt):'—','آخر قراءة')+kpi('المخاطر الحالية',fmt(cur.highRisk),'عالية/حرجة','danger')+kpi('التصاريح المنتهية',fmt(cur.expired),'الحالة الحالية','warn')+kpi('جودة البيانات',fmt(cur.quality),'ملاحظات حالية')+'</div>'+
  '<article class="us-memory-ask"><div class="us-panel-head"><div><small>ASK THE PAST</small><h3>اسأل ذاكرة المشروع</h3></div><span class="us-memory-evidence">زمن + دليل</span></div><div class="us-memory-chips"><button data-memory-q="deterioration">متى بدأ التدهور؟</button><button data-memory-q="firstSignal">ما أول مؤشر ظهر؟</button><button data-memory-q="riskPeak">متى بلغت المخاطر أعلى قيمة؟</button><button data-memory-q="coverage">كيف تغيرت التغطية؟</button></div><div class="us-memory-answer" id="usMemoryAnswer">اختر سؤالًا لقراءة الذاكرة الزمنية.</div></article>'+
  '<div class="us-grid two">'+
@@ -346,7 +346,7 @@ function decisionConfidence(item){
 }
 function renderDecision(){
  const h=host(),all=topRiskProjects(data(),100);
- h.innerHTML=smartHeader('VARIABLE DECISION LAB','مختبر القرار المتغير','بنفس منطق جدة القابل للتفسير مع إضافة سيناريوهات حساسية: غيّر السيناريو لترى كيف تتغير الأولويات، مع إبقاء أسباب الدرجة وثقة التغطية ظاهرة.')+
+ h.innerHTML=smartHeader('VARIABLE DECISION LAB','مختبر القرار المتغير','محرك قرار قابل للتفسير مع سيناريوهات حساسية: غيّر السيناريو لترى كيف تتغير الأولويات، مع إبقاء أسباب الدرجة وثقة التغطية ظاهرة.')+
  '<article class="us-decision-tools us-decision-tools-v2"><label><span>بحث بالمشروع / المقاول / البلدية</span><input id="usDecisionSearch" type="search" placeholder="اكتب كلمة للبحث..."></label><label><span>سيناريو الحساسية</span><select id="usDecisionScenario"><option value="balanced">متوازن</option><option value="risk">حساس للمخاطر</option><option value="execution">حساس للتنفيذ</option><option value="data">حساس لجودة البيانات</option></select></label><label><span>الحد الأدنى للأولوية</span><select id="usDecisionLevel"><option value="0">الكل</option><option value="20">20+</option><option value="45" selected>45+</option><option value="70">70+</option></select></label><button class="us-primary" id="usDecisionApply">إعادة الحساب</button></article><div class="us-decision-method"><b>منهج المختبر:</b> الدرجة أداة ترتيب تشغيلية وليست قرارًا نهائيًا. السيناريو يغيّر أوزان الإشارات فقط، بينما «ثقة التغطية» تقيس اكتمال الحقول والأدلة المتاحة ولا تضيف نقاط مخاطرة.</div><div id="usDecisionResult"></div>';
  const run=()=>{
   const q=norm(document.getElementById('usDecisionSearch').value),min=num(document.getElementById('usDecisionLevel').value),scenario=document.getElementById('usDecisionScenario').value;

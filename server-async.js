@@ -515,6 +515,9 @@ app.use((err,_req,res,_next)=>{
 });
 
 async function start(){
+ if(process.env.NODE_ENV==='production'&&!usePostgres){
+  throw new Error('DATABASE_URL is required in production. Refusing to start with ephemeral SQLite storage.');
+ }
  await initDatabase();
  app.listen(PORT,'0.0.0.0',()=>console.log('Madinah Water Business running on http://localhost:'+PORT+' ['+(usePostgres?'postgres':'sqlite')+']'));
 }

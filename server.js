@@ -136,6 +136,10 @@ const THURSDAY_PROGRESS_SHEET='VD Thursday Progress';
 const THURSDAY_PROGRESS_HEADERS=[
   'date','timestamp','project','overallRate','totalOrders','completed','sectionMetricsJson','summaryJson','version'
 ];
+const PROJECT_NEWS_SHEET='Dashboard News';
+const PROJECT_NEWS_HEADERS=[
+  'timestamp','eventKey','priority','category','title','summary','source','sourceSheet','sheetUrl','active','stateJson','lastSeen','version'
+];
 
 async function ensureSystemSheet_(title,headers,rowCount=5000){
   const sheets=await sheetsApi();
@@ -875,6 +879,85 @@ async function buildDataCoalesced(force=false){
 
 const PROJECT_NEWS_RETENTION_MS=72*60*60*1000;
 const projectNewsState={snapshot:new Map(),events:new Map(),rowSnapshots:new Map()};
+let projectNewsSheetHydrated=false,projectNewsSheetHydratePromise=null;
+
+function projectNewsRowToObj_(r,rowNumber){
+  return {
+    rowNumber,
+    timestamp:String(r[0]||''),eventKey:String(r[1]||''),priority:String(r[2]||''),
+    category:String(r[3]||''),title:String(r[4]||''),summary:String(r[5]||''),
+    source:String(r[6]||''),sourceSheet:String(r[7]||''),sheetUrl:String(r[8]||''),
+    active:String(r[9]||''),stateJson:String(r[10]||''),lastSeen:String(r[11]||''),version:String(r[12]||'')
+  };
+}
+async function hydrateProjectNewsSheet_(){
+  if(projectNewsSheetHydrated)return;
+  if(projectNewsSheetHydratePromise)return projectNewsSheetHydratePromise;
+  projectNewsSheetHydratePromise=(async()=>{
+    const sheets=await ensureSystemSheet_(PROJECT_NEWS_SHEET,PROJECT_NEWS_HEADERS,10000);
+    const raw=(await sheets.spreadsheets.values.get({
+      spreadsheetId:SPREADSHEET_ID,range:q(PROJECT_NEWS_SHEET)+'!A2:M10000',valueRenderOption:'UNFORMATTED_VALUE'
+    })).data.values||[];
+    const rows=raw.map((r,i)=>projectNewsRowToObj_(r,i+2)).filter(x=>x.eventKey);
+    const stateRow=[...rows].reverse().find(x=>x.eventKey==='__STATE__');
+    if(stateRow?.stateJson){
+      const state=safeJsonParse_(stateRow.stateJson,{});
+      if(Array.isArray(state.snapshot))projectNewsState.snapshot=new Map(state.snapshot);
+    }
+    const cutoff=Date.now()-PROJECT_NEWS_RETENTION_MS;
+    for(const x of rows){
+      if(x.eventKey==='__STATE__')continue;
+      const ts=Date.parse(x.timestamp)||0;
+      if(ts<cutoff&&clean(x.active)!=='نعم')continue;
+      projectNewsState.events.set(x.eventKey,{
+        show:'نعم',date:x.timestamp,priority:x.priority||'تحديث',category:x.category||'عام',
+        title:x.title||'',summary:x.summary||'',source:x.source||'تحليل الشيتات',
+        sourceSheet:x.sourceSheet||'',sheetUrl:x.sheetUrl||'',eventKey:x.eventKey
+      });
+    }
+    projectNewsSheetHydrated=true;
+  })().catch(e=>{console.warn('Project news sheet hydrate failed:',e.message||e)}).finally(()=>{projectNewsSheetHydratePromise=null});
+  return projectNewsSheetHydratePromise;
+}
+async function persistProjectNewsSheet_(rows,activeIssueKeys,sheetLinks){
+  try{
+    const sheets=await ensureSystemSheet_(PROJECT_NEWS_SHEET,PROJECT_NEWS_HEADERS,10000);
+    const raw=(await sheets.spreadsheets.values.get({
+      spreadsheetId:SPREADSHEET_ID,range:q(PROJECT_NEWS_SHEET)+'!A2:M10000',valueRenderOption:'UNFORMATTED_VALUE'
+    })).data.values||[];
+    const existing=raw.map((r,i)=>projectNewsRowToObj_(r,i+2)).filter(x=>x.eventKey);
+    const byKey=new Map(existing.map(x=>[x.eventKey,x]));
+    const now=DateTime.now().setZone('Asia/Riyadh').toFormat('yyyy-LL-dd HH:mm:ss');
+    const updates=[],appends=[];
+    const makeRow=r=>[
+      String(r.date||now),String(r.eventKey||''),String(r.priority||'تحديث'),String(r.category||'عام'),
+      String(r.title||''),String(r.summary||''),String(r.source||'تحليل الشيتات'),String(r.sourceSheet||''),
+      String(sheetLinks?.[r.sourceSheet]||r.sheetUrl||''),activeIssueKeys.has(r.eventKey)?'نعم':'لا','',now,'v1'
+    ];
+    for(const r of rows){
+      const row=makeRow(r),old=byKey.get(r.eventKey);
+      if(old)updates.push({range:q(PROJECT_NEWS_SHEET)+'!A'+old.rowNumber+':M'+old.rowNumber,values:[row]});
+      else appends.push(row);
+    }
+    const statePayload={snapshot:[...projectNewsState.snapshot.entries()]};
+    const stateRow=[now,'__STATE__','','','','','','','','نعم',JSON.stringify(statePayload),now,'v1'];
+    const oldState=byKey.get('__STATE__');
+    if(oldState)updates.push({range:q(PROJECT_NEWS_SHEET)+'!A'+oldState.rowNumber+':M'+oldState.rowNumber,values:[stateRow]});
+    else appends.push(stateRow);
+    if(updates.length){
+      await sheets.spreadsheets.values.batchUpdate({
+        spreadsheetId:SPREADSHEET_ID,
+        requestBody:{valueInputOption:'RAW',data:updates}
+      });
+    }
+    if(appends.length){
+      await sheets.spreadsheets.values.append({
+        spreadsheetId:SPREADSHEET_ID,range:q(PROJECT_NEWS_SHEET)+'!A:M',
+        valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:appends}
+      });
+    }
+  }catch(e){console.warn('Project news sheet persist failed:',e.message||e)}
+}
 
 function newsPriority_(count,total){
   const rate=total?Number(count||0)/Number(total||1):0;
@@ -965,6 +1048,7 @@ function buildProjectNewsObservations_(d){
   ];
 }
 async function getProjectNews(){
+  await hydrateProjectNewsSheet_();
   const d=await buildDataCoalesced(false);
   newsTrackRows_('projects',d.projects||[],'no',[
     ['riskLevel','مستوى المخاطر'],['permitStatus','حالة التصريح'],['guaranteeStatus','حالة الضمان'],['contractStatus','حالة العقد']
@@ -983,8 +1067,9 @@ async function getProjectNews(){
     .filter(r=>activeIssueKeys.has(r.eventKey)||(Date.parse(r.date)||0)>=cutoff)
     .sort((a,b)=>(Date.parse(b.date)||0)-(Date.parse(a.date)||0)||(order[a.priority]??9)-(order[b.priority]??9))
     .slice(0,180)
-    .map(r=>({...r,sheetUrl:d.sourceSheetLinks?.[r.sourceSheet]||''}));
-  return {ok:true,updatedAt:d.updatedAt,source:'live-sheet-analysis',retentionHours:72,rows};
+    .map(r=>({...r,sheetUrl:d.sourceSheetLinks?.[r.sourceSheet]||r.sheetUrl||''}));
+  await persistProjectNewsSheet_(rows,activeIssueKeys,d.sourceSheetLinks||{});
+  return {ok:true,updatedAt:d.updatedAt,source:'google-sheet-news',sheet:PROJECT_NEWS_SHEET,retentionHours:72,rows};
 }
 
 app.get('/api/data',requireAuth,async(req,res)=>{

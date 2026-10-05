@@ -1,0 +1,66 @@
+.sidebar-status-wrap{
+  margin-top:auto;
+  padding-top:12px;
+}
+.online-users{
+  margin:0 3px 7px;
+  min-height:42px;
+  display:grid;
+  grid-template-columns:12px minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:1px solid rgba(153,221,239,.19);
+  border-radius:13px;
+  background:rgba(255,255,255,.055);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.online-users-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#6f8793;
+  box-shadow:0 0 0 3px rgba(255,255,255,.05);
+  transition:.2s ease;
+}
+.online-users-label{
+  color:#d8edf5;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.online-users strong{
+  min-width:28px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  padding:0 7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  font-size:12px;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.online-users.is-live .online-users-dot{
+  background:#54e39a;
+  box-shadow:0 0 0 3px rgba(84,227,154,.12),0 0 12px rgba(84,227,154,.55);
+}
+.online-users.is-live strong{
+  background:rgba(84,227,154,.13);
+  color:#dffff0;
+}
+.online-users.is-error .online-users-dot{
+  background:#f3c969;
+  box-shadow:0 0 0 3px rgba(243,201,105,.10);
+}
+.sidebar-status-wrap .side-foot{
+  margin-top:0;
+  padding:5px 10px 0;
+}
+@media(max-width:720px){
+  .online-users{min-height:40px}
+}
+@media print{
+  .sidebar-status-wrap{display:none!important}
+}

@@ -75,6 +75,24 @@ function userImageUrl(v){
   return /^https?:\/\//i.test(url)?url:'';
 }
 const loginAttempts=new Map();
+const onlineUsers=new Map();
+const ONLINE_TTL_MS=75*1000;
+function pruneOnlineUsers(now=Date.now()){
+  for(const [username,lastSeen] of onlineUsers){if(now-lastSeen>ONLINE_TTL_MS)onlineUsers.delete(username)}
+}
+function touchOnlineUser(req){
+  const username=String(req.session?.user?.username||'').trim().toLowerCase();
+  if(!username)return 0;
+  const now=Date.now();
+  onlineUsers.set(username,now);
+  pruneOnlineUsers(now);
+  return onlineUsers.size;
+}
+function onlineUserCount(){pruneOnlineUsers();return onlineUsers.size}
+function removeOnlineUser(req){
+  const username=String(req.session?.user?.username||'').trim().toLowerCase();
+  if(username)onlineUsers.delete(username);
+}
 function loginKey(req,user){return String(req.ip||'')+'|'+String(user||'').toLowerCase()}
 function loginAllowed(key){const now=Date.now(),x=loginAttempts.get(key);if(!x)return true;if(x.blockedUntil&&now<x.blockedUntil)return false;if(now-x.first>15*60*1000){loginAttempts.delete(key);return true}return true}
 function loginFail(key){const now=Date.now(),x=loginAttempts.get(key)||{count:0,first:now,blockedUntil:0};x.count++;if(x.count>=5)x.blockedUntil=now+15*60*1000;loginAttempts.set(key,x)}
@@ -403,6 +421,7 @@ function requireAuth(req,res,next){
 app.get('/login',(req,res)=>{res.set('Cache-Control','no-store, max-age=0');res.sendFile(path.join(__dirname,'public','login.html'))});
 function sendDashboard(req,res){
   if(!req.session?.user)return res.redirect('/login');
+  touchOnlineUser(req);
   res.set('Cache-Control','no-store, max-age=0, must-revalidate');
   res.set('Pragma','no-cache');
   res.set('Expires','0');
@@ -471,7 +490,19 @@ app.post('/api/auth/login',async(req,res)=>{
 });
 app.post('/api/auth/logout',(req,res)=>{
   if(!req.session) return res.json({ok:true});
+  removeOnlineUser(req);
   req.session.destroy(()=>res.json({ok:true}));
+});
+
+app.post('/api/presence/heartbeat',requireAuth,(req,res)=>{
+  res.set('Cache-Control','no-store, max-age=0');
+  const count=touchOnlineUser(req);
+  return res.json({ok:true,count,updatedAt:new Date().toISOString()});
+});
+app.get('/api/presence',requireAuth,(req,res)=>{
+  res.set('Cache-Control','no-store, max-age=0');
+  touchOnlineUser(req);
+  return res.json({ok:true,count:onlineUserCount(),updatedAt:new Date().toISOString()});
 });
 
 function geoPair(a,b){

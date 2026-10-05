@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="/urgent-topbar-parity.css?v=20261005-scroll-with-page-1">
 <link rel="stylesheet" href="/tab-hero-designs.css?v=no-hero-icons-20261005-1">
 <link rel="stylesheet" href="/urgent-filters-v2.css?v=20261004-2">
+<link rel="stylesheet" href="/online-presence.css?v=20261005-1">
 <link rel="stylesheet" href="/filter-driven-tables.css?v=20261004-1">
 <link rel="stylesheet" href="/text-black-override.css?v=urgent-text-black-20261004-1">
 </head>
@@ -84,7 +85,14 @@
       </div>
     </section>
   </nav>
-  <div class="side-foot">Urgent Solutions Dashboard • 2026</div>
+  <div class="sidebar-status-wrap">
+    <div class="online-users" id="onlineUsers" role="status" aria-live="polite" title="عدد المستخدمين النشطين خلال آخر دقيقة تقريبًا">
+      <span class="online-users-dot" aria-hidden="true"></span>
+      <span class="online-users-label">المتصلون الآن</span>
+      <strong id="onlineUsersCount">—</strong>
+    </div>
+    <div class="side-foot">Urgent Solutions Dashboard • 2026</div>
+  </div>
 </aside>
 
 <button id="sidebarToggle" class="sidebar-toggle" type="button" title="إخفاء القائمة">‹</button>
@@ -179,6 +187,7 @@
 <script src="/count-up.js?v=full-parity-20261004-2"></script>
 <script src="/filter-driven-tables.js?v=20261004-2-hide-master"></script>
 <script src="/kmz-map.js?v=kmz-checkbox-search-20261005-3"></script>
+<script src="/online-presence.js?v=20261005-1"></script>
 <script src="/app.js?v=38-no-hero-icons-20261005"></script>
 <script src="/urgent-data-quality.js?v=jeddah-parity-20261005-3"></script>
 <script src="/technology-parity.js?v=full-parity-20261004-2"></script>

@@ -12,7 +12,7 @@ const norm=v=>clean(v).normalize('NFKC').replace(/[\u064B-\u065F\u0670]/g,'').re
 const PAGE_META={
  master:{title:'الرئيسية',sub:'ملخص تنفيذي لحالة مشاريع الحلول العاجلة والتصاريح والخطوط البديلة.',icon:'◉',eye:'EXECUTIVE OVERVIEW'},
  projects:{title:'المشاريع',sub:'متابعة العقود والمشاريع والملاك والمقاولين وحالة التصاريح المرتبطة.',icon:'▣',eye:'PROJECTS CONTROL'},
- map:{title:'الخريطة الجغرافية',sub:'عرض تفاعلي موحد لمواقع المشاريع والخطوط البديلة في جدة مع بطاقات معلومات وتحكم بالطبقات.',icon:'⌖',eye:'GEOGRAPHIC PROJECT VIEW'},
+ map:{title:'الخريطة الجغرافية',sub:'عرض تفاعلي لمواقع المشاريع والخطوط البديلة مع دعم رفع ملفات KMZ/KML وإدارتها كطبقات مستقلة.',icon:'⌖',eye:'GEOGRAPHIC PROJECT VIEW'},
  permits:{title:'التصاريح',sub:'تحليل التصاريح الفعلية وتواريخها وأمتارها وحالات الانتهاء.',icon:'▤',eye:'PERMITS MANAGEMENT'},
  lines:{title:'الخطوط البديلة والتصميم',sub:'متابعة الخطوط البديلة وأطوالها والمصممين وحالة الاعتماد.',icon:'⌁',eye:'ALTERNATIVE LINES'},
  settlements:{title:'الأمتار والتسويات',sub:'مقارنة الأمتار المستحقة من التصاريح مع الخطوط البديلة المنفذة.',icon:'⇄',eye:'METERS SETTLEMENT'},
@@ -738,6 +738,8 @@ function renderMap(){
       '<button type="button" class="map-tool-btn" id="mapFitBtn">⌖ ملاءمة</button>'+
       '<button type="button" class="map-tool-btn" id="mapResetBtn">↺ إعادة الفلاتر</button>'+
       '<button type="button" class="map-tool-btn" id="mapFullscreenBtn">⛶ توسعة</button>'+
+      '<button type="button" class="map-tool-btn map-kmz-upload-btn" id="mapKmzUploadBtn">⬆ رفع KMZ</button>'+
+      '<input id="mapKmzFileInput" class="map-file-input" type="file" accept=".kmz,.kml,application/vnd.google-earth.kmz,application/vnd.google-earth.kml+xml" multiple>'+
      '</div>'+
      '<div class="map-search-wrap"><input id="mapSearchInput" type="search" autocomplete="off" placeholder="بحث داخل الخريطة: مشروع، خط، مقاول، مالك، حي..."><div id="mapSearchResults" class="map-search-results"></div></div>'+
     '</div>'+
@@ -748,8 +750,9 @@ function renderMap(){
      opt(lines,'type','نوع الخط')+
      opt(lines,'designStatus','حالة التصميم')+
     '</div>'+
+    '<div id="mapKmzLayers" class="map-kmz-layers" aria-live="polite"></div>'+
    '</div>'+
-   '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-dot line-only"></i> خط بديل</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
+   '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-dot line-only"></i> خط بديل</span><span class="map-kmz-legend"><i></i> KMZ</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
   '</div>'+
  '</section>'+
  tablePanel('العناصر الجغرافية',[
@@ -793,7 +796,7 @@ function renderMap(){
  const projectLayer=L.layerGroup().addTo(state.map),lineLayer=L.layerGroup().addTo(state.map);
  L.control.layers({'خريطة الشوارع':street,'صور جوية':satellite},{},{position:'bottomright',collapsed:true}).addTo(state.map);
  const filterState={municipality:'',contractor:'',owner:'',type:'',designStatus:''};
- let bounds=[],searchItems=[];
+ let bounds=[],searchItems=[],kmzManager=null,visibleProjectCount=projects.length,visibleLineCount=lines.length;
  const matchesMapFilters=(r,kind)=>{
   if(filterState.municipality&&clean(r.municipality)!==filterState.municipality)return false;
   if(filterState.contractor&&clean(r.contractor)!==filterState.contractor)return false;
@@ -826,13 +829,22 @@ function renderMap(){
    lineLayer.addLayer(marker);bounds.push([lat,lon]);
    searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker,lat,lon,layer:'lines'});
   });
-  const pc=$('#mapProjectCount'),lc=$('#mapLineCount'),summary=$('#mapVisibleSummary');
-  if(pc)pc.textContent=fp.length;if(lc)lc.textContent=fl.length;if(summary)summary.textContent=fp.length+' مشروع • '+fl.length+' خط';
+  visibleProjectCount=fp.length;visibleLineCount=fl.length;
+  const pc=$('#mapProjectCount'),lc=$('#mapLineCount'),summary=$('#mapVisibleSummary'),kmzVisible=(window.VDKMZ?.uploads||[]).filter(x=>x.visible).length;
+  if(pc)pc.textContent=fp.length;if(lc)lc.textContent=fl.length;if(summary)summary.textContent=fp.length+' مشروع • '+fl.length+' خط'+(kmzVisible?' • '+kmzVisible+' KMZ':'');
  };
  renderFeatures();
- if(bounds.length)state.map.fitBounds(bounds,{padding:[42,42],maxZoom:14});
- const fitVisible=()=>{if(bounds.length)state.map.fitBounds(bounds,{padding:[42,42],maxZoom:14})};
+ const fitVisible=()=>{
+  const b=L.latLngBounds(bounds);kmzManager?.extendBounds?.(b);
+  if(b.isValid())state.map.fitBounds(b,{padding:[42,42],maxZoom:14});
+ };
  const fitBtn=$('#mapFitBtn'),resetBtn=$('#mapResetBtn'),fullBtn=$('#mapFullscreenBtn'),panel=$('#advancedMapPanel'),searchInput=$('#mapSearchInput'),searchResults=$('#mapSearchResults');
+ kmzManager=window.VDKMZ?.init({
+  map:state.map,input:$('#mapKmzFileInput'),button:$('#mapKmzUploadBtn'),host:$('#mapKmzLayers'),
+  stage:panel?.querySelector('.map-stage'),toast,
+  onSummary:visible=>{const summary=$('#mapVisibleSummary');if(summary)summary.textContent=visibleProjectCount+' مشروع • '+visibleLineCount+' خط'+(visible?' • '+visible+' KMZ':'')}
+ })||null;
+ fitVisible();
  if(fitBtn)fitBtn.addEventListener('click',fitVisible);
  if(resetBtn)resetBtn.addEventListener('click',()=>{
   Object.keys(filterState).forEach(k=>filterState[k]='');

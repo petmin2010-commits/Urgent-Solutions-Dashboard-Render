@@ -368,3 +368,29 @@ body.map-fullscreen-open{overflow:hidden}
 @media print{.sheet-report-actions{display:none!important}.sheet-report-hero,.sheet-contractor-report,.sheet-report-table{break-inside:avoid;box-shadow:none!important}.sheet-report-table .table-scroll{max-height:none!important;overflow:visible!important}.sheet-contractor-report{margin-bottom:10px}}
 
 .sheet-table-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.sheet-table-pdf{border:1px solid rgba(8,121,165,.22);background:#eef9fc;color:#0879a5;border-radius:10px;padding:7px 11px;font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}.sheet-table-pdf:hover{background:#dff4f9}.sheet-table-actions .table-search{min-width:190px}@media(max-width:700px){.sheet-table-actions{width:100%}.sheet-table-actions .table-search{flex:1;min-width:0}}@media print{.sheet-table-pdf{display:none!important}}
+
+/* KMZ / KML interactive map layers */
+.map-file-input{display:none!important}
+.map-kmz-upload-btn{font-weight:800!important}
+.map-kmz-upload-btn.loading{opacity:.62;pointer-events:none}
+.map-kmz-layers{display:none;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:6px;max-height:112px;overflow:auto;padding-top:2px}
+.map-kmz-layers.show{display:grid}
+.map-kmz-row{min-width:0;display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:7px;padding:6px 7px;border:1px solid rgba(177,205,214,.86);border-radius:11px;background:rgba(255,255,255,.72);box-shadow:0 3px 10px rgba(16,76,91,.04)}
+.map-kmz-toggle{width:25px;height:25px;border:1px solid #b9d4dc;border-radius:8px;background:#fff;display:grid;place-items:center;cursor:pointer}
+.map-kmz-toggle i{width:9px;height:9px;border-radius:50%;background:#a9bbc1;box-shadow:0 0 0 3px rgba(126,154,164,.12)}
+.map-kmz-toggle.active{border-color:#70acc2;background:#eef8fb}
+.map-kmz-toggle.active i{background:#1680aa;box-shadow:0 0 0 3px rgba(22,128,170,.14)}
+.map-kmz-name{min-width:0;display:grid;gap:1px;text-align:right}
+.map-kmz-name b{font-size:8.8px;color:#183f49;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-kmz-name span{font-size:7.5px;color:#6d8790}
+.map-kmz-actions{display:flex;align-items:center;gap:4px}
+.map-kmz-actions button{width:25px;height:25px;border:1px solid #d0e0e5;border-radius:8px;background:rgba(255,255,255,.8);color:#315863;font:800 11px Cairo,Arial,sans-serif;cursor:pointer}
+.map-kmz-actions button:hover{background:#f1f8fa;border-color:#8ebac8}
+.map-kmz-actions button:last-child:hover{color:#a33a35;border-color:#e7c0bd;background:#fff6f5}
+.map-kmz-legend{display:inline-flex;align-items:center;gap:5px}
+.map-kmz-legend i{width:9px;height:9px;border-radius:3px;background:#1680aa;box-shadow:0 0 0 3px rgba(22,128,170,.12)}
+.map-kind.kmz{background:#e9f5fa;color:#176985}
+.kmz-description{margin-top:8px;padding:7px 8px;border-radius:9px;background:#f5f9fa;color:#496870;font-size:8.5px;line-height:1.7}
+.map-stage{position:relative}
+.map-stage.kmz-drop-active:after{content:'أفلت ملف KMZ / KML هنا';position:absolute;inset:10px;z-index:1300;display:grid;place-items:center;border:2px dashed rgba(22,128,170,.72);border-radius:16px;background:rgba(237,249,252,.88);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);color:#176985;font:800 16px Cairo,Arial,sans-serif;pointer-events:none}
+@media(max-width:760px){.map-kmz-layers{grid-template-columns:1fr;max-height:96px}.map-kmz-row{grid-template-columns:26px minmax(0,1fr) auto}}

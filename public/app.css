@@ -155,6 +155,7 @@ textarea{resize:vertical;min-height:96px}
   display:flex;justify-content:space-between;gap:22px;align-items:flex-start;
   margin-bottom:20px
 }
+.view-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .entry-hero{
   background:linear-gradient(135deg,#0b5f7a,#0e829e);
   color:white;border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow)
@@ -204,6 +205,14 @@ legend span{
 .required-now{color:var(--warn)}
 .media-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .media-pill{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:.8rem}
+.history-panel{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.history-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.history-head span{font-size:.8rem;color:var(--muted)}
+.history-list{display:grid;gap:10px}
+.history-item{display:grid;grid-template-columns:14px 1fr;gap:10px;align-items:start}
+.history-dot{width:10px;height:10px;border-radius:50%;background:var(--brand);margin-top:5px;box-shadow:0 0 0 4px var(--brand-soft)}
+.history-item strong{display:block;font-size:.87rem}
+.history-item small{display:block;color:var(--muted);margin-top:3px;font-size:.76rem}
 .form-actions{display:flex;gap:10px;justify-content:flex-start;position:sticky;bottom:12px;background:rgba(244,248,250,.92);backdrop-filter:blur(10px);padding:12px 0;z-index:5}
 .filters{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));

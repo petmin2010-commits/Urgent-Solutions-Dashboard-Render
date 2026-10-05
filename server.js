@@ -83,6 +83,10 @@ const upload = multer({
 function clean(v) {
   return String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
 }
+function csvCell(v) {
+  const s = String(v == null ? '' : v).replace(/\r?\n/g, ' ');
+  return '"' + s.replace(/"/g, '""') + '"';
+}
 function bool(v) {
   return ['1','true','yes','نعم','on'].includes(clean(v).toLowerCase()) ? 1 : 0;
 }
@@ -126,6 +130,34 @@ function requirePermission(permission) {
     req.user = user;
     next();
   };
+}
+
+function workScopeType(user) {
+  return clean(user?.scope_type || 'ALL').toUpperCase();
+}
+
+function workScopeAllows(user, row) {
+  if (!user || !row) return false;
+  const type = workScopeType(user);
+  if (type === 'REGION') return clean(row.region_id) === clean(user.scope_value);
+  if (type === 'OWN') return clean(row.created_by) === clean(user.user_id);
+  if (type === 'ALL') {
+    return user.permissions.includes('WORK_VIEW_ALL') || clean(row.created_by) === clean(user.user_id);
+  }
+  return clean(row.created_by) === clean(user.user_id);
+}
+
+function applyWorkScope(user, where, args) {
+  const type = workScopeType(user);
+  if (type === 'REGION') {
+    where.push('w.region_id=?');
+    args.push(clean(user.scope_value));
+    return;
+  }
+  if (type === 'OWN' || !user.permissions.includes('WORK_VIEW_ALL')) {
+    where.push('w.created_by=?');
+    args.push(user.user_id);
+  }
 }
 
 function lookupData() {
@@ -372,10 +404,7 @@ app.get('/api/works', requireAuth, requirePermission('WORK_VIEW'), (req, res) =>
   if (contractorId) { where.push('w.contractor_id=?'); args.push(contractorId); }
   if (dateFrom) { where.push('substr(w.registered_at,1,10)>=?'); args.push(dateFrom); }
   if (dateTo) { where.push('substr(w.registered_at,1,10)<=?'); args.push(dateTo); }
-  if (!req.user.permissions.includes('WORK_VIEW_ALL')) {
-    where.push('w.created_by=?');
-    args.push(req.user.user_id);
-  }
+  applyWorkScope(req.user, where, args);
 
   const whereSql = ' WHERE ' + where.join(' AND ');
   const total = db.prepare('SELECT COUNT(*) AS n FROM works w' + whereSql).get(...args).n;
@@ -386,25 +415,100 @@ app.get('/api/works', requireAuth, requirePermission('WORK_VIEW'), (req, res) =>
   res.json({ ok: true, page, pageSize, total, rows });
 });
 
+app.get('/api/works/export.csv', requireAuth, requirePermission('WORK_VIEW'), (req, res) => {
+  const search = clean(req.query.search);
+  const regionId = clean(req.query.regionId);
+  const repairStatusId = clean(req.query.repairStatusId);
+  const inspectorId = clean(req.query.inspectorId);
+  const contractorId = clean(req.query.contractorId);
+  const dateFrom = clean(req.query.dateFrom);
+  const dateTo = clean(req.query.dateTo);
+
+  const where = ['w.deleted_at IS NULL'];
+  const args = [];
+  if (search) {
+    where.push("(w.case_code LIKE ? OR w.wfm_no LIKE ? OR w.request_no LIKE ? OR w.neighborhood LIKE ? OR w.notes LIKE ?)");
+    const q = '%' + search + '%';
+    args.push(q, q, q, q, q);
+  }
+  if (regionId) { where.push('w.region_id=?'); args.push(regionId); }
+  if (repairStatusId) { where.push('w.repair_status_id=?'); args.push(repairStatusId); }
+  if (inspectorId) { where.push('w.inspector_id=?'); args.push(inspectorId); }
+  if (contractorId) { where.push('w.contractor_id=?'); args.push(contractorId); }
+  if (dateFrom) { where.push('substr(w.registered_at,1,10)>=?'); args.push(dateFrom); }
+  if (dateTo) { where.push('substr(w.registered_at,1,10)<=?'); args.push(dateTo); }
+  applyWorkScope(req.user, where, args);
+
+  const rows = db.prepare(workSelect + ' WHERE ' + where.join(' AND ') + ' ORDER BY w.registered_at DESC,w.created_at DESC')
+    .all(...args).map(rowToWork);
+
+  const headers = [
+    'كود الحالة','رقم الريكوست','تاريخ التسجيل','رقم WFM','المنطقة','الحي','المراقب','المقاول',
+    'رقم تصريح بلدي','تصريح أمن وسلامة','وصف الموقع','خط العرض','خط الطول','وقت المباشرة',
+    'وقت الانتهاء','عمق الحفر','وصف الانكسار','حالة الإصلاح','الملاحظات'
+  ];
+  const lines = [headers.map(csvCell).join(',')];
+  for (const w of rows) {
+    lines.push([
+      w.caseCode,w.requestNo,w.registeredAt,w.wfmNo,w.region,w.neighborhood,w.inspector,w.contractor,
+      w.municipalityPermitNo,w.hasHsePermit ? 'نعم' : 'لا',w.locationText,w.latitude,w.longitude,w.startedAt,
+      w.finishedAt,w.depthM,w.breakType,w.repairStatus,w.notes
+    ].map(csvCell).join(','));
+  }
+  const filename = 'madinah-water-works-' + DateTime.now().setZone(ZONE).toFormat('yyyyLLdd-HHmm') + '.csv';
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="' + filename + '"');
+  res.send('\uFEFF' + lines.join('\r\n'));
+});
+
 app.get('/api/works/check-wfm', requireAuth, requirePermission('WORK_VIEW'), (req, res) => {
   const wfm = clean(req.query.wfm);
   const excludeId = clean(req.query.excludeId);
   if (!wfm) return res.json({ ok: true, duplicate: false, matches: [] });
-  const args = [wfm];
-  let sql = workSelect + ' WHERE w.deleted_at IS NULL AND trim(w.wfm_no)=?';
+
+  const countArgs = [wfm];
+  let countSql = 'SELECT COUNT(*) AS n FROM works WHERE deleted_at IS NULL AND trim(wfm_no)=?';
   if (excludeId) {
-    sql += ' AND w.work_id<>?';
+    countSql += ' AND work_id<>?';
+    countArgs.push(excludeId);
+  }
+  const duplicate = Number(db.prepare(countSql).get(...countArgs).n || 0) > 0;
+
+  const where = ['w.deleted_at IS NULL', 'trim(w.wfm_no)=?'];
+  const args = [wfm];
+  if (excludeId) {
+    where.push('w.work_id<>?');
     args.push(excludeId);
   }
-  sql += ' ORDER BY w.created_at DESC LIMIT 5';
-  const matches = db.prepare(sql).all(...args).map(rowToWork);
-  res.json({ ok: true, duplicate: matches.length > 0, matches });
+  applyWorkScope(req.user, where, args);
+  const matches = db.prepare(workSelect + ' WHERE ' + where.join(' AND ') + ' ORDER BY w.created_at DESC LIMIT 5')
+    .all(...args).map(rowToWork);
+
+  res.json({ ok: true, duplicate, matches });
+});
+
+app.get('/api/works/:id/history', requireAuth, requirePermission('WORK_VIEW'), (req, res) => {
+  const work = db.prepare('SELECT work_id,created_by,region_id FROM works WHERE work_id=? AND deleted_at IS NULL').get(req.params.id);
+  if (!work) return res.status(404).json({ ok: false, error: 'الحالة غير موجودة' });
+  if (!workScopeAllows(req.user, work)) {
+    return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
+  }
+  const rows = db.prepare(`
+    SELECT a.audit_id AS id,a.action,a.created_at AS createdAt,
+           COALESCE(u.employee_name,'النظام') AS userName
+    FROM audit_log a
+    LEFT JOIN users u ON u.user_id=a.user_id
+    WHERE a.entity_type='WORK' AND a.entity_id=?
+    ORDER BY a.created_at DESC
+    LIMIT 100
+  `).all(req.params.id);
+  res.json({ ok: true, rows });
 });
 
 app.get('/api/works/:id', requireAuth, requirePermission('WORK_VIEW'), (req, res) => {
   const row = db.prepare(workSelect + ' WHERE w.work_id=? AND w.deleted_at IS NULL').get(req.params.id);
   if (!row) return res.status(404).json({ ok: false, error: 'الحالة غير موجودة' });
-  if (!req.user.permissions.includes('WORK_VIEW_ALL') && row.created_by !== req.user.user_id) {
+  if (!workScopeAllows(req.user, row)) {
     return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
   }
   const media = db.prepare('SELECT media_id AS id,original_name AS originalName,mime_type AS mimeType,size_bytes AS sizeBytes,relative_url AS url,uploaded_at AS uploadedAt FROM work_media WHERE work_id=? ORDER BY uploaded_at DESC').all(req.params.id);
@@ -415,6 +519,9 @@ app.post('/api/works', requireAuth, requirePermission('WORK_CREATE'), (req, res)
   const parsed = validateWork(req.body || {});
   if (parsed.errors.length) return res.status(400).json({ ok: false, errors: parsed.errors });
   const v = parsed.value;
+  if (workScopeType(req.user) === 'REGION' && clean(v.regionId) !== clean(req.user.scope_value)) {
+    return res.status(403).json({ ok: false, error: 'لا يمكن إنشاء حالة خارج المنطقة المخصصة للمستخدم' });
+  }
   const workId = id();
   const caseCode = makeCaseCode();
   const now = nowIso();
@@ -439,12 +546,18 @@ app.post('/api/works', requireAuth, requirePermission('WORK_CREATE'), (req, res)
 app.put('/api/works/:id', requireAuth, requirePermission('WORK_EDIT'), (req, res) => {
   const existingRaw = db.prepare(workSelect + ' WHERE w.work_id=? AND w.deleted_at IS NULL').get(req.params.id);
   if (!existingRaw) return res.status(404).json({ ok: false, error: 'الحالة غير موجودة' });
+  if (!workScopeAllows(req.user, existingRaw)) {
+    return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
+  }
   if (!req.user.permissions.includes('WORK_EDIT_ALL') && existingRaw.created_by !== req.user.user_id) {
     return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
   }
   const parsed = validateWork(req.body || {});
   if (parsed.errors.length) return res.status(400).json({ ok: false, errors: parsed.errors });
   const v = parsed.value;
+  if (workScopeType(req.user) === 'REGION' && clean(v.regionId) !== clean(req.user.scope_value)) {
+    return res.status(403).json({ ok: false, error: 'لا يمكن نقل الحالة خارج المنطقة المخصصة للمستخدم' });
+  }
   const now = nowIso();
 
   db.prepare(`
@@ -469,6 +582,9 @@ app.put('/api/works/:id', requireAuth, requirePermission('WORK_EDIT'), (req, res
 app.delete('/api/works/:id', requireAuth, requirePermission('WORK_DELETE'), (req, res) => {
   const existing = db.prepare(workSelect + ' WHERE w.work_id=? AND w.deleted_at IS NULL').get(req.params.id);
   if (!existing) return res.status(404).json({ ok: false, error: 'الحالة غير موجودة' });
+  if (!workScopeAllows(req.user, existing)) {
+    return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
+  }
   const now = nowIso();
   db.prepare('UPDATE works SET deleted_at=?,updated_by=?,updated_at=? WHERE work_id=?')
     .run(now, req.user.user_id, now, req.params.id);
@@ -477,8 +593,11 @@ app.delete('/api/works/:id', requireAuth, requirePermission('WORK_DELETE'), (req
 });
 
 app.post('/api/works/:id/media', requireAuth, requirePermission('MEDIA_ADD'), upload.array('files', 10), (req, res) => {
-  const work = db.prepare('SELECT work_id,created_by FROM works WHERE work_id=? AND deleted_at IS NULL').get(req.params.id);
+  const work = db.prepare('SELECT work_id,created_by,region_id FROM works WHERE work_id=? AND deleted_at IS NULL').get(req.params.id);
   if (!work) return res.status(404).json({ ok: false, error: 'الحالة غير موجودة' });
+  if (!workScopeAllows(req.user, work)) {
+    return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
+  }
   if (!req.user.permissions.includes('WORK_EDIT_ALL') && work.created_by !== req.user.user_id) {
     return res.status(403).json({ ok: false, error: 'PERMISSION_DENIED' });
   }
@@ -521,8 +640,14 @@ app.post('/api/users', requireAuth, requirePermission('USER_CREATE'), (req, res)
   const email = clean(req.body.email).toLowerCase();
   const password = String(req.body.password || '');
   const roleId = clean(req.body.roleId);
-  const scopeType = clean(req.body.scopeType) || 'ALL';
+  const scopeType = (clean(req.body.scopeType) || 'ALL').toUpperCase();
   const scopeValue = clean(req.body.scopeValue);
+  if (!['ALL','OWN','REGION'].includes(scopeType)) {
+    return res.status(400).json({ ok: false, error: 'نطاق المستخدم غير صالح' });
+  }
+  if (scopeType === 'REGION' && !db.prepare('SELECT 1 FROM regions WHERE region_id=? AND active=1').get(scopeValue)) {
+    return res.status(400).json({ ok: false, error: 'يجب اختيار منطقة صالحة لنطاق المستخدم' });
+  }
   if (!name || !email || !roleId || password.length < 8) {
     return res.status(400).json({ ok: false, error: 'الاسم والبريد والدور وكلمة مرور من 8 أحرف على الأقل مطلوبة' });
   }
@@ -553,8 +678,14 @@ app.put('/api/users/:id', requireAuth, requirePermission('USER_EDIT'), (req, res
   const name = clean(req.body.name) || existing.employee_name;
   const jobTitle = clean(req.body.jobTitle);
   const roleId = clean(req.body.roleId) || existing.role_id;
-  const scopeType = clean(req.body.scopeType) || existing.scope_type || 'ALL';
+  const scopeType = (clean(req.body.scopeType) || existing.scope_type || 'ALL').toUpperCase();
   const scopeValue = clean(req.body.scopeValue);
+  if (!['ALL','OWN','REGION'].includes(scopeType)) {
+    return res.status(400).json({ ok: false, error: 'نطاق المستخدم غير صالح' });
+  }
+  if (scopeType === 'REGION' && !db.prepare('SELECT 1 FROM regions WHERE region_id=? AND active=1').get(scopeValue)) {
+    return res.status(400).json({ ok: false, error: 'يجب اختيار منطقة صالحة لنطاق المستخدم' });
+  }
   const active = req.body.active === undefined ? Number(existing.active) : bool(req.body.active);
   const canLogin = req.body.canLogin === undefined ? Number(existing.can_login) : bool(req.body.canLogin);
   if (req.params.id === req.user.user_id && (!active || !canLogin)) {

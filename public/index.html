@@ -197,6 +197,13 @@
                 </div>
               </div>
               <div id="mediaPreview" class="media-preview"></div>
+              <div id="workHistoryPanel" class="history-panel hidden">
+                <div class="history-head">
+                  <strong>سجل الحالة</strong>
+                  <span>إنشاء وتعديلات ومرفقات</span>
+                </div>
+                <div id="workHistoryList" class="history-list"></div>
+              </div>
             </fieldset>
 
             <div id="workErrors" class="form-error"></div>
@@ -214,7 +221,10 @@
               <h3>سجل الأعمال</h3>
               <p>بحث ومراجعة وتعديل الحالات المسجلة.</p>
             </div>
-            <button class="btn primary" data-open-entry>＋ إضافة حالة</button>
+            <div class="view-actions">
+              <button id="exportWorksBtn" class="btn secondary">تصدير البيانات</button>
+              <button class="btn primary" data-open-entry>＋ إضافة حالة</button>
+            </div>
           </div>
 
           <div class="filters">
@@ -303,9 +313,13 @@
               </label>
               <label>نطاق المستخدم
                 <select id="userScopeType">
-                  <option value="ALL">كل البيانات</option>
+                  <option value="ALL">كل البيانات المسموح بها للدور</option>
                   <option value="OWN">سجلاته فقط</option>
+                  <option value="REGION">منطقة محددة</option>
                 </select>
+              </label>
+              <label id="userScopeRegionWrap" class="hidden">المنطقة المخصصة
+                <select id="userScopeValue"></select>
               </label>
               <label>كلمة المرور
                 <input id="userPassword" type="password" minlength="8" placeholder="مطلوبة عند إنشاء الحساب">

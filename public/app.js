@@ -84,6 +84,7 @@ function renderLookups() {
   $('filterStatus').innerHTML = optionHtml(x.repairStatuses, 'كل الحالات');
   $('filterInspector').innerHTML = optionHtml(x.inspectors, 'كل المراقبين');
   $('filterContractor').innerHTML = optionHtml(x.contractors, 'كل المقاولين');
+  $('userScopeValue').innerHTML = optionHtml(x.regions, 'اختر المنطقة');
 }
 
 function setUserUi() {
@@ -201,24 +202,51 @@ function clearForm({ keepDraft = false } = {}) {
   $('mediaPreview').innerHTML = '';
   $('mediaFiles').value = '';
   $('cameraFile').value = '';
+  $('workHistoryList').innerHTML = '';
+  $('workHistoryPanel').classList.add('hidden');
   $('wfmHint').textContent = '';
   $('wfmHint').className = 'field-hint';
   if (!keepDraft) localStorage.removeItem(DRAFT_KEY);
   $('draftChip').textContent = 'لا توجد مسودة';
 }
 
+function historyActionLabel(action) {
+  return ({
+    CREATE: 'إنشاء الحالة',
+    UPDATE: 'تعديل بيانات الحالة',
+    MEDIA_ADD: 'إضافة مرفقات',
+    DELETE: 'حذف الحالة'
+  })[action] || action;
+}
+
+function renderWorkHistory(rows) {
+  $('workHistoryPanel').classList.remove('hidden');
+  $('workHistoryList').innerHTML = (rows || []).length ? rows.map(r =>
+    '<div class="history-item">' +
+      '<span class="history-dot"></span>' +
+      '<div><strong>' + esc(historyActionLabel(r.action)) + '</strong>' +
+      '<small>' + esc(r.userName || 'النظام') + ' · ' + esc(new Date(r.createdAt).toLocaleString('ar-SA')) + '</small></div>' +
+    '</div>'
+  ).join('') : '<div class="muted">لا يوجد سجل تغييرات.</div>';
+}
+
 async function loadWorkForEdit(id) {
   try {
-    const data = await api('/api/works/' + encodeURIComponent(id));
+    const [data, history] = await Promise.all([
+      api('/api/works/' + encodeURIComponent(id)),
+      api('/api/works/' + encodeURIComponent(id) + '/history')
+    ]);
     state.editingId = id;
     $('workId').value = id;
     setFormPayload(data.work);
+    syncClosureRule();
     $('entryTitle').textContent = 'تعديل ' + data.work.caseCode;
     $('saveWorkBtn').textContent = 'حفظ التعديلات';
     $('draftChip').textContent = 'وضع التعديل';
     $('mediaPreview').innerHTML = (data.media || []).map(m =>
       '<a class="media-pill" href="' + esc(m.url) + '" target="_blank" rel="noopener">' + esc(m.originalName) + '</a>'
     ).join('');
+    renderWorkHistory(history.rows || []);
     openView('entry');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (e) {
@@ -251,7 +279,9 @@ async function checkWfmDuplicate() {
     const data = await api('/api/works/check-wfm?' + q.toString());
     if (data.duplicate) {
       const first = data.matches[0];
-      $('wfmHint').textContent = 'تنبيه: رقم WFM مسجل سابقًا في ' + first.caseCode + (first.region ? ' — ' + first.region : '');
+      $('wfmHint').textContent = first
+        ? 'تنبيه: رقم WFM مسجل سابقًا في ' + first.caseCode + (first.region ? ' — ' + first.region : '')
+        : 'تنبيه: رقم WFM مسجل سابقًا في النظام';
       $('wfmHint').className = 'field-hint warn';
       return true;
     }
@@ -290,8 +320,8 @@ async function submitWork(event) {
   }
 }
 
-async function loadWorks() {
-  const q = new URLSearchParams({
+function currentWorkQuery() {
+  return new URLSearchParams({
     pageSize: '100',
     search: $('workSearch').value.trim(),
     regionId: $('filterRegion').value,
@@ -301,6 +331,21 @@ async function loadWorks() {
     dateFrom: $('filterDateFrom').value,
     dateTo: $('filterDateTo').value
   });
+}
+
+function exportWorks() {
+  const q = currentWorkQuery();
+  q.delete('pageSize');
+  const a = document.createElement('a');
+  a.href = '/api/works/export.csv?' + q.toString();
+  a.download = '';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function loadWorks() {
+  const q = currentWorkQuery();
   try {
     const data = await api('/api/works?' + q.toString());
     $('worksCount').textContent = data.total + ' سجل';
@@ -360,16 +405,25 @@ async function loadStats() {
   }
 }
 
+function syncUserScopeUi() {
+  const isRegion = $('userScopeType').value === 'REGION';
+  $('userScopeRegionWrap').classList.toggle('hidden', !isRegion);
+  $('userScopeValue').required = isRegion;
+  if (!isRegion) $('userScopeValue').value = '';
+}
+
 function resetUserForm() {
   $('userId').value = '';
   $('userForm').reset();
   $('userCanLogin').checked = true;
   $('userActive').checked = true;
   $('userScopeType').value = 'ALL';
+  $('userScopeValue').value = '';
   $('userEmail').disabled = false;
   $('userPassword').required = true;
   $('userFormTitle').textContent = 'إضافة مستخدم';
   $('userFormError').textContent = '';
+  syncUserScopeUi();
 }
 
 function fillUserForm(id) {
@@ -382,6 +436,8 @@ function fillUserForm(id) {
   $('userEmail').disabled = true;
   $('userRoleId').value = u.roleId || '';
   $('userScopeType').value = u.scopeType || 'ALL';
+  $('userScopeValue').value = u.scopeValue || '';
+  syncUserScopeUi();
   $('userPassword').value = '';
   $('userPassword').required = false;
   $('userCanLogin').checked = !!u.canLogin;
@@ -425,6 +481,7 @@ async function saveUser(event) {
     email: $('userEmail').value,
     roleId: $('userRoleId').value,
     scopeType: $('userScopeType').value,
+    scopeValue: $('userScopeType').value === 'REGION' ? $('userScopeValue').value : '',
     password: $('userPassword').value,
     canLogin: $('userCanLogin').checked,
     active: $('userActive').checked
@@ -559,10 +616,12 @@ $('workForm').addEventListener('input', () => {
 });
 $('newWorkBtn').addEventListener('click', () => clearForm());
 $('refreshWorks').addEventListener('click', loadWorks);
+$('exportWorksBtn').addEventListener('click', exportWorks);
 $('refreshStats').addEventListener('click', loadStats);
 $('refreshAudit').addEventListener('click', loadAudit);
 $('userForm').addEventListener('submit', saveUser);
 $('cancelUserEdit').addEventListener('click', resetUserForm);
+$('userScopeType').addEventListener('change', syncUserScopeUi);
 $('wfmNo').addEventListener('input', () => {
   clearTimeout(checkWfmDuplicate._t);
   checkWfmDuplicate._t = setTimeout(checkWfmDuplicate, 550);

@@ -739,9 +739,7 @@ function renderMap(){
   kpi('إجمالي أطوال الخطوط',fmt(sum(lines,'length')),'متر')+
  '</div>'+
  '<section class="map-panel map-panel-advanced" id="advancedMapPanel">'+
-  '<div class="map-stage">'+
-   '<div id="projectMap" class="map-canvas"></div>'+
-   '<div class="map-glass-panel">'+
+  '<div class="map-glass-panel map-filter-panel-external">'+
     '<div class="map-glass-top map-tools-only">'+
      '<div class="map-layer-buttons map-utility-buttons">'+
       '<button type="button" class="map-tool-btn" id="mapFitBtn">⌖ ملاءمة</button>'+
@@ -775,6 +773,8 @@ function renderMap(){
      '</div>'+
     '</div>'+
    '</div>'+
+  '<div class="map-stage">'+
+   '<div id="projectMap" class="map-canvas"></div>'+
    '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-dot line-only"></i> خط بديل</span><span class="map-kmz-legend"><i></i> KMZ</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
   '</div>'+
  '</section>'+

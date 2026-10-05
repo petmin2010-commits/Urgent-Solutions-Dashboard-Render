@@ -7,6 +7,7 @@
   box-shadow:0 12px 34px rgba(45,78,118,.08)!important
 }
 /* Smart-suite pages own their controls internally; never show the global report/filter block there. */
+body[data-vd-page="followup"] .main>#filterBar,
 body[data-vd-page="smartCenter"] .main>#filterBar,
 body[data-vd-page="temporalMemory"] .main>#filterBar,
 body[data-vd-page="investigationRoom"] .main>#filterBar,

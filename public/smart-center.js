@@ -134,9 +134,8 @@ function kpi(label,value,sub='',tone=''){return '<article class="us-kpi '+tone+'
 function panel(title,sub,body,extra=''){return '<article class="us-panel"><div class="us-panel-head"><div><small>'+esc(sub)+'</small><h3>'+esc(title)+'</h3></div>'+extra+'</div>'+body+'</article>'}
 function empty(msg){return '<div class="us-empty">'+esc(msg)+'</div>'}
 function openPage(page){window.VDUrgent?.openPage?.(page)}
-function smartTabs(page){
- const tabs=[['smartCenter','🧠','مركز التحليل الذكي'],['temporalMemory','◷','ذاكرة المشروع الزمنية'],['investigationRoom','⌕','غرفة التحقيق الذكية'],['explainableDecision','⚖','محرك القرار المفسر'],['project360','🔎','Project 360°'],['smartThursday','▣','تقرير الخميس الذكي']];
- return '<section class="us-smart-top"><div class="us-smart-top-head"><div><small>SMART PROJECT INTELLIGENCE • FREE ENGINE</small><strong>مركز التحليل الذكي</strong><span>تحليل مباشر للمشروعات، جودة البيانات، المخاطر والاستثناءات.</span></div><div class="us-smart-live"><i></i><b>'+(centralHistory?.source==='google-sheet'?'ذاكرة مركزية • Dashboard History':'جاري مزامنة الذاكرة...')+'</b></div></div><div class="us-smart-tabs">'+tabs.map(([k,i,t])=>'<button type="button" class="'+(k===page?'active':'')+'" data-smart-tab="'+k+'">'+i+' <span>'+t+'</span></button>').join('')+'</div></section>';
+function smartTabs(){
+ return '';
 }
 function smartHeader(eyebrow,title,desc,action=''){return '<section class="us-smart-hero"><div><small>'+esc(eyebrow)+'</small><h2>'+esc(title)+'</h2><p>'+esc(desc)+'</p></div>'+action+'</section>'}
 function wireSmartTabs(){

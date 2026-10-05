@@ -1544,7 +1544,7 @@ function renderPage(){
  document.body.dataset.vdPage=pageAtRender;
  document.body.classList.remove('map-fullscreen-open');
  destroyCharts();if(state.map){try{state.map.remove()}catch(e){}state.map=null}const meta=PAGE_META[pageAtRender]||PAGE_META.master;
- $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroIcon').textContent=meta.icon;$('#heroEyebrow').textContent=meta.eye+' • URGENT SOLUTIONS';
+ $('#pageTitle').textContent=meta.title;$('#pageSubtitle').textContent=meta.sub;$('#heroEyebrow').textContent=meta.eye+' • URGENT SOLUTIONS';
  renderFilters();
  const fn={master:renderMasterV2,projects:renderProjectsV2,map:renderMap,permits:renderPermitsV2,lines:renderLinesV2,settlements:renderSettlementsV2,guarantees:renderGuaranteesV2,complaints:renderComplaintsV2,execution:renderExecutionV2,parties:renderPartiesV2,municipalities:renderMunicipalities,traceability:renderTraceability,risks:renderRisks,quality:renderQuality,analytics:renderAnalyticsV2,smartCenter:renderSmartShell,temporalMemory:renderSmartShell,investigationRoom:renderSmartShell,explainableDecision:renderSmartShell,smartThursday:renderSmartShell,followup:renderReports,reports:renderReportsCenterShell,excelExport:renderExcelExport}[pageAtRender]||renderMasterV2;
  try{

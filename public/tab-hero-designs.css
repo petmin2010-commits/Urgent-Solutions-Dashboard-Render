@@ -15,7 +15,7 @@
     radial-gradient(circle at 76% 18%,rgba(255,255,255,.16),transparent 24%),
     linear-gradient(120deg,rgba(255,255,255,.04) 0 1px,transparent 1px 34px);
   min-height:142px!important;
-  grid-template-columns:126px minmax(0,1fr) 190px!important;
+  grid-template-columns:minmax(0,1fr) 190px!important;
   border-radius:28px!important;
   border:1px solid rgba(255,255,255,.18)!important;
   background:
@@ -27,7 +27,7 @@
 }
 
 #pageHero::before{
-  content:var(--hero-mark);
+  content:none;
   position:absolute;
   left:17%;
   top:50%;
@@ -306,12 +306,12 @@ body:has(.nav-item[data-page="excelExport"].active) #pageHero .hero-visual{borde
 
 /* Responsive behavior */
 @media(max-width:980px){
-  #pageHero{grid-template-columns:104px minmax(0,1fr) 150px!important;min-height:132px!important}
+  #pageHero{grid-template-columns:minmax(0,1fr) 150px!important;min-height:132px!important}
   #pageHero .hero-visual{width:78px;height:78px!important}
   #pageHero .hero-copy h1{font-size:22px!important}
 }
 @media(max-width:720px){
-  #pageHero{grid-template-columns:86px minmax(0,1fr)!important;padding-left:10px!important}
+  #pageHero{grid-template-columns:minmax(0,1fr)!important;padding-left:10px!important}
   #pageHero .hero-meta{display:none!important}
   #pageHero .hero-visual{width:68px;height:68px!important;border-radius:20px!important}
   #pageHero .hero-visual span{font-size:31px!important}

@@ -1345,9 +1345,10 @@ function exportFollowupTablePdf(button){
  const host=$('#pageHost'),all=[...host.querySelectorAll('.sheet-report-table')],hidden=[];
  all.forEach(el=>{if(el!==target){hidden.push([el,el.style.display]);el.style.display='none'}});
  ['.sheet-report-hero','.sheet-report-kpis','.sheet-report-warning'].forEach(sel=>host.querySelectorAll(sel).forEach(el=>{hidden.push([el,el.style.display]);el.style.display='none'}));
- const oldTitle=document.title,title=target.dataset.reportTableTitle||'جدول المتابعة';
+ const oldTitle=document.title,title=target.dataset.reportTableTitle||'جدول المتابعة',metaObj=PAGE_META.followup,metaTitle=metaObj?.title;
+ if(metaObj)metaObj.title=title;
  document.title=reportName('المتابعة_'+title,true);
- let restored=false;const restore=()=>{if(restored)return;restored=true;hidden.forEach(([el,v])=>el.style.display=v);document.title=oldTitle;window.removeEventListener('afterprint',restore)};
+ let restored=false;const restore=()=>{if(restored)return;restored=true;hidden.forEach(([el,v])=>el.style.display=v);if(metaObj)metaObj.title=metaTitle;document.title=oldTitle;window.removeEventListener('afterprint',restore)};
  window.addEventListener('afterprint',restore,{once:true});
  try{printCurrent()}catch(e){console.error(e);restore()}
  setTimeout(restore,8000);

@@ -27,9 +27,9 @@ const PAGE_META={
  analytics:{title:'التحليل التنفيذي',sub:'قراءة إدارية مركزة لأبرز مؤشرات الأداء والمخاطر التشغيلية.',icon:'⌁',eye:'EXECUTIVE ANALYTICS'},
  smartCenter:{title:'مركز التحليل الذكي',sub:'قراءة ذكية موحدة للموقف الحالي والتغيرات والمخاطر والإجراءات ذات الأولوية.',icon:'◆',eye:'SMART INTELLIGENCE CENTER'},
  temporalMemory:{title:'ذاكرة المشروع الزمنية',sub:'حفظ ومقارنة لقطات المؤشرات لرصد بداية التدهور والتغيرات عبر الزمن.',icon:'◷',eye:'PROJECT TEMPORAL MEMORY'},
- investigationRoom:{title:'غرفة التحقيق الذكية',sub:'تحليل أسباب الظواهر والمخاطر بتقسيمها حسب البلدية والمقاول والمالك ومصادر البيانات.',icon:'⌕',eye:'SMART INVESTIGATION ROOM'},
- explainableDecision:{title:'محرك القرار المفسر',sub:'ترتيب الحالات حسب الأولوية مع إظهار أسباب القرار والأدلة والإجراء المقترح.',icon:'⚖',eye:'EXPLAINABLE DECISION ENGINE'},
- smartThursday:{title:'تقرير الخميس الذكي',sub:'ملخص أسبوعي الجمعة–الخميس للمؤشرات والتغيرات والقرارات المطلوبة للأسبوع التالي.',icon:'▣',eye:'SMART THURSDAY REPORT'},
+ investigationRoom:{title:'غرفة التدقيق الذكية',sub:'تحليل أسباب الظواهر والمخاطر واكتشاف مناطق التركّز والأنماط المؤثرة حسب البلدية والمقاول والمالك ومصادر البيانات.',icon:'◉',eye:'SMART AUDIT ROOM'},
+ explainableDecision:{title:'مختبر القرار المتغير',sub:'اختبار أولوية الحالات تحت مستويات حساسية مختلفة مع شرح الأدلة وثقة التغطية والإجراء المقترح.',icon:'⌘',eye:'VARIABLE DECISION LAB'},
+ smartThursday:{title:'التقرير الهندسي الذكي',sub:'تقرير هندسي أسبوعي الجمعة–الخميس يلخص الوضع الحالي والتغيرات والمخاطر والقرارات والأولويات القادمة.',icon:'▣',eye:'SMART ENGINEERING REPORT'},
  reports:{title:'مركز التقارير',sub:'تصدير تقارير PDF وExcel بأسماء منظمة وفق الشاشة والفلاتر الحالية.',icon:'▦',eye:'REPORTS CENTER'},
  excelExport:{title:'تقارير الاكسيل',sub:'اختيار قاعدة البيانات والأعمدة والفلاتر ثم تصدير القيم النهائية فقط.',icon:'▧',eye:'EXCEL REPORTS'}
 };
@@ -453,7 +453,7 @@ function renderFilterSummary(){
 
 function renderFilters(){
  const bar=$('#filterBar'),host=$('#filtersHost'),defs=pageFilterDefs();if(!bar||!host)return;
- if(state.page==='reports'||state.page==='master'||state.page==='quality'){bar.style.display='none';host.innerHTML='';return;}
+ if(['reports','master','quality','smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].includes(state.page)){bar.style.display='none';host.innerHTML='';return;}
  bar.style.display='block';bar.classList.toggle('no-manual-filters',!defs.length);
  host.innerHTML=defs.map(def=>{
   const {values,set}=selectedFor(def.field),label=!values.length?'لا توجد قيم':set.size===values.length?'الكل':set.size+'/'+values.length;
@@ -747,7 +747,7 @@ function renderMap(){
      opt(lines,'designStatus','حالة التصميم')+
     '</div>'+
    '</div>'+
-   '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-line-key"></i> خط بديل</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
+   '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-dot line-only"></i> خط بديل</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
   '</div>'+
  '</section>'+
  tablePanel('العناصر الجغرافية',[
@@ -816,30 +816,13 @@ function renderMap(){
    projectLayer.addLayer(marker);bounds.push([lat,lon]);
    searchItems.push({kind:'مشروع',label:(r.no||'')+(r.name?' — '+r.name:''),search:norm([r.no,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.permitRefs,r.permitStatus].join(' ')),marker,lat,lon,layer:'projects'});
   });
-  const groups=new Map();
-  fl.forEach(r=>{const k=lineGroupKey(r);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r)});
-  groups.forEach(group=>{
-   const distinct=[];const seen=new Set();
-   group.sort((a,b)=>(a.row||0)-(b.row||0)).forEach(r=>{const key=Number(r.lat).toFixed(6)+','+Number(r.lon).toFixed(6);if(!seen.has(key)){seen.add(key);distinct.push(r)}});
-   if(distinct.length>=2){
-    const coords=distinct.map(r=>[Number(r.lat),Number(r.lon)]);
-    const route=L.polyline(coords,{color:'#1677b8',weight:5,opacity:.88,lineCap:'round',lineJoin:'round'});
-    const representative=group[0];
-    route.bindTooltip(lineTooltip(representative),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip'});
-    route.bindPopup(linePopup(representative),{maxWidth:470,className:'vd-map-popup'});
-    lineLayer.addLayer(route);coords.forEach(c=>bounds.push(c));
-    group.forEach(r=>searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker:route,lat:Number(r.lat),lon:Number(r.lon),layer:'lines'}));
-   }else{
-    group.forEach(r=>{
-     const lat=Number(r.lat),lon=Number(r.lon);
-     const icon=L.divIcon({className:'vd-line-segment-wrap',html:'<span class="vd-line-segment"><i></i></span>',iconSize:[54,22],iconAnchor:[27,11],popupAnchor:[0,-12],tooltipAnchor:[0,-10]});
-     const marker=L.marker([lat,lon],{icon});
-     marker.bindTooltip(lineTooltip(r),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip',offset:[0,-8]});
-     marker.bindPopup(linePopup(r),{maxWidth:470,className:'vd-map-popup'});
-     lineLayer.addLayer(marker);bounds.push([lat,lon]);
-     searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker,lat,lon,layer:'lines'});
-    });
-   }
+  fl.forEach(r=>{
+   const lat=Number(r.lat),lon=Number(r.lon);
+   const marker=L.circleMarker([lat,lon],{radius:6,color:'#fff',weight:2,fillColor:'#1677b8',fillOpacity:.96});
+   marker.bindTooltip(lineTooltip(r),{direction:'top',sticky:true,opacity:.98,className:'vd-map-tooltip',offset:[0,-8]});
+   marker.bindPopup(linePopup(r),{maxWidth:470,className:'vd-map-popup'});
+   lineLayer.addLayer(marker);bounds.push([lat,lon]);
+   searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker,lat,lon,layer:'lines'});
   });
   const pc=$('#mapProjectCount'),lc=$('#mapLineCount'),summary=$('#mapVisibleSummary');
   if(pc)pc.textContent=fp.length;if(lc)lc.textContent=fl.length;if(summary)summary.textContent=fp.length+' مشروع • '+fl.length+' خط';
@@ -1484,9 +1467,9 @@ function canAccess(item){
   excelExport:['تصدير تقرير Excel','تقارير الاكسيل','excelExport'],
   smartCenter:['مركز التحليل الذكي','التحليل الذكي و التقارير','analytics','risks'],
   temporalMemory:['ذاكرة المشروع الزمنية','التحليل الذكي و التقارير'],
-  investigationRoom:['غرفة التحقيق الذكية','التحليل الذكي و التقارير'],
-  explainableDecision:['محرك القرار المفسر','التحليل الذكي و التقارير'],
-  smartThursday:['تقرير الخميس الذكي','التحليل الذكي و التقارير']
+  investigationRoom:['غرفة التدقيق الذكية','غرفة التحقيق الذكية','التحليل الذكي و التقارير'],
+  explainableDecision:['مختبر القرار المتغير','محرك القرار المفسر','التحليل الذكي و التقارير'],
+  smartThursday:['التقرير الهندسي الذكي','تقرير الخميس الذكي','التحليل الذكي و التقارير']
  };
  const wanted=[key,label,...(aliases[key]||[])].map(norm);
  return p.some(x=>wanted.includes(norm(x)));

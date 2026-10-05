@@ -5,6 +5,7 @@ const HISTORY_KEY='vd.urgent.smart.history.v2';
 const THURSDAY_KEY='vd.urgent.smart.thursday.v2';
 const SNAPSHOT_INTERVAL=15*60*1000;
 const MAX_HISTORY=96;
+let memoryChart=null;
 
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const clean=v=>String(v==null?'':v).replace(/\s+/g,' ').trim();
@@ -147,7 +148,7 @@ function smartHeader(eyebrow,title,desc,action=''){
  return '<section class="us-smart-hero"><div><small>'+esc(eyebrow)+'</small><h2>'+esc(title)+'</h2><p>'+esc(desc)+'</p></div>'+action+'</section>';
 }
 function updateFilterVisibility(page){
- const bar=document.getElementById('filterBar');if(bar&&SMART_PAGES.has(page))bar.style.display='block';
+ const bar=document.getElementById('filterBar');if(bar&&SMART_PAGES.has(page))bar.style.display='none';
 }
 
 function renderCenter(){
@@ -168,8 +169,8 @@ function renderCenter(){
  ].map((x,i)=>'<div><b>'+(i+1)+'</b><span>'+esc(x)+'</span></div>').join('')+'</div>','<button class="us-mini" id="usCapture">حفظ لقطة الآن</button>')+
  panel('القرارات ذات الأولوية','PRIORITY ACTIONS','<div class="us-action-list">'+priorityActions(d).map((x,i)=>'<div><b>'+String(i+1).padStart(2,'0')+'</b><span><strong>'+esc(x.title)+'</strong><small>'+esc(x.text)+'</small></span></div>').join('')+'</div>')+
  '</div>'+
- panel('أعلى المشروعات أولوية','TOP RISK PROJECTS',riskTable(risks),'<button class="us-mini" data-smart-open="explainableDecision">فتح محرك القرار</button>')+
- '<div class="us-smart-links"><button data-smart-open="temporalMemory">◷ ذاكرة المشروع الزمنية</button><button data-smart-open="investigationRoom">⌕ غرفة التحقيق الذكية</button><button data-smart-open="explainableDecision">⚖ محرك القرار المفسر</button><button data-smart-open="smartThursday">▣ تقرير الخميس الذكي</button><button data-smart-open="risks">⚠ مخاطر المشاريع</button><button data-smart-open="analytics">⌁ التحليل التنفيذي</button></div>';
+ panel('أعلى المشروعات أولوية','TOP RISK PROJECTS',riskTable(risks),'<button class="us-mini" data-smart-open="explainableDecision">فتح مختبر القرار</button>')+
+ '<div class="us-smart-links"><button data-smart-open="temporalMemory">◷ ذاكرة المشروع الزمنية</button><button data-smart-open="investigationRoom">◉ غرفة التدقيق الذكية</button><button data-smart-open="explainableDecision">⌘ مختبر القرار المتغير</button><button data-smart-open="smartThursday">▣ التقرير الهندسي الذكي</button><button data-smart-open="reports">▦ مركز التقارير</button><button data-smart-open="excelExport">▧ تقارير الاكسيل</button></div>';
  document.getElementById('usRefreshSmart')?.addEventListener('click',()=>{captureSnapshot(true);renderCenter()});
  document.getElementById('usCapture')?.addEventListener('click',()=>{captureSnapshot(true);renderCenter();window.VDUrgent?.toast?.('تم حفظ لقطة زمنية جديدة')});
  wireOpenButtons();
@@ -193,17 +194,52 @@ function riskTable(rows){
 
 function renderMemory(){
  const h=host(),hist=history(),cur=metricSnapshot(data()),first=hist[0],prev=hist[hist.length-1],trend=memoryFindings(hist);
- h.innerHTML=smartHeader('PROJECT TEMPORAL MEMORY • 15 MIN SNAPSHOTS','ذاكرة المشروع الزمنية','تُنشئ لقطة للمؤشرات كل 15 دقيقة عند وجود قراءة جديدة، وتستخدمها لاكتشاف بداية التغير وتفسير الاتجاه.','<button class="us-primary" id="usMemorySnap">＋ حفظ لقطة الآن</button>')+
+ h.innerHTML=smartHeader('PROJECT TEMPORAL MEMORY • 15 MIN SNAPSHOTS','ذاكرة المشروع الزمنية','نفس فلسفة جدة: ذاكرة زمنية تحفظ اللقطات كل 15 دقيقة، تقارن التسلسل، وتجيب عن أسئلة «متى بدأ التغير؟» مع إظهار حدود الدليل.','<button class="us-primary" id="usMemorySnap">＋ حفظ لقطة الآن</button>')+
  '<div class="us-kpis">'+kpi('عدد اللقطات',fmt(hist.length),'محفوظة على هذا الجهاز')+kpi('أول لقطة',first?dateLabel(first.capturedAt):'—','بداية الذاكرة')+kpi('آخر لقطة',cur?nowLabel(cur.capturedAt):'—','آخر قراءة')+kpi('المخاطر الحالية',fmt(cur.highRisk),'عالية/حرجة','danger')+kpi('التصاريح المنتهية',fmt(cur.expired),'الحالة الحالية','warn')+kpi('جودة البيانات',fmt(cur.quality),'ملاحظات حالية')+'</div>'+
+ '<article class="us-memory-ask"><div class="us-panel-head"><div><small>ASK THE PAST</small><h3>اسأل ذاكرة المشروع</h3></div><span class="us-memory-evidence">زمن + دليل</span></div><div class="us-memory-chips"><button data-memory-q="deterioration">متى بدأ التدهور؟</button><button data-memory-q="firstSignal">ما أول مؤشر ظهر؟</button><button data-memory-q="riskPeak">متى بلغت المخاطر أعلى قيمة؟</button><button data-memory-q="coverage">كيف تغيرت التغطية؟</button></div><div class="us-memory-answer" id="usMemoryAnswer">اختر سؤالًا لقراءة الذاكرة الزمنية.</div></article>'+
  '<div class="us-grid two">'+
+ panel('تطور المؤشرات عبر الزمن','TEMPORAL TREND','<div class="us-memory-chart"><canvas id="usMemoryChart"></canvas></div>')+
  panel('الاستنتاجات الزمنية','TEMPORAL FINDINGS',trend.map(x=>'<div class="us-finding"><b>'+esc(x.title)+'</b><span>'+esc(x.text)+'</span></div>').join('')||empty('لا توجد لقطات كافية لبناء اتجاه زمني.'))+
+ '</div>'+
  panel('مقارنة آخر لقطة بالسابق','LATEST DELTA','<div class="us-change-list">'+[
    diffText(cur,prev,'highRisk','المخاطر العالية',true),diffText(cur,prev,'expired','التصاريح المنتهية',true),
    diffText(cur,prev,'quality','ملاحظات الجودة',true),diffText(cur,prev,'coverage','نسبة التغطية'),diffText(cur,prev,'lineMeters','الأمتار المنفذة')
  ].map((x,i)=>'<div><b>'+(i+1)+'</b><span>'+esc(x)+'</span></div>').join('')+'</div>')+
- '</div>'+
  panel('سجل اللقطات','SNAPSHOT HISTORY',historyTable(hist));
  document.getElementById('usMemorySnap')?.addEventListener('click',()=>{captureSnapshot(true);renderMemory();window.VDUrgent?.toast?.('تم حفظ لقطة جديدة')});
+ document.querySelectorAll('[data-memory-q]').forEach(b=>b.addEventListener('click',()=>{const box=document.getElementById('usMemoryAnswer');if(box)box.innerHTML=memoryAnswer(hist,b.dataset.memoryQ)}));
+ renderMemoryChart(hist);
+}
+function memoryAnswer(hist,kind){
+ if(hist.length<2)return '<b>التغطية غير كافية.</b><span>تحتاج الذاكرة إلى لقطة سابقة واحدة على الأقل لبناء استنتاج زمني قابل للمراجعة.</span>';
+ const pairs=hist.map((x,i)=>({x,prev:i?hist[i-1]:null})).slice(1),fmtAt=x=>nowLabel(x.capturedAt);
+ if(kind==='deterioration'){
+  const hit=pairs.find(p=>num(p.x.highRisk)>num(p.prev.highRisk)||num(p.x.expired)>num(p.prev.expired)||num(p.x.quality)>num(p.prev.quality));
+  return hit?'<b>أول تدهور محفوظ: '+esc(fmtAt(hit.x))+'</b><span>المقارنة مع اللقطة السابقة أظهرت ارتفاعًا في المخاطر العالية أو التصاريح المنتهية أو ملاحظات الجودة. هذا يحدد أول نقطة تدهور محفوظة، وليس بالضرورة بداية السبب الحقيقي قبل بدء التسجيل.</span>':'<b>لم يظهر تدهور صريح داخل اللقطات المحفوظة.</b><span>لا توجد زيادة متتابعة في مؤشرات المخاطر/الانتهاء/الجودة ضمن فترة الذاكرة الحالية.</span>';
+ }
+ if(kind==='firstSignal'){
+  const events=[];
+  pairs.forEach(p=>{[['highRisk','المخاطر العالية'],['expired','التصاريح المنتهية'],['quality','ملاحظات الجودة']].forEach(([k,label])=>{if(num(p.x[k])>num(p.prev[k]))events.push({at:p.x.capturedAt,label,delta:num(p.x[k])-num(p.prev[k])})})});
+  events.sort((a,b)=>a.at-b.at);const e=events[0];
+  return e?'<b>أول مؤشر متدهور: '+esc(e.label)+'</b><span>ظهر في '+esc(nowLabel(e.at))+' بزيادة '+esc(fmt(e.delta))+' مقارنة باللقطة السابقة.</span>':'<b>لا توجد إشارة تدهور محفوظة.</b><span>المؤشرات الأساسية لم تسجل زيادة سلبية داخل الذاكرة الحالية.</span>';
+ }
+ if(kind==='riskPeak'){
+  const p=[...hist].sort((a,b)=>num(b.highRisk)-num(a.highRisk))[0];
+  return '<b>أعلى قيمة للمخاطر العالية: '+esc(fmt(p.highRisk))+'</b><span>سُجلت في '+esc(fmtAt(p))+'. المقارنة تخص اللقطات المحفوظة فقط.</span>';
+ }
+ const a=hist[0],b=hist[hist.length-1],d=num(b.coverage)-num(a.coverage);
+ return '<b>التغطية: '+esc(fmt(a.coverage))+'% ← '+esc(fmt(b.coverage))+'%</b><span>صافي التغير '+(d>=0?'+':'')+esc(fmt(d))+' نقطة مئوية منذ أول لقطة محفوظة.</span>';
+}
+function renderMemoryChart(hist){
+ const canvas=document.getElementById('usMemoryChart');if(!canvas||typeof Chart==='undefined')return;
+ try{memoryChart?.destroy()}catch(e){}
+ const rows=hist.slice(-30);if(!rows.length)return;
+ memoryChart=new Chart(canvas,{type:'line',data:{labels:rows.map(x=>new Date(x.capturedAt).toLocaleString('ar-SA',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})),datasets:[
+  {label:'المخاطر العالية',data:rows.map(x=>num(x.highRisk)),tension:.28},
+  {label:'التصاريح المنتهية',data:rows.map(x=>num(x.expired)),tension:.28},
+  {label:'جودة البيانات',data:rows.map(x=>num(x.quality)),tension:.28},
+  {label:'التغطية %',data:rows.map(x=>num(x.coverage)),tension:.28}
+ ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{family:'Cairo',size:9}}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},scales:{x:{ticks:{font:{family:'Cairo',size:8},maxRotation:0,autoSkip:true},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:8}}}}}});
 }
 function memoryFindings(hist){
  if(hist.length<2)return [];
@@ -242,18 +278,33 @@ function aggregateInvestigation(rows,dim){
  const m=new Map();rows.forEach(r=>{const k=dimensionValue(r,dim),x=m.get(k)||{key:k,count:0,weight:0};x.count++;x.weight+=num(r._weight)||1;m.set(k,x)});
  return [...m.values()].sort((a,b)=>b.weight-a.weight||b.count-a.count);
 }
+function strongestCombinations(rows){
+ const dims=['municipality','contractor','owner','category','source'],out=[];
+ for(let i=0;i<dims.length;i++)for(let j=i+1;j<dims.length;j++){
+  const a=dims[i],b=dims[j],groups=new Map();
+  rows.forEach(r=>{
+   const av=dimensionValue(r,a),bv=dimensionValue(r,b);
+   if(av==='غير محدد'&&bv==='غير محدد')return;
+   const key=av+' • '+bv,x=groups.get(key)||{key,count:0,weight:0,a,b};x.count++;x.weight+=num(r._weight)||1;groups.set(key,x);
+  });
+  const best=[...groups.values()].sort((x,y)=>y.weight-x.weight||y.count-x.count)[0];
+  if(best)out.push(best);
+ }
+ return out.sort((a,b)=>b.weight-a.weight||b.count-a.count);
+}
 function renderInvestigation(){
  const h=host();
- h.innerHTML=smartHeader('AUTOMATED INVESTIGATION ROOM','غرفة التحقيق الذكية','اختر الظاهرة والبُعد؛ النظام يقسم الحالات ويحدد أعلى تركّز وأقوى مساهمة في المشكلة.')+
+ h.innerHTML=smartHeader('SMART AUDIT ROOM','غرفة التدقيق الذكية','اختر الظاهرة والبُعد؛ النظام يدقق الحالات ويحدد أعلى تركّز وأقوى مساهمة في المشكلة مع تفسير قابل للمراجعة.')+
  '<article class="us-investigate-controls"><label><span>الظاهرة</span><select id="usPhenomenon"><option value="risk">المشاريع عالية المخاطر</option><option value="expired">التصاريح المنتهية</option><option value="quality">ملاحظات جودة البيانات</option><option value="guarantee">مخاطر الضمانات</option><option value="gap">فجوات الأمتار</option><option value="design">تأخر التصميم والاعتماد</option></select></label><label><span>التقسيم</span><select id="usDimension"><option value="municipality">البلدية</option><option value="contractor">المقاول</option><option value="owner">المالك</option><option value="category">النوع / التصنيف</option><option value="source">المصدر</option></select></label><button class="us-primary" id="usRunInvestigation">ابدأ التحقيق</button></article>'+
  '<div id="usInvestigationResult"></div>';
  const run=()=>{
-  const kind=document.getElementById('usPhenomenon').value,dim=document.getElementById('usDimension').value,rows=phenomenonRows(kind),groups=aggregateInvestigation(rows,dim),totalWeight=groups.reduce((a,x)=>a+x.weight,0),top=groups[0],concentration=top?pct(top.weight,totalWeight):0;
+  const kind=document.getElementById('usPhenomenon').value,dim=document.getElementById('usDimension').value,rows=phenomenonRows(kind),groups=aggregateInvestigation(rows,dim),totalWeight=groups.reduce((a,x)=>a+x.weight,0),top=groups[0],concentration=top?pct(top.weight,totalWeight):0,combos=strongestCombinations(rows),bestCombo=combos[0],comboPct=bestCombo?pct(bestCombo.weight,totalWeight):0;
   document.getElementById('usInvestigationResult').innerHTML=
-   '<div class="us-kpis">'+kpi('الحالات',fmt(rows.length),'ضمن الظاهرة المختارة')+kpi('المجموع المرجح',fmt(totalWeight),'بحسب نوع الظاهرة')+kpi('أعلى تركّز',top?top.key:'—',top?fmt(concentration)+'% من الأثر':'لا توجد بيانات','warn')+kpi('عدد المجموعات',fmt(groups.length),'بعد التقسيم')+'</div>'+
+   '<div class="us-kpis">'+kpi('الحالات',fmt(rows.length),'ضمن الظاهرة المختارة')+kpi('المجموع المرجح',fmt(totalWeight),'بحسب نوع الظاهرة')+kpi('أعلى تركّز',top?top.key:'—',top?fmt(concentration)+'% من الأثر':'لا توجد بيانات','warn')+kpi('أقوى تركيب',bestCombo?bestCombo.key:'—',bestCombo?fmt(comboPct)+'% من الأثر':'لا توجد بيانات','warn')+'</div>'+
    '<div class="us-grid two">'+panel('أعلى مسببات/مناطق التركّز','ROOT CAUSE SPLIT',groups.slice(0,12).map((x,i)=>'<div class="us-bar-row"><span><b>'+esc(x.key)+'</b><small>'+fmt(x.count)+' حالة</small></span><div><i style="width:'+Math.max(4,pct(x.weight,totalWeight))+'%"></i></div><strong>'+fmt(pct(x.weight,totalWeight))+'%</strong></div>').join('')||empty('لا توجد حالات لهذه الظاهرة.'))+
-   panel('الاستنتاج التفسيري','INVESTIGATION FINDING',top?'<div class="us-investigation-note"><b>المجموعة الأعلى أثرًا: '+esc(top.key)+'</b><p>تمثل '+fmt(concentration)+'% من الأثر المرجح، بعدد '+fmt(top.count)+' حالة. يوصى بفتح الحالات التابعة لهذه المجموعة أولًا ثم مقارنة الأسباب المشتركة بينها.</p><button class="us-mini" data-smart-open="explainableDecision">تحويل إلى محرك القرار</button></div>':empty('لا توجد بيانات كافية لبناء استنتاج.'))+'</div>'+
-   panel('تفاصيل المجموعات','BREAKDOWN TABLE','<div class="us-table-wrap"><table><thead><tr><th>#</th><th>المجموعة</th><th>عدد الحالات</th><th>الأثر المرجح</th><th>المساهمة</th></tr></thead><tbody>'+groups.slice(0,30).map((x,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+esc(x.key)+'</b></td><td>'+fmt(x.count)+'</td><td>'+fmt(x.weight)+'</td><td>'+fmt(pct(x.weight,totalWeight))+'%</td></tr>').join('')+'</tbody></table></div>');
+   panel('أقوى تركيب تفسيري','STRONGEST EXPLANATORY COMBINATION',bestCombo?'<div class="us-investigation-note"><b>'+esc(bestCombo.key)+'</b><p>هذا التركيب يجمع '+fmt(bestCombo.count)+' حالة ويمثل '+fmt(comboPct)+'% من الأثر المرجح. هو تركّز إحصائي قابل للتدقيق، وليس حكمًا سببيًا نهائيًا.</p><button class="us-mini" data-smart-open="explainableDecision">تحويل إلى مختبر القرار</button></div>':empty('لا توجد بيانات كافية لبناء تركيب تفسيري.'))+'</div>'+
+   panel('أقوى التركيبات المكتشفة','COMBINATION SEARCH','<div class="us-table-wrap"><table><thead><tr><th>#</th><th>التركيب</th><th>الحالات</th><th>الأثر المرجح</th><th>المساهمة</th></tr></thead><tbody>'+combos.slice(0,12).map((x,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+esc(x.key)+'</b></td><td>'+fmt(x.count)+'</td><td>'+fmt(x.weight)+'</td><td>'+fmt(pct(x.weight,totalWeight))+'%</td></tr>').join('')+'</tbody></table></div>')+
+   panel('تفاصيل التقسيم المختار','BREAKDOWN TABLE','<div class="us-table-wrap"><table><thead><tr><th>#</th><th>المجموعة</th><th>عدد الحالات</th><th>الأثر المرجح</th><th>المساهمة</th></tr></thead><tbody>'+groups.slice(0,30).map((x,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+esc(x.key)+'</b></td><td>'+fmt(x.count)+'</td><td>'+fmt(x.weight)+'</td><td>'+fmt(pct(x.weight,totalWeight))+'%</td></tr>').join('')+'</tbody></table></div>');
   wireOpenButtons();
  };
  document.getElementById('usRunInvestigation').addEventListener('click',run);run();
@@ -266,24 +317,51 @@ function decisionAction(item){
  if(r.includes('الضمان منتهي'))return 'استكمال تمديد/استبدال الضمان قبل أي التزام مالي أو تسليم.';
  if(r.includes('ضغط تمديدات'))return 'تأكيد خطة التنفيذ والموارد ومتابعة أثر ضغط التمديدات أسبوعيًا.';
  if(r.includes('إحداثيات'))return 'استكمال الإحداثيات ومراجعة الربط الجغرافي قبل اعتماد التحليل المكاني.';
- return 'تثبيت مسؤول وتاريخ إغلاق للحالة ومراجعتها في تقرير الخميس الذكي.';
+ return 'تثبيت مسؤول وتاريخ إغلاق للحالة ومراجعتها في التقرير الهندسي الذكي.';
+}
+function decisionAdjustedScore(item,scenario){
+ let score=num(item.score),r=item.reasons.join(' • ');
+ if(scenario==='risk'){
+  if(r.includes('تصنيف المخاطر حرج'))score+=12;
+  if(r.includes('التصريح منتهي'))score+=8;
+  if(r.includes('الضمان منتهي'))score+=8;
+ }
+ if(scenario==='execution'){
+  if(r.includes('فجوة أمتار'))score+=12;
+  if(r.includes('ضغط تمديدات'))score+=9;
+  if(r.includes('التصريح منتهي'))score+=7;
+  if(r.includes('إحداثيات'))score-=3;
+ }
+ if(scenario==='data'){
+  if(r.includes('إحداثيات'))score+=14;
+  if(!clean(item.p.contractor))score+=8;
+  if(!clean(item.p.owner))score+=6;
+  if(!clean(item.p.municipality))score+=6;
+ }
+ return Math.max(0,Math.min(100,Math.round(score)));
+}
+function decisionConfidence(item){
+ const p=item.p,checks=[p.no||p.name,p.contractor,p.owner,p.municipality,p.permitStatus,p.guaranteeStatus,(num(p.lat)&&num(p.lon))?'geo':'',item.reasons.length?item.reasons[0]:''];
+ return Math.max(25,Math.min(95,Math.round(25+pct(checks.filter(Boolean).length,checks.length)*.7)));
 }
 function renderDecision(){
  const h=host(),all=topRiskProjects(data(),100);
- h.innerHTML=smartHeader('EXPLAINABLE DECISION ENGINE','محرك القرار المفسر','لا يكتفي بدرجة أولوية؛ يعرض سبب الدرجة والأدلة التشغيلية والإجراء المقترح لكل مشروع.')+
- '<article class="us-decision-tools"><label><span>بحث بالمشروع / المقاول / البلدية</span><input id="usDecisionSearch" type="search" placeholder="اكتب كلمة للبحث..."></label><label><span>الحد الأدنى للأولوية</span><select id="usDecisionLevel"><option value="0">الكل</option><option value="20">20+</option><option value="45" selected>45+</option><option value="70">70+</option></select></label><button class="us-primary" id="usDecisionApply">تطبيق</button></article><div id="usDecisionResult"></div>';
+ h.innerHTML=smartHeader('VARIABLE DECISION LAB','مختبر القرار المتغير','بنفس منطق جدة القابل للتفسير مع إضافة سيناريوهات حساسية: غيّر السيناريو لترى كيف تتغير الأولويات، مع إبقاء أسباب الدرجة وثقة التغطية ظاهرة.')+
+ '<article class="us-decision-tools us-decision-tools-v2"><label><span>بحث بالمشروع / المقاول / البلدية</span><input id="usDecisionSearch" type="search" placeholder="اكتب كلمة للبحث..."></label><label><span>سيناريو الحساسية</span><select id="usDecisionScenario"><option value="balanced">متوازن</option><option value="risk">حساس للمخاطر</option><option value="execution">حساس للتنفيذ</option><option value="data">حساس لجودة البيانات</option></select></label><label><span>الحد الأدنى للأولوية</span><select id="usDecisionLevel"><option value="0">الكل</option><option value="20">20+</option><option value="45" selected>45+</option><option value="70">70+</option></select></label><button class="us-primary" id="usDecisionApply">إعادة الحساب</button></article><div class="us-decision-method"><b>منهج المختبر:</b> الدرجة أداة ترتيب تشغيلية وليست قرارًا نهائيًا. السيناريو يغيّر أوزان الإشارات فقط، بينما «ثقة التغطية» تقيس اكتمال الحقول والأدلة المتاحة ولا تضيف نقاط مخاطرة.</div><div id="usDecisionResult"></div>';
  const run=()=>{
-  const q=norm(document.getElementById('usDecisionSearch').value),min=num(document.getElementById('usDecisionLevel').value);
-  const rows=all.filter(x=>x.score>=min&&(!q||norm([x.p.no,x.p.name,x.p.contractor,x.p.owner,x.p.municipality].join(' ')).includes(q)));
-  document.getElementById('usDecisionResult').innerHTML='<div class="us-kpis">'+kpi('الحالات المطابقة',fmt(rows.length),'بعد البحث والحد الأدنى')+kpi('الأولوية الحرجة',fmt(rows.filter(x=>x.score>=70).length),'درجة 70 فأعلى','danger')+kpi('الأولوية المرتفعة',fmt(rows.filter(x=>x.score>=45&&x.score<70).length),'درجة 45–69','warn')+kpi('متوسط الدرجة',fmt(rows.length?rows.reduce((a,x)=>a+x.score,0)/rows.length:0),'من 100')+'</div>'+
-  '<div class="us-decision-grid">'+rows.slice(0,24).map(x=>'<article class="us-decision-card"><div class="us-decision-head"><div><small>'+esc(x.p.no||'مشروع')+'</small><h3>'+esc(x.p.name||x.p.no||'مشروع بدون اسم')+'</h3><p>'+esc([x.p.municipality,x.p.contractor].filter(Boolean).join(' • '))+'</p></div><span class="us-big-score '+(x.score>=70?'red':x.score>=45?'amber':'blue')+'"><b>'+x.score+'</b><small>'+severity(x.score)+'</small></span></div><div class="us-reasons">'+x.reasons.map(r=>'<span>'+esc(r)+'</span>').join('')+'</div><div class="us-next"><small>الإجراء المقترح</small><b>'+esc(decisionAction(x))+'</b></div></article>').join('')+'</div>';
+  const q=norm(document.getElementById('usDecisionSearch').value),min=num(document.getElementById('usDecisionLevel').value),scenario=document.getElementById('usDecisionScenario').value;
+  const rows=all.map(x=>({...x,adjusted:decisionAdjustedScore(x,scenario),confidence:decisionConfidence(x)})).filter(x=>x.adjusted>=min&&(!q||norm([x.p.no,x.p.name,x.p.contractor,x.p.owner,x.p.municipality,...x.reasons].join(' ')).includes(q))).sort((a,b)=>b.adjusted-a.adjusted||b.confidence-a.confidence);
+  const avg=rows.length?rows.reduce((a,x)=>a+x.adjusted,0)/rows.length:0,highConf=rows.filter(x=>x.confidence>=75).length;
+  document.getElementById('usDecisionResult').innerHTML='<div class="us-kpis">'+kpi('الحالات المطابقة',fmt(rows.length),'بعد البحث والحساسية')+kpi('الأولوية الحرجة',fmt(rows.filter(x=>x.adjusted>=70).length),'درجة معدلة 70 فأعلى','danger')+kpi('الأولوية المرتفعة',fmt(rows.filter(x=>x.adjusted>=45&&x.adjusted<70).length),'درجة معدلة 45–69','warn')+kpi('ثقة تغطية عالية',fmt(highConf),'75% فأعلى')+kpi('متوسط الدرجة',fmt(avg),'من 100')+'</div>'+
+  '<div class="us-decision-grid">'+rows.slice(0,30).map(x=>'<article class="us-decision-card"><div class="us-decision-head"><div><small>'+esc(x.p.no||'مشروع')+'</small><h3>'+esc(x.p.name||x.p.no||'مشروع بدون اسم')+'</h3><p>'+esc([x.p.municipality,x.p.contractor].filter(Boolean).join(' • '))+'</p></div><span class="us-big-score '+(x.adjusted>=70?'red':x.adjusted>=45?'amber':'blue')+'"><b>'+x.adjusted+'</b><small>'+severity(x.adjusted)+'</small></span></div><div class="us-decision-meta"><span>الدرجة الأصلية '+esc(x.score)+'</span><span>ثقة التغطية '+esc(x.confidence)+'%</span><span>'+esc(x.reasons.length)+' إشارات</span></div><div class="us-reasons">'+x.reasons.map(r=>'<span>'+esc(r)+'</span>').join('')+'</div><div class="us-next"><small>الإجراء المقترح</small><b>'+esc(decisionAction(x))+'</b></div></article>').join('')+'</div>';
  };
- document.getElementById('usDecisionApply').addEventListener('click',run);document.getElementById('usDecisionSearch').addEventListener('input',run);run();
+ ['usDecisionApply','usDecisionScenario','usDecisionLevel'].forEach(id=>document.getElementById(id)?.addEventListener(id==='usDecisionApply'?'click':'change',run));
+ document.getElementById('usDecisionSearch').addEventListener('input',run);run();
 }
 
 function renderThursday(){
  const h=host(),d=data(),s=d.summaries||{},pt=d.permitTiming||{},cur=metricSnapshot(d),prev=previousThursday(),w=weekWindow(),actions=priorityActions(d);
- h.innerHTML=smartHeader('FRIDAY → THURSDAY EXECUTIVE REVIEW','تقرير الخميس الذكي','ملخص أسبوعي للإدارة: الوضع الحالي، ما تغير منذ خط الأساس السابق، المخاطر والقرارات المطلوبة.','<button class="us-primary" id="usSaveThursday">حفظ خط أساس الخميس</button>')+
+ h.innerHTML=smartHeader('FRIDAY → THURSDAY SMART ENGINEERING REVIEW','التقرير الهندسي الذكي','تقرير هندسي أسبوعي: الوضع الحالي، ما تغير منذ خط الأساس السابق، المخاطر والقرارات والإجراءات المطلوبة.','<button class="us-primary" id="usSaveThursday">حفظ خط أساس التقرير</button>')+
  '<div class="us-week-window"><span>الفترة الأسبوعية</span><b>'+esc(dateLabel(w.from))+' → '+esc(dateLabel(w.to))+'</b><small>يتم استخدام أحدث خط أساس محفوظ للمقارنة عند توفره.</small></div>'+
  '<div class="us-kpis">'+kpi('المشاريع',fmt(s.projects),'إجمالي')+kpi('المخاطر العالية',fmt(s.highRiskProjects),'حرج + مرتفع','danger')+kpi('التصاريح المنتهية',fmt(pt.expired),'الحالة الحالية','warn')+kpi('التغطية المطابقة',fmt(s.matchedCoveragePct)+'%','أمتار منفذة/مستحقة')+kpi('جودة البيانات',fmt(s.qualityIssues),'ملاحظة')+kpi('التصميم قيد المتابعة',fmt(s.designPending),'خط بديل')+'</div>'+
  '<div class="us-grid two">'+
@@ -295,7 +373,7 @@ function renderThursday(){
  '</div>'+
  panel('أعلى الحالات التي تتطلب متابعة','WEEKLY PRIORITIES',riskTable(topRiskProjects(d,10)))+
  panel('ملاحظات التقرير','METHODOLOGY','<div class="us-method">التقرير مبني على آخر بيانات محملة من Google Sheets في الداشبورد. نافذة المتابعة الأسبوعية من الجمعة إلى الخميس. المقارنة تعتمد على خط أساس الخميس المحفوظ عند توفره، وإلا تستخدم أحدث لقطة زمنية سابقة. لا يتم اعتبار درجة المخاطر قرارًا نهائيًا دون مراجعة المستندات والحالة الفعلية.</div>');
- document.getElementById('usSaveThursday')?.addEventListener('click',()=>{const store=safeParse(localStorage.getItem(THURSDAY_KEY),{});store[weekKey()]=metricSnapshot(d);localStorage.setItem(THURSDAY_KEY,JSON.stringify(store));captureSnapshot(true);renderThursday();window.VDUrgent?.toast?.('تم حفظ خط أساس تقرير الخميس')});
+ document.getElementById('usSaveThursday')?.addEventListener('click',()=>{const store=safeParse(localStorage.getItem(THURSDAY_KEY),{});store[weekKey()]=metricSnapshot(d);localStorage.setItem(THURSDAY_KEY,JSON.stringify(store));captureSnapshot(true);renderThursday();window.VDUrgent?.toast?.('تم حفظ خط أساس التقرير الهندسي')});
 }
 
 function wireOpenButtons(){

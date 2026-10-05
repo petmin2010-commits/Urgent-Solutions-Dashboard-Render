@@ -23,3 +23,60 @@ body.theme-dark .us-kpi,body.theme-dark .us-panel,body.theme-dark .us-smart-link
 @media(max-width:850px){.us-grid.two,.us-decision-grid{grid-template-columns:1fr}.us-investigate-controls,.us-decision-tools{grid-template-columns:1fr 1fr}.us-investigate-controls .us-primary,.us-decision-tools .us-primary{grid-column:1/-1}.us-smart-hero{align-items:flex-start;flex-direction:column}.us-smart-links{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.us-kpis{grid-template-columns:repeat(2,1fr)}.us-investigate-controls,.us-decision-tools{grid-template-columns:1fr}.us-smart-links{grid-template-columns:1fr}.us-smart-hero h2{font-size:20px}}
 @media print{.us-smart-hero .us-primary,.us-mini,.us-smart-links,.us-investigate-controls,.us-decision-tools{display:none!important}.urgent-smart-suite-host{font-size:10px}.us-panel,.us-kpi,.us-decision-card{box-shadow:none;break-inside:avoid}.us-table-wrap{overflow:visible}.us-table-wrap table{min-width:0}.us-smart-hero{box-shadow:none}}
+
+
+/* === Jeddah smart-suite parity extensions • 2026-10-05 === */
+.nav-group[data-group="analytics"] .nav-item:not(.nav-item-supporting)>span{
+ width:26px;height:26px;display:grid;place-items:center;border-radius:8px;color:#fff;
+ box-shadow:inset 0 1px rgba(255,255,255,.28),0 4px 9px rgba(0,0,0,.14);font-size:12px
+}
+.nav-group[data-group="analytics"] .nav-item:nth-child(1)>span{background:linear-gradient(145deg,#3d7bf4,#2aa8e8)}
+.nav-group[data-group="analytics"] .nav-item:nth-child(2)>span{background:linear-gradient(145deg,#6b6df2,#8a55e8)}
+.nav-group[data-group="analytics"] .nav-item:nth-child(3)>span{background:linear-gradient(145deg,#16a398,#2d73d4)}
+.nav-group[data-group="analytics"] .nav-item:nth-child(4)>span{background:linear-gradient(145deg,#b54aa9,#7143aa)}
+.nav-group[data-group="analytics"] .nav-item:nth-child(5)>span{background:linear-gradient(145deg,#406de7,#5e9cf7)}
+.nav-group[data-group="analytics"] .nav-item:nth-child(6)>span{background:linear-gradient(145deg,#4d7ae8,#395bc8)}
+.nav-group[data-group="analytics"] .nav-item:nth-child(7)>span{background:linear-gradient(145deg,#3980f0,#226fd4)}
+.nav-group[data-group="analytics"] .nav-item-supporting{margin-top:5px;border-top:1px dashed rgba(255,255,255,.12);opacity:.76}
+
+.us-memory-ask{margin-bottom:13px;padding:15px;border:1px solid #dfe7ef;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(32,61,91,.045)}
+.us-memory-evidence{padding:5px 9px;border-radius:999px;background:#eef8f5;color:#24715e;font-size:8px;font-weight:900}
+.us-memory-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.us-memory-chips button{border:1px solid #d9e5ed;border-radius:10px;background:#f8fbfd;color:#3c5b77;padding:7px 9px;font:800 8px Cairo,sans-serif;cursor:pointer}
+.us-memory-chips button:hover{border-color:#8fc1d5;background:#eef8fb}
+.us-memory-answer{padding:11px 12px;border:1px solid #e3e9ef;border-radius:12px;background:#f8fafc}
+.us-memory-answer b{display:block;font-size:9px;color:#2f4a68}.us-memory-answer span{display:block;margin-top:4px;font-size:7.8px;line-height:1.8;color:#74879a}
+.us-memory-chart{height:285px;min-height:250px;position:relative}
+
+.us-decision-tools-v2{grid-template-columns:minmax(260px,1.25fr) minmax(180px,.75fr) minmax(150px,.6fr) auto}
+.us-decision-method{margin:-2px 0 14px;padding:10px 12px;border:1px dashed #cddae5;border-radius:12px;background:#fbfcfd;color:#667d92;font-size:7.8px;line-height:1.8}
+.us-decision-method b{color:#35516e}
+.us-decision-meta{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}
+.us-decision-meta span{padding:4px 7px;border-radius:999px;background:#eef5f8;color:#4d6b82;font-size:7px;font-weight:800}
+
+.vd-report-hub{direction:rtl}
+.rc-hero{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px;padding:20px 22px;border-radius:22px;background:linear-gradient(135deg,#133b56,#1f6e82 52%,#3988b9);color:#fff;box-shadow:0 14px 34px rgba(27,65,93,.14)}
+.rc-hero span{font-size:8px;font-weight:900;letter-spacing:.12em;opacity:.78}.rc-hero h2{margin:4px 0;font-size:23px}.rc-hero p{margin:0;font-size:9px;line-height:1.8;opacity:.88}
+.rc-total{min-width:105px;padding:11px 14px;border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.1);text-align:center}.rc-total b{display:block;font-size:24px}.rc-total span{font-size:8px}
+.rc-group{margin:0 0 14px;padding:14px;border:1px solid #dfe7ef;border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(30,59,88,.04)}
+.rc-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.rc-group-head h3{margin:0;color:#2e4864;font-size:13px}.rc-group-head p{margin:2px 0 0;color:#8191a2;font-size:7.6px}.rc-group-head>span{padding:5px 8px;border-radius:999px;background:#eef5f8;color:#44657f;font-size:7.5px;font-weight:900}
+.rc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.rc-card{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:10px;padding:11px;border:1px solid #e1e8ef;border-radius:14px;background:#fbfcfd}
+.rc-card-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#edf6fb;color:#24719a;font-size:15px}
+.rc-card-copy{min-width:0}.rc-card-copy strong{display:block;color:#344e69;font-size:8.8px}.rc-card-copy small{display:block;margin-top:2px;color:#8a98a7;font-size:7px}
+.rc-export-btn{border:0;border-radius:9px;background:#167b9d;color:#fff;padding:7px 9px;font:800 7.6px Cairo,sans-serif;cursor:pointer;white-space:nowrap}.rc-export-btn:disabled{opacity:.55;cursor:wait}
+.rc-export-note{margin:0 0 12px;padding:9px 11px;border:1px dashed #cfdce5;border-radius:11px;background:#fafcfd;color:#6b7f92;font-size:7.6px;line-height:1.75}
+
+@media(max-width:1100px){.rc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.us-decision-tools-v2{grid-template-columns:1fr 1fr}.us-decision-tools-v2 .us-primary{grid-column:1/-1}}
+@media(max-width:680px){.rc-hero{align-items:flex-start;flex-direction:column}.rc-total{width:100%;box-sizing:border-box}.rc-grid{grid-template-columns:1fr}.rc-card{grid-template-columns:34px 1fr}.rc-export-btn{grid-column:1/-1;width:100%}}
+
+.rc-card-actions{display:flex;align-items:center;gap:6px}.rc-open-btn{border:1px solid #d5e1ea;border-radius:9px;background:#fff;color:#45647d;padding:7px 8px;font:800 7.4px Cairo,sans-serif;cursor:pointer;white-space:nowrap}.rc-open-btn:hover{background:#f2f8fb;border-color:#9fc7d7}
+@media(max-width:680px){.rc-card-actions{grid-column:1/-1}.rc-open-btn,.rc-export-btn{flex:1}}
+
+/* Smart pages use their own Jeddah-style hero; suppress the generic page hero. */
+body[data-vd-page="smartCenter"] #pageHero,
+body[data-vd-page="temporalMemory"] #pageHero,
+body[data-vd-page="investigationRoom"] #pageHero,
+body[data-vd-page="explainableDecision"] #pageHero,
+body[data-vd-page="smartThursday"] #pageHero,
+body[data-vd-page="reports"] #pageHero{display:none!important}

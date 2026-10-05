@@ -2,7 +2,15 @@
 const state={ready:false,all:false,allow:new Set(),observer:null};
 const norm=v=>String(v??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670]/g,'').replace(/ـ/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim().toLowerCase();
 const labelOf=el=>String(el?.querySelector('b')?.textContent||el?.textContent||'').trim();
-function can(label,key=''){if(state.all)return true;const a=norm(label),k=norm(key);return state.allow.has(a)||state.allow.has(k)}
+const SMART_GROUP=norm('التحليل الذكي و التقارير');
+const SMART_KEYS=new Set(['smartcenter','temporalmemory','investigationroom','explainabledecision','smartthursday','reports','excelexport']);
+const ALIASES=new Map([
+ [norm('غرفة التدقيق الذكية'),[norm('غرفة التحقيق الذكية')]],
+ [norm('مختبر القرار المتغير'),[norm('محرك القرار المفسر')]],
+ [norm('التقرير الهندسي الذكي'),[norm('تقرير الخميس الذكي')]],
+ [norm('تقارير الاكسيل'),[norm('تصدير تقرير Excel'),norm('تقارير Excel')]]
+]);
+function can(label,key=''){if(state.all)return true;const a=norm(label),k=norm(key),vals=[a,k,...(ALIASES.get(a)||[])];if(vals.some(v=>state.allow.has(v)))return true;return SMART_KEYS.has(k)&&state.allow.has(SMART_GROUP)}
 function allowed(el){return can(labelOf(el),el?.dataset?.page||'')}
 function setPermissions(p){
  const arr=Array.isArray(p)?p:[];state.allow=new Set(arr.map(norm).filter(Boolean));state.all=!arr.length||arr.some(v=>String(v??'').trim()==='*'||['all','الكل','جميع الصفحات','كامل الصلاحيات'].includes(norm(v)));state.ready=true;

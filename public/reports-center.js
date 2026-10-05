@@ -1,3 +1,151 @@
 (()=>{'use strict';
-// تقارير ورقة Google Sheets يتم إنشاؤها مباشرة داخل app.js للحفاظ على منطق البايفت والمعادلات كما هو في المصدر.
+
+const GROUPS=[
+ {title:'التقارير التشغيلية',subtitle:'المشاريع والتصاريح والتنفيذ والمتابعة الميدانية',items:[
+  ['master','تقرير اللوحة الرئيسية','◉'],['projects','تقرير المشاريع','▣'],['map','تقرير الخريطة الجغرافية','⌖'],
+  ['permits','تقرير التصاريح','▤'],['lines','تقرير الخطوط البديلة والتصميم','⌁'],['settlements','تقرير الأمتار والتسويات','⇄'],
+  ['guarantees','تقرير الضمانات','◇'],['complaints','تقرير الشكاوى','!'],['execution','تقرير التنفيذ والتسليم','✓']
+ ]},
+ {title:'الإدارة والجودة',subtitle:'الجهات والبلديات والتتبع وجودة البيانات',items:[
+  ['parties','تقرير المقاولين والملاك','♙'],['municipalities','تقرير تحليل البلديات','⌂'],
+  ['traceability','تقرير التتبع الشامل','⛓'],['quality','تقرير جودة البيانات','◎']
+ ]},
+ {title:'التحليل الذكي',subtitle:'المخاطر والذاكرة والتدقيق والقرار والتقرير الهندسي',items:[
+  ['risks','تقرير مخاطر المشاريع','⚠'],['analytics','تقرير التحليل التنفيذي','⌁'],
+  ['smartCenter','تقرير مركز التحليل الذكي','◆'],['temporalMemory','تقرير ذاكرة المشروع الزمنية','◷'],
+  ['investigationRoom','تقرير غرفة التدقيق الذكية','◉'],['explainableDecision','تقرير مختبر القرار المتغير','⌘'],
+  ['smartThursday','التقرير الهندسي الذكي','▣']
+ ]}
+];
+const FOLLOWUP_TABLES=[
+ ['projects-owner','مشاريع الضخ حسب الجهة المالكة','▣'],
+ ['permits-year','التصاريح حسب العام','▤'],
+ ['permits-contractor','الأمتار المستحقة حسب المقاول','▤'],
+ ['permits-owner','الأمتار المستحقة حسب الجهة المالكة','▤'],
+ ['lines-year','الخطوط البديلة حسب العام','⌁'],
+ ['lines-contractor','الخطوط البديلة حسب المقاول','⌁'],
+ ['lines-owner','الخطوط البديلة حسب المالك','⌁'],
+ ['lines-district','الخطوط البديلة حسب الحي','⌂']
+];
+
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+const state=()=>window.VDUrgent?.getState?.();
+const meta=()=>window.VDUrgent?.PAGE_META||{};
+const navFor=key=>document.querySelector('#nav .nav-item[data-page="'+key+'"]');
+const available=key=>!!navFor(key);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+function cloneSetMap(map){
+ const out=new Map();
+ if(map&&typeof map.forEach==='function')map.forEach((v,k)=>out.set(k,v instanceof Set?new Set(v):v&&typeof v==='object'?{...v}:v));
+ return out;
+}
+function restoreMap(target,snapshot){
+ if(!target||typeof target.clear!=='function')return;
+ target.clear();snapshot.forEach((v,k)=>target.set(k,v instanceof Set?new Set(v):v&&typeof v==='object'?{...v}:v));
+}
+function filterSnapshot(){
+ const st=state()||{};
+ return {filters:cloneSetMap(st.filters),interactive:cloneSetMap(st.interactiveFilters),periods:cloneSetMap(st.periods)};
+}
+function clearFiltersForGeneral(){
+ const st=state()||{};
+ st.filters?.clear?.();st.interactiveFilters?.clear?.();st.periods?.clear?.();
+}
+function restoreFilters(s){
+ const st=state()||{};
+ restoreMap(st.filters,s.filters);restoreMap(st.interactiveFilters,s.interactive);restoreMap(st.periods,s.periods);
+}
+async function waitPage(key){
+ for(let i=0;i<35;i++){if(state()?.page===key&&navFor(key)?.classList.contains('active'))return true;await delay(120)}
+ return state()?.page===key;
+}
+async function exportGeneral(key,button){
+ if(!available(key)||!window.VDUrgent)return;
+ const original=button.textContent,snap=filterSnapshot(),scope=window.__VD_REPORT_SCOPE_OVERRIDE;
+ button.disabled=true;button.textContent='جاري تجهيز التقرير...';
+ window.__VD_REPORT_SCOPE_OVERRIDE='General';
+ clearFiltersForGeneral();window.VDUrgent.openPage(key);await waitPage(key);await delay(260);
+ let done=false;
+ const finish=()=>{
+  if(done)return;done=true;restoreFilters(snap);
+  if(scope===undefined)delete window.__VD_REPORT_SCOPE_OVERRIDE;else window.__VD_REPORT_SCOPE_OVERRIDE=scope;
+  button.disabled=false;button.textContent=original;
+  setTimeout(()=>window.VDUrgent?.openPage?.('reports'),100);
+ };
+ window.addEventListener('afterprint',finish,{once:true});
+ try{window.VDUrgent.printCurrent?.()}catch(e){console.error(e);finish()}
+ setTimeout(finish,7000);
+}
+async function openFollowupTarget(target){
+ if(!available('followup'))return;
+ window.VDUrgent?.openPage?.('followup');
+ await waitPage('followup');await delay(180);
+ document.querySelector('[data-followup-report="'+target+'"]')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function exportFollowupTarget(target,label,button){
+ if(!available('followup')||!window.VDUrgent)return;
+ const original=button.textContent,scope=window.__VD_REPORT_SCOPE_OVERRIDE;
+ button.disabled=true;button.textContent='جاري تجهيز PDF...';
+ window.__VD_REPORT_SCOPE_OVERRIDE='General';
+ window.VDUrgent.openPage('followup');await waitPage('followup');await delay(220);
+ const source=document.querySelector('[data-followup-report="'+target+'"]'),host=document.querySelector('#pageHost');
+ if(!source||!host){
+  if(scope===undefined)delete window.__VD_REPORT_SCOPE_OVERRIDE;else window.__VD_REPORT_SCOPE_OVERRIDE=scope;
+  button.disabled=false;button.textContent=original;
+  window.VDUrgent?.toast?.('تعذر تجهيز جدول المتابعة');
+  window.VDUrgent?.openPage?.('reports');return;
+ }
+ const clone=source.cloneNode(true);
+ clone.querySelectorAll('.table-search').forEach(x=>x.remove());
+ const tableTitle=clone.querySelector('.table-tools b');if(tableTitle)tableTitle.textContent=label;
+ host.innerHTML='<section class="sheet-report-hero followup-single-pdf"><div><small>VISION DIMENSIONS • FOLLOW-UP REPORT</small><h3>'+esc(label)+'</h3><p>تقرير PDF مباشر من جداول «المتابعة» المطابقة لورقة reports في Google Sheets.</p></div></section>'+clone.outerHTML;
+ const metaObj=window.VDUrgent?.PAGE_META?.followup,metaTitle=metaObj?.title;if(metaObj)metaObj.title=label;
+ let done=false;
+ const finish=()=>{
+  if(done)return;done=true;
+  if(metaObj)metaObj.title=metaTitle;
+  if(scope===undefined)delete window.__VD_REPORT_SCOPE_OVERRIDE;else window.__VD_REPORT_SCOPE_OVERRIDE=scope;
+  button.disabled=false;button.textContent=original;
+  setTimeout(()=>window.VDUrgent?.openPage?.('reports'),100);
+ };
+ window.addEventListener('afterprint',finish,{once:true});
+ try{window.VDUrgent.printCurrent?.()}catch(e){console.error(e);finish()}
+ setTimeout(finish,7000);
+}
+function followupItems(){
+ const contractors=state()?.data?.sheetReports?.contractors||[];
+ const items=[...FOLLOWUP_TABLES];
+ contractors.forEach((x,i)=>items.push(['contractor-'+i,x?.title||('تسوية المقاول '+(i+1)),'⇄']));
+ return items;
+}
+function regularGroupHtml(g){
+ const items=g.items.filter(([k])=>available(k));
+ if(!items.length)return '';
+ return '<section class="rc-group"><div class="rc-group-head"><div><h3>'+g.title+'</h3><p>'+g.subtitle+'</p></div><span>'+items.length+' تقارير</span></div><div class="rc-grid">'+
+  items.map(([key,label,icon])=>'<article class="rc-card"><div class="rc-card-icon">'+icon+'</div><div class="rc-card-copy"><strong>'+label+'</strong><small>المصدر: '+((meta()[key]?.title)||key)+'</small></div><div class="rc-card-actions"><button type="button" class="rc-open-btn" data-open="'+key+'">معاينة</button><button type="button" class="rc-export-btn" data-export="'+key+'">تصدير PDF</button></div></article>').join('')+
+ '</div></section>';
+}
+function followupGroupHtml(){
+ if(!available('followup'))return '';
+ const items=followupItems();
+ const full='<article class="rc-card"><div class="rc-card-icon">▤</div><div class="rc-card-copy"><strong>تقرير المتابعة الكامل</strong><small>جميع جداول reports والتسويات</small></div><div class="rc-card-actions"><button type="button" class="rc-open-btn" data-open="followup">معاينة</button><button type="button" class="rc-export-btn" data-export="followup">تصدير PDF</button></div></article>';
+ const tables=items.map(([target,label,icon])=>'<article class="rc-card"><div class="rc-card-icon">'+icon+'</div><div class="rc-card-copy"><strong>'+esc(label)+'</strong><small>جدول من تاب المتابعة</small></div><div class="rc-card-actions"><button type="button" class="rc-open-btn" data-followup-open="'+esc(target)+'">معاينة</button><button type="button" class="rc-export-btn" data-followup-export="'+esc(target)+'" data-followup-label="'+esc(label)+'">تصدير PDF</button></div></article>').join('');
+ return '<section class="rc-group"><div class="rc-group-head"><div><h3>تقارير المتابعة</h3><p>تصدير PDF للتقرير الكامل أو لأي جدول منفرد من ورقة reports</p></div><span>'+(items.length+1)+' تقارير</span></div><div class="rc-grid">'+full+tables+'</div></section>';
+}
+function render(){
+ const st=state(),host=document.querySelector('#pageHost');
+ if(!st||st.page!=='reports'||!host)return;
+ const groups=GROUPS.map(regularGroupHtml).join('')+followupGroupHtml();
+ const regularTotal=GROUPS.reduce((n,g)=>n+g.items.filter(([k])=>available(k)).length,0);
+ const followupTotal=available('followup')?followupItems().length+1:0;
+ host.innerHTML='<section id="vdReportHub" class="vd-report-hub"><div class="rc-hero"><div><span>VISION DIMENSIONS • REPORT CENTER</span><h2>مركز التقارير</h2><p>مركز موحد لمعاينة التقارير وإنشاء ملفات PDF بنفس فورمات مركز التقارير السابق.</p></div><div class="rc-total"><b>'+(regularTotal+followupTotal)+'</b><span>تقرير متاح</span></div></div><div class="rc-export-note">جميع عناصر مركز التقارير تُصدَّر بصيغة PDF فقط. تمت إضافة جداول «المتابعة» كتقارير PDF مستقلة مع التقرير الكامل.</div>'+groups+'</section>';
+ host.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>window.VDUrgent?.openPage?.(b.dataset.open)));
+ host.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>exportGeneral(b.dataset.export,b)));
+ host.querySelectorAll('[data-followup-open]').forEach(b=>b.addEventListener('click',()=>openFollowupTarget(b.dataset.followupOpen)));
+ host.querySelectorAll('[data-followup-export]').forEach(b=>b.addEventListener('click',()=>exportFollowupTarget(b.dataset.followupExport,b.dataset.followupLabel,b)));
+}
+window.renderUrgentReportsCenter=render;
+window.addEventListener('vd:page-rendered',render);
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(render,100),{once:true}):setTimeout(render,100);
 })();

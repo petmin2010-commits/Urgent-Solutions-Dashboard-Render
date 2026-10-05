@@ -6,7 +6,8 @@
   <meta name="theme-color" content="#0b5f7a">
   <meta name="description" content="منصة مياه المدينة لإدارة الأعمال الميدانية">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="stylesheet" href="/app.css">
   <title>مياه المدينة</title>
 </head>
@@ -51,6 +52,7 @@
         <button class="nav-item active" data-view="entry"><span>＋</span><b>إدخال حالة</b></button>
         <button class="nav-item" data-view="works"><span>▦</span><b>سجل الأعمال</b></button>
         <button class="nav-item" data-view="dashboard"><span>◫</span><b>الرئيسية</b></button>
+        <button class="nav-item users-only" data-view="users"><span>♙</span><b>المستخدمون</b></button>
         <button class="nav-item admin-only" data-view="settings"><span>⚙</span><b>الإعدادات</b></button>
         <button class="nav-item audit-only" data-view="audit"><span>≡</span><b>سجل التدقيق</b></button>
       </nav>
@@ -103,6 +105,7 @@
                 </label>
                 <label class="span-2">رقم بلاغ / أمر العمل WFM (CCB) *
                   <input id="wfmNo" name="wfmNo" inputmode="numeric" placeholder="مثال: 97415150964441" required>
+                  <span id="wfmHint" class="field-hint"></span>
                 </label>
               </div>
             </fieldset>
@@ -180,10 +183,17 @@
             <fieldset>
               <legend><span>5</span> الصور والفيديو والمرفقات</legend>
               <div class="upload-box">
-                <input id="mediaFiles" type="file" multiple accept="image/*,video/*,.pdf">
+                <div class="upload-actions">
+                  <label class="btn secondary file-btn">اختيار ملفات
+                    <input id="mediaFiles" type="file" multiple accept="image/*,video/*,.pdf">
+                  </label>
+                  <label class="btn secondary file-btn">فتح الكاميرا
+                    <input id="cameraFile" type="file" accept="image/*" capture="environment">
+                  </label>
+                </div>
                 <div>
                   <strong>أرفق صور أو فيديو أو PDF</strong>
-                  <p>يمكن اختيار أكثر من ملف. سيتم ربط المرفقات بالحالة بعد حفظها.</p>
+                  <p>يمكن الاختيار من الجهاز أو التصوير مباشرة من كاميرا الجوال.</p>
                 </div>
               </div>
               <div id="mediaPreview" class="media-preview"></div>
@@ -211,6 +221,10 @@
             <input id="workSearch" type="search" placeholder="بحث برقم الحالة أو WFM أو الحي أو الملاحظات">
             <select id="filterRegion"></select>
             <select id="filterStatus"></select>
+            <select id="filterInspector"></select>
+            <select id="filterContractor"></select>
+            <label class="filter-date">من تاريخ<input id="filterDateFrom" type="date"></label>
+            <label class="filter-date">إلى تاريخ<input id="filterDateTo" type="date"></label>
             <button id="refreshWorks" class="btn secondary">تحديث</button>
           </div>
 
@@ -247,9 +261,72 @@
             <button id="refreshStats" class="btn secondary">تحديث المؤشرات</button>
           </div>
           <div id="statsGrid" class="stats-grid"></div>
+          <div class="dashboard-grid">
+            <div class="info-panel">
+              <h4>الحالات حسب المنطقة</h4>
+              <div id="regionBars" class="mini-bars"></div>
+            </div>
+            <div class="info-panel">
+              <h4>حالات الإصلاح</h4>
+              <div id="statusBars" class="mini-bars"></div>
+            </div>
+          </div>
           <div class="info-panel">
             <h4>تصميم النظام</h4>
             <p>هذه النسخة تعمل بدون Google Sheets. كل حالة تحفظ مباشرة في قاعدة البيانات مع تسجيل المستخدم والوقت وسجل التعديلات.</p>
+          </div>
+        </section>
+
+        <section id="view-users" class="view">
+          <div class="view-head">
+            <div>
+              <span class="eyebrow">الإدارة والصلاحيات</span>
+              <h3>المستخدمون</h3>
+              <p>إنشاء الحسابات وتحديد الدور وحالة السماح بالدخول.</p>
+            </div>
+          </div>
+          <div class="users-layout">
+            <form id="userForm" class="user-form user-admin-only">
+              <input id="userId" type="hidden">
+              <h4 id="userFormTitle">إضافة مستخدم</h4>
+              <label>اسم الموظف *
+                <input id="userFullName" required>
+              </label>
+              <label>المسمى الوظيفي
+                <input id="userJobTitle">
+              </label>
+              <label>البريد الإلكتروني *
+                <input id="userEmail" type="email" required>
+              </label>
+              <label>الدور *
+                <select id="userRoleId" required></select>
+              </label>
+              <label>نطاق المستخدم
+                <select id="userScopeType">
+                  <option value="ALL">كل البيانات</option>
+                  <option value="OWN">سجلاته فقط</option>
+                </select>
+              </label>
+              <label>كلمة المرور
+                <input id="userPassword" type="password" minlength="8" placeholder="مطلوبة عند إنشاء الحساب">
+              </label>
+              <label class="mini-check"><input id="userCanLogin" type="checkbox" checked> السماح بتسجيل الدخول</label>
+              <label class="mini-check"><input id="userActive" type="checkbox" checked> الحساب فعال</label>
+              <div class="form-actions compact">
+                <button class="btn primary" type="submit">حفظ المستخدم</button>
+                <button id="cancelUserEdit" class="btn secondary" type="button">جديد</button>
+              </div>
+              <div id="userFormError" class="form-error"></div>
+            </form>
+            <div class="table-card">
+              <div class="table-meta"><span id="usersCount">0 مستخدم</span></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>الدخول</th><th>الحالة</th><th>آخر دخول</th><th></th></tr></thead>
+                  <tbody id="usersBody"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
 

@@ -2,6 +2,8 @@ const state = {
   user: null,
   permissions: [],
   lookups: null,
+  roles: [],
+  users: [],
   installPrompt: null,
   currentView: 'entry',
   editingId: null
@@ -80,6 +82,8 @@ function renderLookups() {
 
   $('filterRegion').innerHTML = optionHtml(x.regions, 'كل المناطق');
   $('filterStatus').innerHTML = optionHtml(x.repairStatuses, 'كل الحالات');
+  $('filterInspector').innerHTML = optionHtml(x.inspectors, 'كل المراقبين');
+  $('filterContractor').innerHTML = optionHtml(x.contractors, 'كل المقاولين');
 }
 
 function setUserUi() {
@@ -87,6 +91,8 @@ function setUserUi() {
   $('userName').textContent = u.employee_name || 'المستخدم';
   $('userRole').textContent = u.role_name_ar || '';
   $('userAvatar').textContent = (u.employee_name || 'م').trim().charAt(0);
+  qa('.users-only').forEach(el => el.classList.toggle('hidden', !permission('USER_VIEW')));
+  qa('.user-admin-only').forEach(el => el.classList.toggle('hidden', !(permission('USER_CREATE') || permission('USER_EDIT'))));
   qa('.admin-only').forEach(el => el.classList.toggle('hidden', !permission('SETTINGS_MANAGE')));
   qa('.audit-only').forEach(el => el.classList.toggle('hidden', !permission('AUDIT_VIEW')));
 }
@@ -95,11 +101,13 @@ const viewMeta = {
   entry: ['إدخال حالة جديدة', 'شاشة موحدة لجميع بيانات الحالة'],
   works: ['سجل الأعمال', 'البحث والمراجعة والتعديل'],
   dashboard: ['الرئيسية', 'مؤشرات تشغيلية مباشرة'],
+  users: ['المستخدمون', 'إدارة الحسابات والأدوار'],
   settings: ['إدارة القوائم', 'إدارة القيم المرجعية بدون تعديل الكود'],
   audit: ['سجل التدقيق', 'متابعة عمليات المستخدمين والتعديلات']
 };
 
 function openView(name) {
+  if (name === 'users' && !permission('USER_VIEW')) name = 'entry';
   if (name === 'settings' && !permission('SETTINGS_MANAGE')) name = 'entry';
   if (name === 'audit' && !permission('AUDIT_VIEW')) name = 'entry';
   state.currentView = name;
@@ -113,6 +121,7 @@ function openView(name) {
 
   if (name === 'works') loadWorks();
   if (name === 'dashboard') loadStats();
+  if (name === 'users') loadUsers();
   if (name === 'audit') loadAudit();
 }
 
@@ -191,6 +200,9 @@ function clearForm({ keepDraft = false } = {}) {
   $('workErrors').textContent = '';
   $('mediaPreview').innerHTML = '';
   $('mediaFiles').value = '';
+  $('cameraFile').value = '';
+  $('wfmHint').textContent = '';
+  $('wfmHint').className = 'field-hint';
   if (!keepDraft) localStorage.removeItem(DRAFT_KEY);
   $('draftChip').textContent = 'لا توجد مسودة';
 }
@@ -214,12 +226,42 @@ async function loadWorkForEdit(id) {
   }
 }
 
+function selectedMediaFiles() {
+  return [...$('mediaFiles').files, ...$('cameraFile').files];
+}
+
 async function uploadMedia(workId) {
-  const files = [...$('mediaFiles').files];
+  const files = selectedMediaFiles();
   if (!files.length) return;
   const fd = new FormData();
   files.forEach(file => fd.append('files', file));
   await api('/api/works/' + encodeURIComponent(workId) + '/media', { method: 'POST', body: fd });
+}
+
+async function checkWfmDuplicate() {
+  const wfm = $('wfmNo').value.trim();
+  if (!wfm) {
+    $('wfmHint').textContent = '';
+    $('wfmHint').className = 'field-hint';
+    return false;
+  }
+  try {
+    const q = new URLSearchParams({ wfm });
+    if (state.editingId) q.set('excludeId', state.editingId);
+    const data = await api('/api/works/check-wfm?' + q.toString());
+    if (data.duplicate) {
+      const first = data.matches[0];
+      $('wfmHint').textContent = 'تنبيه: رقم WFM مسجل سابقًا في ' + first.caseCode + (first.region ? ' — ' + first.region : '');
+      $('wfmHint').className = 'field-hint warn';
+      return true;
+    }
+    $('wfmHint').textContent = 'لم يتم العثور على تسجيل سابق لهذا الرقم';
+    $('wfmHint').className = 'field-hint ok';
+    return false;
+  } catch (e) {
+    $('wfmHint').textContent = '';
+    return false;
+  }
 }
 
 async function submitWork(event) {
@@ -253,7 +295,11 @@ async function loadWorks() {
     pageSize: '100',
     search: $('workSearch').value.trim(),
     regionId: $('filterRegion').value,
-    repairStatusId: $('filterStatus').value
+    repairStatusId: $('filterStatus').value,
+    inspectorId: $('filterInspector').value,
+    contractorId: $('filterContractor').value,
+    dateFrom: $('filterDateFrom').value,
+    dateTo: $('filterDateTo').value
   });
   try {
     const data = await api('/api/works?' + q.toString());
@@ -282,6 +328,18 @@ function statCard(label, value, suffix = '') {
   return '<article class="stat-card"><small>' + esc(label) + '</small><strong>' + esc(value) + suffix + '</strong></article>';
 }
 
+function renderMiniBars(targetId, rows, closedAware = false) {
+  const target = $(targetId);
+  const max = Math.max(1, ...(rows || []).map(x => Number(x.value || 0)));
+  target.innerHTML = (rows || []).length ? rows.map(x => {
+    const width = Math.max(4, Math.round((Number(x.value || 0) / max) * 100));
+    return '<div class="mini-bar-row">' +
+      '<div class="mini-bar-label"><span>' + esc(x.label) + '</span><strong>' + esc(x.value) + '</strong></div>' +
+      '<div class="mini-bar-track"><i style="width:' + width + '%" class="' + (closedAware && x.isClosed ? 'closed' : '') + '"></i></div>' +
+      '</div>';
+  }).join('') : '<div class="muted">لا توجد بيانات بعد.</div>';
+}
+
 async function loadStats() {
   try {
     const data = await api('/api/stats');
@@ -291,10 +349,100 @@ async function loadStats() {
       statCard('حالات اليوم', s.today) +
       statCard('مغلقة / تم الإصلاح', s.closed) +
       statCard('مفتوحة', s.open) +
-      statCard('بتصريح أمن وسلامة', s.hsePermit) +
-      statCard('نسبة الإغلاق', s.completionRate, '%');
+      statCard('نسبة الإغلاق', s.completionRate, '%') +
+      statCard('بيانات موقع GPS', s.locationRate, '%') +
+      statCard('حالات بمرفقات', s.mediaRate, '%') +
+      statCard('بتصريح أمن وسلامة', s.hsePermit);
+    renderMiniBars('regionBars', s.topRegions || []);
+    renderMiniBars('statusBars', s.byStatus || [], true);
   } catch (e) {
     if (e.status !== 401) toast(e.message, 'error');
+  }
+}
+
+function resetUserForm() {
+  $('userId').value = '';
+  $('userForm').reset();
+  $('userCanLogin').checked = true;
+  $('userActive').checked = true;
+  $('userScopeType').value = 'ALL';
+  $('userEmail').disabled = false;
+  $('userPassword').required = true;
+  $('userFormTitle').textContent = 'إضافة مستخدم';
+  $('userFormError').textContent = '';
+}
+
+function fillUserForm(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  $('userId').value = u.id;
+  $('userFullName').value = u.name || '';
+  $('userJobTitle').value = u.jobTitle || '';
+  $('userEmail').value = u.email || '';
+  $('userEmail').disabled = true;
+  $('userRoleId').value = u.roleId || '';
+  $('userScopeType').value = u.scopeType || 'ALL';
+  $('userPassword').value = '';
+  $('userPassword').required = false;
+  $('userCanLogin').checked = !!u.canLogin;
+  $('userActive').checked = !!u.active;
+  $('userFormTitle').textContent = 'تعديل المستخدم';
+  $('userFormError').textContent = '';
+}
+
+async function loadUsers() {
+  if (!permission('USER_VIEW')) return;
+  try {
+    const [usersData, rolesData] = await Promise.all([api('/api/users'), api('/api/roles')]);
+    state.users = usersData.rows || [];
+    state.roles = rolesData.rows || [];
+    $('userRoleId').innerHTML = optionHtml(state.roles, 'اختر الدور');
+    $('usersCount').textContent = state.users.length + ' مستخدم';
+    $('usersBody').innerHTML = state.users.length ? state.users.map(u =>
+      '<tr>' +
+      '<td><strong>' + esc(u.name) + '</strong><br><span class="muted">' + esc(u.jobTitle || '') + '</span></td>' +
+      '<td>' + esc(u.email) + '</td>' +
+      '<td>' + esc(u.roleName) + '</td>' +
+      '<td>' + (u.canLogin ? '<span class="status-text closed">مسموح</span>' : '<span class="status-text">موقوف</span>') + '</td>' +
+      '<td>' + (u.active ? '<span class="status-text closed">فعال</span>' : '<span class="status-text">غير فعال</span>') + '</td>' +
+      '<td>' + esc(u.lastLogin ? new Date(u.lastLogin).toLocaleString('ar-SA') : 'لم يدخل') + '</td>' +
+      '<td>' + (permission('USER_EDIT') ? '<button class="table-action" data-edit-user="' + esc(u.id) + '">تعديل</button>' : '') + '</td>' +
+      '</tr>'
+    ).join('') : '<tr><td colspan="7">لا يوجد مستخدمون.</td></tr>';
+    if (!$('userId').value) resetUserForm();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function saveUser(event) {
+  event.preventDefault();
+  $('userFormError').textContent = '';
+  const editingId = $('userId').value;
+  const body = {
+    name: $('userFullName').value,
+    jobTitle: $('userJobTitle').value,
+    email: $('userEmail').value,
+    roleId: $('userRoleId').value,
+    scopeType: $('userScopeType').value,
+    password: $('userPassword').value,
+    canLogin: $('userCanLogin').checked,
+    active: $('userActive').checked
+  };
+  if (!editingId && !permission('USER_CREATE')) {
+    $('userFormError').textContent = 'ليس لديك صلاحية إنشاء مستخدم.';
+    return;
+  }
+  try {
+    await api(editingId ? '/api/users/' + encodeURIComponent(editingId) : '/api/users', {
+      method: editingId ? 'PUT' : 'POST',
+      body
+    });
+    toast(editingId ? 'تم تحديث المستخدم' : 'تم إنشاء المستخدم');
+    resetUserForm();
+    await loadUsers();
+  } catch (e) {
+    $('userFormError').textContent = e.message;
   }
 }
 
@@ -331,6 +479,24 @@ async function addLookup(event) {
     toast('تمت إضافة القيمة');
   } catch (e) {
     toast(e.message, 'error');
+  }
+}
+
+function previewSelectedMedia() {
+  const files = selectedMediaFiles();
+  $('mediaPreview').innerHTML = files.map(f =>
+    '<span class="media-pill">' + esc(f.name) + ' · ' + Math.max(1, Math.round(f.size / 1024)) + ' KB</span>'
+  ).join('');
+}
+
+function syncClosureRule() {
+  const status = (state.lookups?.repairStatuses || []).find(x => x.id === $('repairStatusId').value);
+  const isClosed = !!status?.isClosed;
+  $('finishedAt').required = isClosed;
+  if (isClosed) {
+    $('finishedAt').closest('label').classList.add('required-now');
+  } else {
+    $('finishedAt').closest('label').classList.remove('required-now');
   }
 }
 
@@ -395,12 +561,24 @@ $('newWorkBtn').addEventListener('click', () => clearForm());
 $('refreshWorks').addEventListener('click', loadWorks);
 $('refreshStats').addEventListener('click', loadStats);
 $('refreshAudit').addEventListener('click', loadAudit);
+$('userForm').addEventListener('submit', saveUser);
+$('cancelUserEdit').addEventListener('click', resetUserForm);
+$('wfmNo').addEventListener('input', () => {
+  clearTimeout(checkWfmDuplicate._t);
+  checkWfmDuplicate._t = setTimeout(checkWfmDuplicate, 550);
+});
+$('wfmNo').addEventListener('blur', checkWfmDuplicate);
+$('repairStatusId').addEventListener('change', syncClosureRule);
 $('workSearch').addEventListener('input', () => {
   clearTimeout(loadWorks._t);
   loadWorks._t = setTimeout(loadWorks, 350);
 });
 $('filterRegion').addEventListener('change', loadWorks);
 $('filterStatus').addEventListener('change', loadWorks);
+$('filterInspector').addEventListener('change', loadWorks);
+$('filterContractor').addEventListener('change', loadWorks);
+$('filterDateFrom').addEventListener('change', loadWorks);
+$('filterDateTo').addEventListener('change', loadWorks);
 qa('.lookup-card').forEach(form => form.addEventListener('submit', addLookup));
 
 $('worksBody').addEventListener('click', (e) => {
@@ -408,11 +586,13 @@ $('worksBody').addEventListener('click', (e) => {
   if (btn) loadWorkForEdit(btn.dataset.editWork);
 });
 
-$('mediaFiles').addEventListener('change', () => {
-  $('mediaPreview').innerHTML = [...$('mediaFiles').files].map(f =>
-    '<span class="media-pill">' + esc(f.name) + ' · ' + Math.round(f.size / 1024) + ' KB</span>'
-  ).join('');
+$('usersBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-edit-user]');
+  if (btn) fillUserForm(btn.dataset.editUser);
 });
+
+$('mediaFiles').addEventListener('change', previewSelectedMedia);
+$('cameraFile').addEventListener('change', previewSelectedMedia);
 
 $('gpsBtn').addEventListener('click', () => {
   if (!navigator.geolocation) {

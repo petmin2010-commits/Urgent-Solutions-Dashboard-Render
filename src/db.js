@@ -260,6 +260,12 @@ function seedReferenceData() {
   for (const p of managerPerms) rpStmt.run('PROJECT_MANAGER', p);
   const inspectorPerms = ['DASHBOARD_VIEW','WORK_VIEW','WORK_CREATE','WORK_EDIT','WORK_CHANGE_STATUS','MEDIA_VIEW','MEDIA_ADD'];
   for (const p of inspectorPerms) rpStmt.run('FIELD_INSPECTOR', p);
+  const qualityPerms = ['DASHBOARD_VIEW','WORK_VIEW','WORK_VIEW_ALL','MEDIA_VIEW','REPORT_VIEW','REPORT_EXPORT','AUDIT_VIEW'];
+  for (const p of qualityPerms) rpStmt.run('QUALITY_CONTROLLER', p);
+  const hsePerms = ['DASHBOARD_VIEW','WORK_VIEW','WORK_VIEW_ALL','MEDIA_VIEW','REPORT_VIEW','REPORT_EXPORT'];
+  for (const p of hsePerms) rpStmt.run('HSE_CONTROLLER', p);
+  const analystPerms = ['DASHBOARD_VIEW','WORK_VIEW','WORK_VIEW_ALL','REPORT_VIEW','REPORT_EXPORT'];
+  for (const p of analystPerms) rpStmt.run('DATA_ANALYST', p);
   const viewerPerms = ['DASHBOARD_VIEW','WORK_VIEW','REPORT_VIEW'];
   for (const p of viewerPerms) rpStmt.run('VIEWER', p);
 

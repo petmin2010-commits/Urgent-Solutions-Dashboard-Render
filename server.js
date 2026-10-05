@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const multer = require('multer');
 const { DateTime } = require('luxon');
 const {
-  db, initDatabase, nowIso, id, verifyPassword,
+  db, initDatabase, nowIso, id, hashPassword, verifyPassword,
   getPermissionsForRole, audit
 } = require('./src/db');
 
@@ -138,6 +138,20 @@ function lookupData() {
   };
 }
 
+function roleData() {
+  return db.prepare(`
+    SELECT role_id AS id,role_name_ar AS name,description
+    FROM roles
+    WHERE active=1
+    ORDER BY CASE role_id
+      WHEN 'SUPER_ADMIN' THEN 1
+      WHEN 'PROJECT_MANAGER' THEN 2
+      WHEN 'FIELD_INSPECTOR' THEN 3
+      ELSE 9
+    END,role_name_ar
+  `).all();
+}
+
 function stats() {
   const today = DateTime.now().setZone(ZONE).toISODate();
   const total = db.prepare('SELECT COUNT(*) AS n FROM works WHERE deleted_at IS NULL').get().n;
@@ -148,13 +162,42 @@ function stats() {
     WHERE w.deleted_at IS NULL AND COALESCE(s.is_closed,0)=1
   `).get().n;
   const hse = db.prepare('SELECT COUNT(*) AS n FROM works WHERE deleted_at IS NULL AND has_hse_permit=1').get().n;
+  const topRegions = db.prepare(`
+    SELECT COALESCE(r.name,'غير محدد') AS label,COUNT(*) AS value
+    FROM works w
+    LEFT JOIN regions r ON r.region_id=w.region_id
+    WHERE w.deleted_at IS NULL
+    GROUP BY COALESCE(r.name,'غير محدد')
+    ORDER BY value DESC,label
+    LIMIT 6
+  `).all();
+  const byStatus = db.prepare(`
+    SELECT COALESCE(s.name,'غير محدد') AS label,COUNT(*) AS value,COALESCE(s.is_closed,0) AS isClosed
+    FROM works w
+    LEFT JOIN repair_statuses s ON s.repair_status_id=w.repair_status_id
+    WHERE w.deleted_at IS NULL
+    GROUP BY COALESCE(s.name,'غير محدد'),COALESCE(s.is_closed,0)
+    ORDER BY value DESC,label
+  `).all();
+  const withLocation = db.prepare('SELECT COUNT(*) AS n FROM works WHERE deleted_at IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL').get().n;
+  const withMedia = db.prepare(`
+    SELECT COUNT(DISTINCT w.work_id) AS n
+    FROM works w JOIN work_media m ON m.work_id=w.work_id
+    WHERE w.deleted_at IS NULL
+  `).get().n;
   return {
     total,
     today: todayCount,
     closed,
     open: Math.max(0, total - closed),
     hsePermit: hse,
-    completionRate: total ? Math.round((closed / total) * 1000) / 10 : 0
+    withLocation,
+    withMedia,
+    completionRate: total ? Math.round((closed / total) * 1000) / 10 : 0,
+    locationRate: total ? Math.round((withLocation / total) * 1000) / 10 : 0,
+    mediaRate: total ? Math.round((withMedia / total) * 1000) / 10 : 0,
+    topRegions,
+    byStatus
   };
 }
 
@@ -236,6 +279,13 @@ function validateWork(payload) {
   if (!out.wfmNo) errors.push('رقم بلاغ / أمر العمل WFM مطلوب');
   if (!out.breakTypeId) errors.push('وصف الانكسار مطلوب');
   if (!out.repairStatusId) errors.push('حالة الإصلاح مطلوبة');
+  const selectedStatus = out.repairStatusId
+    ? db.prepare('SELECT name,is_closed FROM repair_statuses WHERE repair_status_id=? AND active=1').get(out.repairStatusId)
+    : null;
+  if (out.repairStatusId && !selectedStatus) errors.push('حالة الإصلاح المحددة غير صالحة');
+  if (selectedStatus && Number(selectedStatus.is_closed) === 1 && !out.finishedAt) {
+    errors.push('تاريخ ووقت انتهاء العمل مطلوب عند إغلاق الحالة');
+  }
   if (out.depthM != null && (out.depthM < 0 || out.depthM > 100)) errors.push('عمق الحفر غير منطقي');
   if (out.latitude != null && (out.latitude < -90 || out.latitude > 90)) errors.push('خط العرض غير صحيح');
   if (out.longitude != null && (out.longitude < -180 || out.longitude > 180)) errors.push('خط الطول غير صحيح');
@@ -304,6 +354,10 @@ app.get('/api/works', requireAuth, requirePermission('WORK_VIEW'), (req, res) =>
   const search = clean(req.query.search);
   const regionId = clean(req.query.regionId);
   const repairStatusId = clean(req.query.repairStatusId);
+  const inspectorId = clean(req.query.inspectorId);
+  const contractorId = clean(req.query.contractorId);
+  const dateFrom = clean(req.query.dateFrom);
+  const dateTo = clean(req.query.dateTo);
 
   const where = ['w.deleted_at IS NULL'];
   const args = [];
@@ -314,6 +368,10 @@ app.get('/api/works', requireAuth, requirePermission('WORK_VIEW'), (req, res) =>
   }
   if (regionId) { where.push('w.region_id=?'); args.push(regionId); }
   if (repairStatusId) { where.push('w.repair_status_id=?'); args.push(repairStatusId); }
+  if (inspectorId) { where.push('w.inspector_id=?'); args.push(inspectorId); }
+  if (contractorId) { where.push('w.contractor_id=?'); args.push(contractorId); }
+  if (dateFrom) { where.push('substr(w.registered_at,1,10)>=?'); args.push(dateFrom); }
+  if (dateTo) { where.push('substr(w.registered_at,1,10)<=?'); args.push(dateTo); }
   if (!req.user.permissions.includes('WORK_VIEW_ALL')) {
     where.push('w.created_by=?');
     args.push(req.user.user_id);
@@ -326,6 +384,21 @@ app.get('/api/works', requireAuth, requirePermission('WORK_VIEW'), (req, res) =>
     .map(rowToWork);
 
   res.json({ ok: true, page, pageSize, total, rows });
+});
+
+app.get('/api/works/check-wfm', requireAuth, requirePermission('WORK_VIEW'), (req, res) => {
+  const wfm = clean(req.query.wfm);
+  const excludeId = clean(req.query.excludeId);
+  if (!wfm) return res.json({ ok: true, duplicate: false, matches: [] });
+  const args = [wfm];
+  let sql = workSelect + ' WHERE w.deleted_at IS NULL AND trim(w.wfm_no)=?';
+  if (excludeId) {
+    sql += ' AND w.work_id<>?';
+    args.push(excludeId);
+  }
+  sql += ' ORDER BY w.created_at DESC LIMIT 5';
+  const matches = db.prepare(sql).all(...args).map(rowToWork);
+  res.json({ ok: true, duplicate: matches.length > 0, matches });
 });
 
 app.get('/api/works/:id', requireAuth, requirePermission('WORK_VIEW'), (req, res) => {
@@ -423,6 +496,100 @@ app.post('/api/works/:id/media', requireAuth, requirePermission('MEDIA_ADD'), up
   }
   audit(req.user.user_id, 'MEDIA_ADD', 'WORK', req.params.id, null, inserted.map(x => ({ id: x.id, name: x.originalName })));
   res.status(201).json({ ok: true, media: inserted });
+});
+
+app.get('/api/roles', requireAuth, requirePermission('USER_VIEW'), (_req, res) => {
+  res.json({ ok: true, rows: roleData() });
+});
+
+app.get('/api/users', requireAuth, requirePermission('USER_VIEW'), (_req, res) => {
+  const rows = db.prepare(`
+    SELECT u.user_id AS id,u.employee_name AS name,u.job_title AS jobTitle,u.email,
+           u.role_id AS roleId,r.role_name_ar AS roleName,u.scope_type AS scopeType,
+           u.scope_value AS scopeValue,u.can_login AS canLogin,u.active,
+           u.account_status AS accountStatus,u.last_login AS lastLogin,u.created_at AS createdAt
+    FROM users u
+    JOIN roles r ON r.role_id=u.role_id
+    ORDER BY u.active DESC,u.employee_name
+  `).all().map(x => ({ ...x, canLogin: !!x.canLogin, active: !!x.active }));
+  res.json({ ok: true, rows });
+});
+
+app.post('/api/users', requireAuth, requirePermission('USER_CREATE'), (req, res) => {
+  const name = clean(req.body.name);
+  const jobTitle = clean(req.body.jobTitle);
+  const email = clean(req.body.email).toLowerCase();
+  const password = String(req.body.password || '');
+  const roleId = clean(req.body.roleId);
+  const scopeType = clean(req.body.scopeType) || 'ALL';
+  const scopeValue = clean(req.body.scopeValue);
+  if (!name || !email || !roleId || password.length < 8) {
+    return res.status(400).json({ ok: false, error: 'الاسم والبريد والدور وكلمة مرور من 8 أحرف على الأقل مطلوبة' });
+  }
+  const role = db.prepare('SELECT role_id FROM roles WHERE role_id=? AND active=1').get(roleId);
+  if (!role) return res.status(400).json({ ok: false, error: 'الدور المحدد غير صالح' });
+  if (db.prepare('SELECT 1 FROM users WHERE lower(email)=?').get(email)) {
+    return res.status(409).json({ ok: false, error: 'البريد الإلكتروني مستخدم بالفعل' });
+  }
+  const userId = id();
+  const c = hashPassword(password);
+  const now = nowIso();
+  db.prepare(`
+    INSERT INTO users(
+      user_id,employee_name,job_title,email,password_hash,password_salt,role_id,
+      scope_type,scope_value,can_login,active,account_status,created_at,updated_at
+    ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  `).run(
+    userId,name,jobTitle,email,c.hash,c.salt,roleId,scopeType,scopeValue || null,
+    bool(req.body.canLogin) ? 1 : 0,1,'ACTIVE',now,now
+  );
+  audit(req.user.user_id,'CREATE','USER',userId,null,{ name,jobTitle,email,roleId,scopeType,scopeValue });
+  res.status(201).json({ ok: true, id: userId });
+});
+
+app.put('/api/users/:id', requireAuth, requirePermission('USER_EDIT'), (req, res) => {
+  const existing = db.prepare('SELECT * FROM users WHERE user_id=?').get(req.params.id);
+  if (!existing) return res.status(404).json({ ok: false, error: 'المستخدم غير موجود' });
+  const name = clean(req.body.name) || existing.employee_name;
+  const jobTitle = clean(req.body.jobTitle);
+  const roleId = clean(req.body.roleId) || existing.role_id;
+  const scopeType = clean(req.body.scopeType) || existing.scope_type || 'ALL';
+  const scopeValue = clean(req.body.scopeValue);
+  const active = req.body.active === undefined ? Number(existing.active) : bool(req.body.active);
+  const canLogin = req.body.canLogin === undefined ? Number(existing.can_login) : bool(req.body.canLogin);
+  if (req.params.id === req.user.user_id && (!active || !canLogin)) {
+    return res.status(400).json({ ok: false, error: 'لا يمكن إيقاف حسابك الحالي أو منع تسجيل الدخول له' });
+  }
+  const role = db.prepare('SELECT role_id FROM roles WHERE role_id=? AND active=1').get(roleId);
+  if (!role) return res.status(400).json({ ok: false, error: 'الدور المحدد غير صالح' });
+  const now = nowIso();
+  const password = String(req.body.password || '');
+  if (password) {
+    if (password.length < 8) return res.status(400).json({ ok: false, error: 'كلمة المرور يجب ألا تقل عن 8 أحرف' });
+    const c = hashPassword(password);
+    db.prepare(`
+      UPDATE users SET employee_name=?,job_title=?,role_id=?,scope_type=?,scope_value=?,
+        can_login=?,active=?,account_status=?,password_hash=?,password_salt=?,updated_at=?
+      WHERE user_id=?
+    `).run(
+      name,jobTitle,roleId,scopeType,scopeValue || null,canLogin,active,active ? 'ACTIVE' : 'DISABLED',
+      c.hash,c.salt,now,req.params.id
+    );
+  } else {
+    db.prepare(`
+      UPDATE users SET employee_name=?,job_title=?,role_id=?,scope_type=?,scope_value=?,
+        can_login=?,active=?,account_status=?,updated_at=?
+      WHERE user_id=?
+    `).run(
+      name,jobTitle,roleId,scopeType,scopeValue || null,canLogin,active,active ? 'ACTIVE' : 'DISABLED',
+      now,req.params.id
+    );
+  }
+  audit(req.user.user_id,'UPDATE','USER',req.params.id,
+    { name:existing.employee_name,roleId:existing.role_id,active:!!existing.active },
+    { name,jobTitle,roleId,scopeType,scopeValue,canLogin:!!canLogin,active:!!active }
+  );
+  res.json({ ok: true });
 });
 
 const lookupMap = {

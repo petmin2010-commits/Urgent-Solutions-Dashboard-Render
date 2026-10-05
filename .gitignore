@@ -5,4 +5,5 @@ data/*.db-*
 public/uploads/*
 !public/uploads/.gitkeep
 npm-debug.log*
+preview-*.png
 .DS_Store

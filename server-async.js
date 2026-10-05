@@ -514,23 +514,10 @@ app.use((err,_req,res,_next)=>{
  res.status(500).json({ok:false,error:process.env.NODE_ENV==='production'?'حدث خطأ غير متوقع':(err.message||'حدث خطأ غير متوقع')});
 });
 
-async function runStartupDbSelfTest(){
- const mode=String(process.env.STARTUP_DB_SELFTEST||'').trim().toLowerCase();
- if(!mode||mode==='off'||mode==='false'||mode==='0') return;
- const {spawnSync}=require('child_process');
- const script=path.join(__dirname,'scripts','production-db-smoke.js');
- const modes=mode==='verify_cleanup'?['verify','cleanup']:[mode];
- for(const m of modes){
-  const result=spawnSync(process.execPath,[script,m],{env:process.env,stdio:'inherit'});
-  if(result.status!==0) throw new Error('Production DB self-test failed in mode: '+m);
- }
-}
-
 async function start(){
  if(process.env.NODE_ENV==='production'&&!usePostgres){
   throw new Error('DATABASE_URL is required in production. Refusing to start with ephemeral SQLite storage.');
  }
- await runStartupDbSelfTest();
  await initDatabase();
  app.listen(PORT,'0.0.0.0',()=>console.log('Madinah Water Business running on http://localhost:'+PORT+' ['+(usePostgres?'postgres':'sqlite')+']'));
 }

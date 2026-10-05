@@ -2767,3 +2767,50 @@ body.vd-report-v2-mode #vdReportV2 .vd-report-projects-detail-page .vd-report-de
 .vd-report-followup-summary .sheet-report-kpis{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:2.2mm!important;margin:0 0 3mm!important}
 .vd-report-followup-summary .sheet-report-kpis .kpi-card{min-height:19mm!important;padding:2.2mm!important;box-shadow:none!important;border:1px solid #d5dbe4!important;background:#fff!important}
 .vd-report-followup-summary .sheet-report-kpis .kpi-card span{font-size:6px!important}.vd-report-followup-summary .sheet-report-kpis .kpi-card strong{font-size:13px!important}.vd-report-followup-summary .sheet-report-kpis .kpi-card small{font-size:5.4px!important}
+
+
+/* === Archival report identity parity with Jeddah === */
+.vd-report-v2 .vd-report-page-identity{
+  margin-top:1.8mm!important;
+  gap:.65mm!important;
+}
+.vd-report-v2 .vd-report-page-identity b{
+  font-size:7.2px!important;
+  line-height:1.3!important;
+}
+.vd-report-v2 .vd-report-page-identity span[dir="ltr"]{
+  display:block!important;
+  width:100%!important;
+  max-width:245mm!important;
+  margin:0 auto!important;
+  color:#6d7785!important;
+  direction:ltr!important;
+  unicode-bidi:isolate!important;
+  text-align:center!important;
+  font:700 5.8px/1.28 Arial,Tahoma,sans-serif!important;
+  letter-spacing:.08px!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  overflow-wrap:anywhere!important;
+}
+.vd-report-v2 .vd-report-cover .vd-report-page-identity{
+  margin-top:3mm!important;
+}
+.vd-report-v2 .vd-report-cover .vd-report-page-identity b{
+  font-size:8px!important;
+}
+.vd-report-v2 .vd-report-cover .vd-report-page-identity span[dir="ltr"]{
+  font-size:6.3px!important;
+  max-width:250mm!important;
+}
+.vd-report-v2 .vd-report-page-stamp{
+  direction:ltr!important;
+  unicode-bidi:isolate!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.18!important;
+  font-size:5.45px!important;
+  letter-spacing:.04px!important;
+}

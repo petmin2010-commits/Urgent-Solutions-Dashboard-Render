@@ -94,11 +94,45 @@ function createPage(title,subtitle='',cls=''){
  p.innerHTML='<header class="vd-report-section-header"><div><span>VISION DIMENSIONS</span><h2>'+esc(title)+'</h2><div class="vd-report-page-identity"><b>'+esc(pageName())+'</b><span>'+esc(b.project)+' • '+esc(b.city)+'</span></div></div>'+(subtitle?'<p>'+esc(subtitle)+'</p>':'')+'</header><div class="vd-report-section-body"></div><div class="vd-report-page-stamp">'+esc(pageName())+' • '+new Date().toLocaleString('ar-SA')+'</div><footer class="vd-report-footer"><span>Vision Dimensions</span><span>شركة أبعاد الرؤية للاستشارات الهندسية</span><span>'+esc(b.project)+'</span></footer>';
  return p;
 }
+function reportCode(){
+ const forced=String(window.__VD_REPORT_CODE_OVERRIDE||'').trim();
+ if(forced)return forced;
+ const naming=window.VDReportNaming,key=pageKey();
+ return naming?.build?.({key})||reportName();
+}
+function decorateReportIdentity(report,code){
+ if(!report||!code)return;
+ report.dataset.reportCode=code;
+ const naming=window.VDReportNaming,key=pageKey(),scope=naming?.scope?.()||'General';
+ const ar=(naming?.arabicTitle?.(key,scope)||pageName())+' • جدة';
+ const pages=[...report.querySelectorAll('.vd-report-v2-page')],total=pages.length||1;
+ pages.forEach((page,i)=>{
+  let identity=page.querySelector('.vd-report-page-identity');
+  if(!identity){
+   identity=document.createElement('div');identity.className='vd-report-page-identity';
+   const anchor=page.querySelector('.vd-report-cover-title,.vd-report-section-header');
+   if(anchor)anchor.appendChild(identity);else page.prepend(identity);
+  }
+  identity.innerHTML='<b>'+esc(ar)+'</b><span dir="ltr">'+esc(code)+'</span>';
+  let stamp=page.querySelector('.vd-report-page-stamp');
+  if(!stamp){stamp=document.createElement('div');stamp.className='vd-report-page-stamp';page.appendChild(stamp)}
+  stamp.setAttribute('dir','ltr');
+  stamp.textContent=code+'  |  Page '+(i+1)+' / '+total;
+ });
+}
 function appendPageNumbers(report){
  const pages=[...report.querySelectorAll('.vd-report-v2-page')],total=pages.length;
  pages.forEach((p,i)=>{
   const footer=p.querySelector('.vd-report-footer');if(!footer)return;
+  footer.querySelector('.vd-report-page-number')?.remove();
   const n=document.createElement('span');n.className='vd-report-page-number';n.textContent='صفحة '+(i+1)+' / '+total;footer.appendChild(n);
+ });
+}
+function pruneEmptyPages(report){
+ [...report.querySelectorAll('.vd-report-v2-page:not(.vd-report-cover)')].forEach(page=>{
+  const body=page.querySelector('.vd-report-section-body')||page;
+  const hasVisual=!!body.querySelector('table,img,svg,canvas,.leaflet-map-pane,.kpi-card,.vd-report-kpi-clone,.us-kpi,.dq-card,.rc-card');
+  if(!hasVisual&&clean(body.textContent).length<3)page.remove();
  });
 }
 function buildCover(report,kpis=[]){
@@ -112,7 +146,11 @@ function buildCover(report,kpis=[]){
 function panelTitle(panel,fallback='تفاصيل التقرير'){
  const contractor=panel.closest?.('.sheet-contractor-report');
  if(contractor){const h=clean(contractor.querySelector('h4')?.textContent),b=clean(contractor.querySelector('.sheet-balance b')?.textContent);if(h)return h+(b?' - صافي الأمتار: '+b:'')}
- return clean(panel.querySelector?.('.table-tools b,.panel-head b,.us-panel-head h3,.dq-detail-head h3,h1,h2,h3')?.textContent)||fallback;
+ const smart=panel.closest?.('.us-panel'),dq=panel.closest?.('.dq-details,.dq-section');
+ return clean(panel.querySelector?.('.table-tools b,.panel-head b,.us-panel-head h3,.dq-detail-head h3,h1,h2,h3')?.textContent)
+  ||clean(smart?.querySelector('.us-panel-head h3')?.textContent)
+  ||clean(dq?.querySelector('.dq-detail-head h3,.dq-section-head h3')?.textContent)
+  ||fallback;
 }
 function findKpis(root){
  const selector='.kpi-card,.us-kpi';
@@ -271,9 +309,13 @@ function buildReportsCenter(report,root){
  });
 }
 function buildStandardReport(report,root){
- const kpis=[...root.querySelectorAll('.kpi-card')].filter(x=>visible(x,root)),charts=[...root.querySelectorAll('.panel')].filter(x=>visible(x,root)&&x.querySelector('canvas')),tables=[...root.querySelectorAll('.table-panel')].filter(x=>visible(x,root));
+ const kpis=[...root.querySelectorAll('.kpi-card')].filter(x=>visible(x,root)),
+ charts=[...root.querySelectorAll('.panel')].filter(x=>visible(x,root)&&x.querySelector('canvas')),
+ narrativePanels=[...root.querySelectorAll('.panel')].filter(x=>visible(x,root)&&!x.querySelector('canvas,table')),
+ tables=[...root.querySelectorAll('.table-panel')].filter(x=>visible(x,root));
  buildCover(report,kpis);buildKpis(report,kpis);buildCharts(report,charts);buildTablePages(report,tables);buildMapPage(report,root);
- const used=new Set([...kpis.map(x=>x.closest('.kpi-grid')||x),...charts,...tables]);
+ if(narrativePanels.length)buildMisc(report,narrativePanels,'ملاحظات وتحليل إضافي');
+ const used=new Set([...kpis.map(x=>x.closest('.kpi-grid')||x),...charts,...narrativePanels,...tables]);
  const extras=[...root.children].filter(x=>!used.has(x)&&!x.matches('.kpi-grid,.chart-grid,.map-panel')&&!x.querySelector('.table-panel,.panel,canvas,table'));
  buildMisc(report,extras);
 }
@@ -288,12 +330,21 @@ function build(){
  else if(key==='reports')buildReportsCenter(report,root);
  else buildStandardReport(report,root);
  if(!report.querySelector('.vd-report-v2-page'))buildCover(report,[]);
- appendPageNumbers(report);return report;
+ pruneEmptyPages(report);
+ const code=reportCode();
+ decorateReportIdentity(report,code);
+ appendPageNumbers(report);
+ return report;
 }
 function reportName(){const meta=window.VDUrgent?.PAGE_META?.[pageKey()]||{},n=window.VDUrgent?.reportName?.(meta.title||pageKey());return n||('VD_UrgentSolutions_'+Date.now())}
 function teardown(){document.body.classList.remove('vd-report-v2-mode');document.getElementById(REPORT_ID)?.remove()}
 function print(){
- closePreview();build();const old=document.title;document.title=reportName();document.body.classList.add('vd-report-v2-mode');
+ const previewCode=document.getElementById(REPORT_ID)?.dataset?.reportCode||'';
+ closePreview();
+ if(previewCode)window.__VD_REPORT_CODE_OVERRIDE=previewCode;
+ const report=build(),old=document.title;
+ delete window.__VD_REPORT_CODE_OVERRIDE;
+ document.title=report?.dataset?.reportCode||reportName();document.body.classList.add('vd-report-v2-mode');
  const done=()=>{window.removeEventListener('afterprint',done);document.title=old;teardown()};window.addEventListener('afterprint',done);
  setTimeout(()=>window.print(),220);
 }

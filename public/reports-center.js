@@ -62,14 +62,18 @@ async function waitPage(key){
 }
 async function exportGeneral(key,button){
  if(!available(key)||!window.VDUrgent)return;
- const original=button.textContent,snap=filterSnapshot(),scope=window.__VD_REPORT_SCOPE_OVERRIDE;
+ const original=button.textContent,snap=filterSnapshot(),scope=window.__VD_REPORT_SCOPE_OVERRIDE,typeOverride=window.__VD_REPORT_TYPE_OVERRIDE,arOverride=window.__VD_REPORT_AR_TITLE_OVERRIDE;
  button.disabled=true;button.textContent='جاري تجهيز التقرير...';
  window.__VD_REPORT_SCOPE_OVERRIDE='General';
+ delete window.__VD_REPORT_TYPE_OVERRIDE;
+ delete window.__VD_REPORT_AR_TITLE_OVERRIDE;
  clearFiltersForGeneral();window.VDUrgent.openPage(key);await waitPage(key);await delay(260);
  let done=false;
  const finish=()=>{
   if(done)return;done=true;restoreFilters(snap);
   if(scope===undefined)delete window.__VD_REPORT_SCOPE_OVERRIDE;else window.__VD_REPORT_SCOPE_OVERRIDE=scope;
+  if(typeOverride===undefined)delete window.__VD_REPORT_TYPE_OVERRIDE;else window.__VD_REPORT_TYPE_OVERRIDE=typeOverride;
+  if(arOverride===undefined)delete window.__VD_REPORT_AR_TITLE_OVERRIDE;else window.__VD_REPORT_AR_TITLE_OVERRIDE=arOverride;
   button.disabled=false;button.textContent=original;
   setTimeout(()=>window.VDUrgent?.openPage?.('reports'),100);
  };
@@ -85,13 +89,17 @@ async function openFollowupTarget(target){
 }
 async function exportFollowupTarget(target,label,button){
  if(!available('followup')||!window.VDUrgent)return;
- const original=button.textContent,scope=window.__VD_REPORT_SCOPE_OVERRIDE;
+ const original=button.textContent,scope=window.__VD_REPORT_SCOPE_OVERRIDE,typeOverride=window.__VD_REPORT_TYPE_OVERRIDE,arOverride=window.__VD_REPORT_AR_TITLE_OVERRIDE;
  button.disabled=true;button.textContent='جاري تجهيز PDF...';
  window.__VD_REPORT_SCOPE_OVERRIDE='General';
+ window.__VD_REPORT_TYPE_OVERRIDE=window.VDReportNaming?.followupType?.(target)||('FollowUp_'+target);
+ window.__VD_REPORT_AR_TITLE_OVERRIDE=label;
  window.VDUrgent.openPage('followup');await waitPage('followup');await delay(220);
  const source=document.querySelector('[data-followup-report="'+target+'"]'),host=document.querySelector('#pageHost');
  if(!source||!host){
   if(scope===undefined)delete window.__VD_REPORT_SCOPE_OVERRIDE;else window.__VD_REPORT_SCOPE_OVERRIDE=scope;
+  if(typeOverride===undefined)delete window.__VD_REPORT_TYPE_OVERRIDE;else window.__VD_REPORT_TYPE_OVERRIDE=typeOverride;
+  if(arOverride===undefined)delete window.__VD_REPORT_AR_TITLE_OVERRIDE;else window.__VD_REPORT_AR_TITLE_OVERRIDE=arOverride;
   button.disabled=false;button.textContent=original;
   window.VDUrgent?.toast?.('تعذر تجهيز جدول المتابعة');
   window.VDUrgent?.openPage?.('reports');return;
@@ -106,6 +114,8 @@ async function exportFollowupTarget(target,label,button){
   if(done)return;done=true;
   if(metaObj)metaObj.title=metaTitle;
   if(scope===undefined)delete window.__VD_REPORT_SCOPE_OVERRIDE;else window.__VD_REPORT_SCOPE_OVERRIDE=scope;
+  if(typeOverride===undefined)delete window.__VD_REPORT_TYPE_OVERRIDE;else window.__VD_REPORT_TYPE_OVERRIDE=typeOverride;
+  if(arOverride===undefined)delete window.__VD_REPORT_AR_TITLE_OVERRIDE;else window.__VD_REPORT_AR_TITLE_OVERRIDE=arOverride;
   button.disabled=false;button.textContent=original;
   setTimeout(()=>window.VDUrgent?.openPage?.('reports'),100);
  };

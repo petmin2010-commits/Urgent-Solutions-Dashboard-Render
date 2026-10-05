@@ -151,9 +151,10 @@ function layerBounds(layer){
  }catch{return null}
 }
 function init(options={}){
- const map=options.map,input=options.input,button=options.button,host=options.host,stage=options.stage;
+ const map=options.map,input=options.input,button=options.button,host=options.host,stage=options.stage,search=options.search;
  if(!map||!window.L||!input||!button||!host)return null;
  const layers=new Map();
+ let searchQuery='';
  active={map,layers};
  const say=msg=>typeof options.toast==='function'?options.toast(msg):void 0;
  const summary=()=>typeof options.onSummary==='function'&&options.onSummary(uploads.filter(x=>x.visible).length,uploads.length);
@@ -170,8 +171,8 @@ function init(options={}){
   }
  });
  for(let i=uploads.length-1;i>=0;i--)if(uploads[i].sourceKind==='sheet'&&!sourceIds.has(uploads[i].id))uploads.splice(i,1);
- const statusText=u=>u.loading?'جاري تحميل KMZ…':u.sourceKind==='sheet'?(u.loaded?(u.features.length+' عنصر • من AL'):'جاهز من العمود AL • اضغط للإضافة'):(u.features.length+' عنصر • ملف مرفوع');
- const rowHtml=u=>'<div class="map-kmz-row '+(u.sourceKind==='sheet'?'sheet-source':'')+'" data-kmz-row="'+esc(u.id)+'"><button type="button" class="map-kmz-toggle '+(u.visible?'active':'')+'" data-kmz-action="toggle" title="إظهار/إخفاء الطبقة"><i></i></button><div class="map-kmz-name"><b>'+esc(u.name)+'</b><span>'+esc(statusText(u))+'</span></div><div class="map-kmz-actions"><button type="button" data-kmz-action="zoom" title="تحميل/تكبير إلى حدود الطبقة">⌖</button><button type="button" data-kmz-action="remove" title="'+(u.sourceKind==='sheet'?'إزالة الرسم مع إبقاء رابط AL متاحًا':'حذف الطبقة')+'">×</button></div></div>';
+ const statusText=u=>u.loading?'جاري تحميل KMZ…':u.sourceKind==='sheet'?(u.loaded?(u.features.length+' عنصر • من AL'):'جاهز من العمود AL • اختر لإضافته'):(u.features.length+' عنصر • ملف مرفوع');
+ const rowHtml=u=>'<div class="map-kmz-row '+(u.sourceKind==='sheet'?'sheet-source':'')+'" data-kmz-row="'+esc(u.id)+'"><label class="map-kmz-check" title="إظهار/إخفاء الطبقة"><input type="checkbox" data-kmz-action="toggle" '+(u.visible?'checked':'')+'><span></span></label><div class="map-kmz-name"><b>'+esc(u.name)+'</b><span>'+esc(statusText(u))+'</span></div><div class="map-kmz-actions"><button type="button" data-kmz-action="zoom" title="تحميل/تكبير إلى حدود الطبقة">⌖</button><button type="button" data-kmz-action="remove" title="'+(u.sourceKind==='sheet'?'إزالة الرسم مع إبقاء رابط AL متاحًا':'حذف الطبقة')+'">×</button></div></div>';
  const render=()=>{
   layers.forEach(layer=>{try{if(map.hasLayer(layer))map.removeLayer(layer)}catch{}});
   layers.clear();
@@ -179,7 +180,8 @@ function init(options={}){
    if(u.loaded===false&&!u.features?.length)return;
    const layer=buildLayer(map,u);layers.set(u.id,layer);if(u.visible)layer.addTo(map);
   });
-  host.innerHTML=uploads.length?uploads.map(rowHtml).join(''):'';
+  const visibleRows=searchQuery?uploads.filter(u=>clean([u.name,u.fileName,u.sourceKind==='sheet'?'AL':'ملف'].join(' ')).toLowerCase().includes(searchQuery)):uploads;
+  host.innerHTML=visibleRows.length?visibleRows.map(rowHtml).join(''):(uploads.length?'<div class="map-kmz-empty">لا توجد طبقات مطابقة للبحث</div>':'');
   host.classList.toggle('show',uploads.length>0);
   summary();
  };
@@ -221,13 +223,15 @@ function init(options={}){
  };
  button.addEventListener('click',()=>input.click());
  input.addEventListener('change',()=>loadFiles(input.files));
+ if(search)search.addEventListener('input',()=>{searchQuery=clean(search.value).toLowerCase();render()});
  host.addEventListener('click',async e=>{
   const action=e.target.closest('[data-kmz-action]');if(!action)return;
   const row=action.closest('[data-kmz-row]'),u=uploads.find(x=>x.id===row?.dataset.kmzRow);if(!u)return;
   const kind=action.dataset.kmzAction;
   if(kind==='toggle'){
-   if(u.sourceKind==='sheet'&&!u.loaded){await loadRemote(u);return}
-   u.visible=!u.visible;render();return;
+   const checked=!!action.checked;
+   if(checked&&u.sourceKind==='sheet'&&!u.loaded){await loadRemote(u);return}
+   u.visible=checked;render();return;
   }
   if(kind==='zoom'){
    if(u.sourceKind==='sheet'&&!u.loaded){await loadRemote(u);return}

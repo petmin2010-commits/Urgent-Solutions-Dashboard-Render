@@ -720,11 +720,17 @@ function renderMap(){
   ...projects.map(r=>({itemType:'مشروع',ref:r.no,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.contractStatus||r.permitStatus||'',lat:r.lat,lon:r.lon})),
   ...lines.map(r=>({itemType:'خط بديل',ref:r.ref,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.executionStatus||r.designStatus||'',lat:r.lat,lon:r.lon}))
  ];
- const opt=(rows,key,label)=>{
+ const checkFilter=(rows,key,label,scope)=>{
   const vals=[...new Set(rows.map(r=>clean(r[key])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
-  return '<label class="map-glass-filter"><span>'+label+'</span><select data-map-filter="'+key+'"><option value="">الكل</option>'+vals.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')+'</select></label>';
+  return '<div class="map-check-filter" data-map-filter-box="'+scope+':'+key+'">'+
+   '<button type="button" class="map-check-trigger" data-map-filter-trigger><span>'+esc(label)+'</span><b data-map-filter-count>0</b><i>⌄</i></button>'+
+   '<div class="map-check-menu">'+
+    '<div class="map-check-search"><input type="search" data-map-filter-search autocomplete="off" placeholder="بحث في '+esc(label)+'..."></div>'+
+    '<div class="map-check-menu-head"><span>'+vals.length+' خيار</span><button type="button" data-map-filter-clear>مسح الاختيار</button></div>'+
+    '<div class="map-check-options">'+vals.map(v=>'<label data-map-filter-option data-search="'+esc(norm(v))+'"><input type="checkbox" data-map-filter-check data-map-scope="'+scope+'" data-map-key="'+key+'" value="'+esc(v)+'"><span>'+esc(v)+'</span></label>').join('')+'</div>'+
+   '</div>'+
+  '</div>';
  };
- const filterUniverse=[...projects,...lines];
  $('#pageHost').innerHTML='<div class="kpi-grid map-kpis">'+
   kpi('مواقع المشاريع',projects.length,missingProjects?'مفقود '+missingProjects+' موقع':'جميع المواقع المتاحة')+
   kpi('الخطوط البديلة',lines.length,missingLines?'مفقود '+missingLines+' إحداثية':'إحداثيات الخطوط المتاحة')+
@@ -736,26 +742,38 @@ function renderMap(){
   '<div class="map-stage">'+
    '<div id="projectMap" class="map-canvas"></div>'+
    '<div class="map-glass-panel">'+
-    '<div class="map-glass-top">'+
-     '<div class="map-layer-buttons">'+
-      '<button type="button" class="map-layer-btn active" data-map-layer="projects"><span class="map-symbol project-symbol"></span>المشاريع <b id="mapProjectCount">'+projects.length+'</b></button>'+
-      '<button type="button" class="map-layer-btn active" data-map-layer="lines"><span class="map-symbol line-symbol"></span>الخطوط البديلة <b id="mapLineCount">'+lines.length+'</b></button>'+
+    '<div class="map-glass-top map-tools-only">'+
+     '<div class="map-layer-buttons map-utility-buttons">'+
       '<button type="button" class="map-tool-btn" id="mapFitBtn">⌖ ملاءمة</button>'+
       '<button type="button" class="map-tool-btn" id="mapResetBtn">↺ إعادة الفلاتر</button>'+
       '<button type="button" class="map-tool-btn" id="mapFullscreenBtn">⛶ توسعة</button>'+
-      '<button type="button" class="map-tool-btn map-kmz-upload-btn" id="mapKmzUploadBtn">⬆ رفع KMZ</button>'+
-      '<input id="mapKmzFileInput" class="map-file-input" type="file" accept=".kmz,.kml,application/vnd.google-earth.kmz,application/vnd.google-earth.kml+xml" multiple>'+
      '</div>'+
-     '<div class="map-search-wrap"><input id="mapSearchInput" type="search" autocomplete="off" placeholder="بحث داخل الخريطة: مشروع، خط، مقاول، مالك، حي..."><div id="mapSearchResults" class="map-search-results"></div></div>'+
+     '<div class="map-search-wrap"><input id="mapSearchInput" type="search" autocomplete="off" placeholder="بحث عام داخل الخريطة..."><div id="mapSearchResults" class="map-search-results"></div></div>'+
     '</div>'+
-    '<div class="map-glass-filters">'+
-     opt(filterUniverse,'municipality','البلدية')+
-     opt(filterUniverse,'contractor','المقاول')+
-     opt(filterUniverse,'owner','المالك')+
-     opt(lines,'type','نوع الخط')+
-     opt(lines,'designStatus','حالة التصميم')+
+    '<div class="map-filter-stack">'+
+     '<div class="map-filter-bar map-filter-bar-projects">'+
+      '<div class="map-filter-bar-head"><button type="button" class="map-layer-btn active" data-map-layer="projects"><span class="map-symbol project-symbol"></span>المشاريع <b id="mapProjectCount">'+projects.length+'</b></button><span>فلاتر المشاريع</span></div>'+
+      '<div class="map-filter-bar-fields">'+
+       checkFilter(projects,'municipality','البلدية','project')+
+       checkFilter(projects,'contractor','المقاول','project')+
+       checkFilter(projects,'owner','المالك','project')+
+      '</div>'+
+     '</div>'+
+     '<div class="map-filter-bar map-filter-bar-lines">'+
+      '<div class="map-filter-bar-head"><button type="button" class="map-layer-btn active" data-map-layer="lines"><span class="map-symbol line-symbol"></span>الخطوط البديلة <b id="mapLineCount">'+lines.length+'</b></button><span>فلاتر الخطوط البديلة</span></div>'+
+      '<div class="map-filter-bar-fields map-filter-bar-fields-lines">'+
+       checkFilter(lines,'municipality','البلدية','line')+
+       checkFilter(lines,'contractor','المقاول','line')+
+       checkFilter(lines,'owner','المالك','line')+
+       checkFilter(lines,'type','نوع الخط','line')+
+       checkFilter(lines,'designStatus','حالة التصميم','line')+
+      '</div>'+
+     '</div>'+
+     '<div class="map-filter-bar map-filter-bar-kmz">'+
+      '<div class="map-filter-bar-head"><div class="map-kmz-bar-title"><span class="map-kmz-legend"><i></i></span><strong>KMZ</strong><em>'+linkedKmzSources.length+' من AL</em></div><div class="map-kmz-bar-tools"><input id="mapKmzSearch" class="map-kmz-search-input" type="search" autocomplete="off" placeholder="بحث في طبقات KMZ..."><button type="button" class="map-tool-btn map-kmz-upload-btn" id="mapKmzUploadBtn">⬆ رفع KMZ</button><input id="mapKmzFileInput" class="map-file-input" type="file" accept=".kmz,.kml,application/vnd.google-earth.kmz,application/vnd.google-earth.kml+xml" multiple></div></div>'+
+      '<div id="mapKmzLayers" class="map-kmz-layers" aria-live="polite"></div>'+
+     '</div>'+
     '</div>'+
-    '<div id="mapKmzLayers" class="map-kmz-layers" aria-live="polite"></div>'+
    '</div>'+
    '<div class="map-floating-legend"><span><i class="map-dot project-only"></i> مشروع</span><span><i class="map-dot line-only"></i> خط بديل</span><span class="map-kmz-legend"><i></i> KMZ</span><em id="mapVisibleSummary">'+projects.length+' مشروع • '+lines.length+' خط</em></div>'+
   '</div>'+
@@ -800,14 +818,14 @@ function renderMap(){
  street.addTo(state.map);
  const projectLayer=L.layerGroup().addTo(state.map),lineLayer=L.layerGroup().addTo(state.map);
  L.control.layers({'خريطة الشوارع':street,'صور جوية':satellite},{},{position:'bottomright',collapsed:true}).addTo(state.map);
- const filterState={municipality:'',contractor:'',owner:'',type:'',designStatus:''};
+ const projectFilterState={municipality:new Set(),contractor:new Set(),owner:new Set()};
+ const lineFilterState={municipality:new Set(),contractor:new Set(),owner:new Set(),type:new Set(),designStatus:new Set()};
  let bounds=[],searchItems=[],kmzManager=null,visibleProjectCount=projects.length,visibleLineCount=lines.length;
  const matchesMapFilters=(r,kind)=>{
-  if(filterState.municipality&&clean(r.municipality)!==filterState.municipality)return false;
-  if(filterState.contractor&&clean(r.contractor)!==filterState.contractor)return false;
-  if(filterState.owner&&clean(r.owner)!==filterState.owner)return false;
-  if(kind==='line'&&filterState.type&&clean(r.type)!==filterState.type)return false;
-  if(kind==='line'&&filterState.designStatus&&clean(r.designStatus)!==filterState.designStatus)return false;
+  const filterState=kind==='project'?projectFilterState:lineFilterState;
+  for(const [key,selected] of Object.entries(filterState)){
+   if(selected.size&&!selected.has(clean(r[key])))return false;
+  }
   return true;
  };
  const lineGroupKey=r=>{
@@ -845,15 +863,28 @@ function renderMap(){
  };
  const fitBtn=$('#mapFitBtn'),resetBtn=$('#mapResetBtn'),fullBtn=$('#mapFullscreenBtn'),panel=$('#advancedMapPanel'),searchInput=$('#mapSearchInput'),searchResults=$('#mapSearchResults');
  kmzManager=window.VDKMZ?.init({
-  map:state.map,input:$('#mapKmzFileInput'),button:$('#mapKmzUploadBtn'),host:$('#mapKmzLayers'),
+  map:state.map,input:$('#mapKmzFileInput'),button:$('#mapKmzUploadBtn'),host:$('#mapKmzLayers'),search:$('#mapKmzSearch'),
   stage:panel?.querySelector('.map-stage'),toast,sources:linkedKmzSources,
   onSummary:visible=>{const summary=$('#mapVisibleSummary');if(summary)summary.textContent=visibleProjectCount+' مشروع • '+visibleLineCount+' خط'+(visible?' • '+visible+' KMZ':'')}
  })||null;
+ const updateCheckFilterBox=box=>{
+  if(!box)return;
+  const count=box.querySelectorAll('[data-map-filter-check]:checked').length;
+  const badge=box.querySelector('[data-map-filter-count]');
+  if(badge)badge.textContent=count;
+  box.classList.toggle('has-selection',count>0);
+ };
+ const clearAllCheckFilters=()=>{
+  for(const stateObj of [projectFilterState,lineFilterState])Object.values(stateObj).forEach(set=>set.clear());
+  $$('[data-map-filter-check]','#pageHost').forEach(c=>{c.checked=false});
+  $$('[data-map-filter-search]','#pageHost').forEach(s=>{s.value=''});
+  $$('[data-map-filter-option]','#pageHost').forEach(o=>{o.hidden=false});
+  $$('.map-check-filter','#pageHost').forEach(updateCheckFilterBox);
+ };
  fitVisible();
  if(fitBtn)fitBtn.addEventListener('click',fitVisible);
  if(resetBtn)resetBtn.addEventListener('click',()=>{
-  Object.keys(filterState).forEach(k=>filterState[k]='');
-  $$('[data-map-filter]','#pageHost').forEach(s=>s.value='');
+  clearAllCheckFilters();
   renderFeatures();fitVisible();toast('تمت إعادة فلاتر الخريطة');
  });
  if(fullBtn&&panel)fullBtn.addEventListener('click',()=>{
@@ -865,10 +896,30 @@ function renderMap(){
   const layer=btn.dataset.mapLayer==='projects'?projectLayer:lineLayer;
   if(state.map.hasLayer(layer)){state.map.removeLayer(layer);btn.classList.remove('active')}else{layer.addTo(state.map);btn.classList.add('active')}
  }));
- $$('[data-map-filter]','#pageHost').forEach(sel=>sel.addEventListener('change',()=>{
-  filterState[sel.dataset.mapFilter]=sel.value;
-  renderFeatures();fitVisible();
+ $$('[data-map-filter-trigger]','#pageHost').forEach(btn=>btn.addEventListener('click',e=>{
+  e.stopPropagation();
+  const box=btn.closest('.map-check-filter'),willOpen=!box.classList.contains('open');
+  $$('.map-check-filter.open','#pageHost').forEach(x=>x.classList.remove('open'));
+  if(willOpen){box.classList.add('open');setTimeout(()=>box.querySelector('[data-map-filter-search]')?.focus(),20)}
  }));
+ $$('[data-map-filter-search]','#pageHost').forEach(input=>input.addEventListener('input',()=>{
+  const q=norm(input.value),box=input.closest('.map-check-filter');
+  $$('[data-map-filter-option]',box).forEach(option=>{option.hidden=q&&!clean(option.dataset.search).includes(q)});
+ }));
+ $$('[data-map-filter-clear]','#pageHost').forEach(btn=>btn.addEventListener('click',()=>{
+  const box=btn.closest('.map-check-filter'),checks=$$('[data-map-filter-check]',box);
+  checks.forEach(c=>{c.checked=false});
+  const sample=checks[0];
+  if(sample){const stateObj=sample.dataset.mapScope==='project'?projectFilterState:lineFilterState;stateObj[sample.dataset.mapKey]?.clear()}
+  updateCheckFilterBox(box);renderFeatures();fitVisible();
+ }));
+ $$('[data-map-filter-check]','#pageHost').forEach(check=>check.addEventListener('change',()=>{
+  const stateObj=check.dataset.mapScope==='project'?projectFilterState:lineFilterState;
+  const set=stateObj[check.dataset.mapKey];if(!set)return;
+  if(check.checked)set.add(clean(check.value));else set.delete(clean(check.value));
+  updateCheckFilterBox(check.closest('.map-check-filter'));renderFeatures();fitVisible();
+ }));
+ if(panel)panel.addEventListener('click',e=>{if(!e.target.closest('.map-check-filter'))$$('.map-check-filter.open',panel).forEach(x=>x.classList.remove('open'))});
  const closeSearch=()=>{if(searchResults){searchResults.innerHTML='';searchResults.classList.remove('show')}};
  if(searchInput&&searchResults){
   searchInput.addEventListener('input',()=>{

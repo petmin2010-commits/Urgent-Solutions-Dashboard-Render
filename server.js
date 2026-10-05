@@ -107,7 +107,7 @@ function credentials(){
 async function sheetsApi(){
   const auth=new google.auth.GoogleAuth({
     credentials:credentials(),
-    scopes:['https://www.googleapis.com/auth/spreadsheets.readonly']
+    scopes:['https://www.googleapis.com/auth/spreadsheets']
   });
   return google.sheets({version:'v4',auth});
 }
@@ -124,6 +124,194 @@ async function sourceSheetLinks_(sheets){
   }
   sourceSheetLinksCache={at:Date.now(),map};
   return map;
+}
+
+const SMART_HISTORY_SHEET='Dashboard History';
+const SMART_HISTORY_HEADERS=[
+  'date','timestamp','project','projects','permits','permitMeters','lines','lineMeters','coverage',
+  'highRisk','expired','expiring','quality','complaints','designPending','gap','handover','health',
+  'newIssues','resolvedIssues','issueKeysJson','categoriesJson','contractorsJson','version'
+];
+const THURSDAY_PROGRESS_SHEET='VD Thursday Progress';
+const THURSDAY_PROGRESS_HEADERS=[
+  'date','timestamp','project','overallRate','totalOrders','completed','sectionMetricsJson','summaryJson','version'
+];
+
+async function ensureSystemSheet_(title,headers,rowCount=5000){
+  const sheets=await sheetsApi();
+  const meta=await sheets.spreadsheets.get({
+    spreadsheetId:SPREADSHEET_ID,
+    fields:'sheets.properties(sheetId,title,gridProperties(columnCount))'
+  });
+  const found=(meta.data.sheets||[]).find(s=>s.properties?.title===title);
+  if(!found){
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId:SPREADSHEET_ID,
+      requestBody:{requests:[{addSheet:{properties:{
+        title,gridProperties:{rowCount,columnCount:headers.length},rightToLeft:true
+      }}}]}
+    });
+  }else if(Number(found.properties?.gridProperties?.columnCount||0)<headers.length){
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId:SPREADSHEET_ID,
+      requestBody:{requests:[{updateSheetProperties:{
+        properties:{sheetId:found.properties.sheetId,gridProperties:{columnCount:headers.length}},
+        fields:'gridProperties.columnCount'
+      }}]}
+    });
+  }
+  const lastCol=columnLetter_(headers.length-1);
+  await sheets.spreadsheets.values.update({
+    spreadsheetId:SPREADSHEET_ID,
+    range:q(title)+'!A1:'+lastCol+'1',
+    valueInputOption:'RAW',
+    requestBody:{values:[headers]}
+  });
+  sourceSheetLinksCache={at:0,map:{}};
+  return sheets;
+}
+function columnLetter_(index){
+  let n=Number(index)+1,s='';
+  while(n>0){const r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26)}
+  return s;
+}
+function safeJsonParse_(v,fallback){try{return JSON.parse(String(v||''))}catch{return fallback}}
+function smartNum_(v){const x=Number(v);return Number.isFinite(x)?Math.round(x*10)/10:0}
+function smartIssueHashes_(keys){
+  return [...new Set((Array.isArray(keys)?keys:[]).slice(0,2200).map(x=>
+    crypto.createHash('sha1').update(String(x||'')).digest('hex').slice(0,12)
+  ))];
+}
+function smartHistoryRowToObj_(r,rowNumber){
+  return {
+    rowNumber,
+    date:String(r[0]||''),timestamp:String(r[1]||''),project:String(r[2]||''),
+    projects:smartNum_(r[3]),permits:smartNum_(r[4]),permitMeters:smartNum_(r[5]),
+    lines:smartNum_(r[6]),lineMeters:smartNum_(r[7]),coverage:smartNum_(r[8]),
+    highRisk:smartNum_(r[9]),expired:smartNum_(r[10]),expiring:smartNum_(r[11]),
+    quality:smartNum_(r[12]),complaints:smartNum_(r[13]),designPending:smartNum_(r[14]),
+    gap:smartNum_(r[15]),handover:smartNum_(r[16]),health:smartNum_(r[17]),
+    newIssues:smartNum_(r[18]),resolvedIssues:smartNum_(r[19]),
+    issueKeys:safeJsonParse_(r[20],[]),categories:safeJsonParse_(r[21],{}),contractors:safeJsonParse_(r[22],{}),
+    version:String(r[23]||'')
+  };
+}
+async function saveSmartHistory(payload){
+  const sheets=await ensureSystemSheet_(SMART_HISTORY_SHEET,SMART_HISTORY_HEADERS,5000);
+  const zone='Asia/Riyadh',now=DateTime.now().setZone(zone),today=now.toISODate(),timestamp=now.toFormat('yyyy-LL-dd HH:mm:ss');
+  const summary=payload?.summary&&typeof payload.summary==='object'?payload.summary:{};
+  const categories=payload?.categories&&typeof payload.categories==='object'?payload.categories:{};
+  const contractors=payload?.contractors&&typeof payload.contractors==='object'?payload.contractors:{};
+  const issueKeys=smartIssueHashes_(payload?.issueKeys);
+  const raw=(await sheets.spreadsheets.values.get({
+    spreadsheetId:SPREADSHEET_ID,range:q(SMART_HISTORY_SHEET)+'!A2:X5000',valueRenderOption:'UNFORMATTED_VALUE'
+  })).data.values||[];
+  const history=raw.map((r,i)=>smartHistoryRowToObj_(r,i+2)).filter(x=>x.date);
+  const previous=[...history].filter(x=>x.date<today).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+  const previousKeys=new Set(previous?.issueKeys||[]),currentKeys=new Set(issueKeys);
+  const newIssues=previous?issueKeys.filter(k=>!previousKeys.has(k)).length:0;
+  const resolvedIssues=previous?[...previousKeys].filter(k=>!currentKeys.has(k)).length:0;
+  const row=[
+    today,timestamp,'إدارة الحلول العاجلة',
+    smartNum_(summary.projects),smartNum_(summary.permits),smartNum_(summary.permitMeters),
+    smartNum_(summary.lines),smartNum_(summary.lineMeters),smartNum_(summary.coverage),
+    smartNum_(summary.highRisk),smartNum_(summary.expired),smartNum_(summary.expiring),
+    smartNum_(summary.quality),smartNum_(summary.complaints),smartNum_(summary.designPending),
+    smartNum_(summary.gap),smartNum_(summary.handover),smartNum_(summary.health),
+    newIssues,resolvedIssues,JSON.stringify(issueKeys),JSON.stringify(categories),JSON.stringify(contractors),'v2'
+  ];
+  const todayRow=history.find(x=>x.date===today);
+  if(todayRow){
+    await sheets.spreadsheets.values.update({
+      spreadsheetId:SPREADSHEET_ID,range:q(SMART_HISTORY_SHEET)+'!A'+todayRow.rowNumber+':X'+todayRow.rowNumber,
+      valueInputOption:'RAW',requestBody:{values:[row]}
+    });
+  }else{
+    await sheets.spreadsheets.values.append({
+      spreadsheetId:SPREADSHEET_ID,range:q(SMART_HISTORY_SHEET)+'!A:X',
+      valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:[row]}
+    });
+  }
+  const current=smartHistoryRowToObj_(row,todayRow?.rowNumber||history.length+2);
+  const full=[...history.filter(x=>x.date!==today),current].sort((a,b)=>a.date.localeCompare(b.date));
+  const memoryHistory=full.slice(-180).map(x=>({
+    date:x.date,timestamp:x.timestamp,projects:x.projects,permits:x.permits,permitMeters:x.permitMeters,
+    lines:x.lines,lineMeters:x.lineMeters,coverage:x.coverage,highRisk:x.highRisk,expired:x.expired,expiring:x.expiring,
+    quality:x.quality,complaints:x.complaints,designPending:x.designPending,gap:x.gap,handover:x.handover,health:x.health,
+    newIssues:x.newIssues,resolvedIssues:x.resolvedIssues,categories:x.categories||{},contractors:x.contractors||{}
+  }));
+  const changes={};
+  for(const k of ['projects','permits','permitMeters','lines','lineMeters','coverage','highRisk','expired','expiring','quality','complaints','designPending','gap','handover','health']){
+    changes[k]=previous?smartNum_(summary[k])-smartNum_(previous[k]):0;
+  }
+  changes.newIssues=newIssues;changes.resolvedIssues=resolvedIssues;
+  return {
+    ok:true,source:'google-sheet',sheet:SMART_HISTORY_SHEET,today,updatedAt:timestamp,
+    current:{date:today,...summary,newIssues,resolvedIssues},
+    previous:previous?{...previous,issueKeys:undefined,categories:undefined,contractors:undefined}:null,
+    changes,
+    history:memoryHistory.slice(-30),memoryHistory,
+    memoryCoverage:{days:memoryHistory.length,from:memoryHistory[0]?.date||today,to:memoryHistory[memoryHistory.length-1]?.date||today}
+  };
+}
+function thursdayProgressNum_(v){
+  const x=Number(v);return Number.isFinite(x)?Math.max(0,Math.min(100,Math.round(x*10)/10)):0;
+}
+function isThursdaySnapshotDate_(dateStr){
+  const d=DateTime.fromISO(String(dateStr||''),{zone:'Asia/Riyadh'}).startOf('day');
+  return !!(d.isValid&&d.weekday===4);
+}
+async function syncThursdayProgressHistory(payload){
+  const sheets=await ensureSystemSheet_(THURSDAY_PROGRESS_SHEET,THURSDAY_PROGRESS_HEADERS,2500);
+  const now=DateTime.now().setZone('Asia/Riyadh'),today=now.toISODate(),timestamp=now.toFormat('yyyy-LL-dd HH:mm:ss');
+  const sections=Array.isArray(payload?.sections)?payload.sections.slice(0,30).map(x=>({
+    key:clean(x?.key),label:clean(x?.label),rate:thursdayProgressNum_(x?.rate),
+    total:Math.max(0,Number(x?.total||0)),completed:Math.max(0,Number(x?.completed||0))
+  })):[];
+  const summary=payload?.summary&&typeof payload.summary==='object'?payload.summary:{};
+  const overallRate=thursdayProgressNum_(payload?.overallRate);
+  const totalOrders=Math.max(0,Number(payload?.totalOrders||0)),completed=Math.max(0,Number(payload?.completed||0));
+  const raw=(await sheets.spreadsheets.values.get({
+    spreadsheetId:SPREADSHEET_ID,range:q(THURSDAY_PROGRESS_SHEET)+'!A2:I2500',valueRenderOption:'UNFORMATTED_VALUE'
+  })).data.values||[];
+  const rows=raw.map((r,i)=>({
+    row:i+2,date:String(r[0]||''),timestamp:String(r[1]||''),project:String(r[2]||''),
+    overallRate:thursdayProgressNum_(r[3]),totalOrders:Number(r[4]||0),completed:Number(r[5]||0),
+    sections:safeJsonParse_(r[6],[]),summary:safeJsonParse_(r[7],{})
+  })).filter(x=>x.date);
+  const isThursday=now.weekday===4;
+  const outRow=[today,timestamp,'إدارة الحلول العاجلة',overallRate,totalOrders,completed,JSON.stringify(sections),JSON.stringify(summary),'v2'];
+  const current=rows.find(x=>x.date===today);
+  const currentObj={row:current?.row||rows.length+2,date:today,timestamp,project:'إدارة الحلول العاجلة',overallRate,totalOrders,completed,sections,summary};
+  if(isThursday){
+    if(current){
+      await sheets.spreadsheets.values.update({
+        spreadsheetId:SPREADSHEET_ID,range:q(THURSDAY_PROGRESS_SHEET)+'!A'+current.row+':I'+current.row,
+        valueInputOption:'RAW',requestBody:{values:[outRow]}
+      });
+    }else{
+      await sheets.spreadsheets.values.append({
+        spreadsheetId:SPREADSHEET_ID,range:q(THURSDAY_PROGRESS_SHEET)+'!A:I',
+        valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:[outRow]}
+      });
+    }
+  }
+  let snapshots=rows.filter(x=>isThursdaySnapshotDate_(x.date)&&x.date!==today);
+  if(isThursday)snapshots.push(currentObj);
+  snapshots=snapshots.sort((a,b)=>a.date.localeCompare(b.date));
+  const previous=[...snapshots].reverse().find(x=>x.date<today)||null;
+  const prevMap=new Map((previous?.sections||[]).map(x=>[x.key,x]));
+  const sectionChanges=sections.map(x=>({
+    key:x.key,label:x.label,current:x.rate,
+    previous:prevMap.has(x.key)?thursdayProgressNum_(prevMap.get(x.key).rate):null,
+    delta:prevMap.has(x.key)?Math.round((x.rate-thursdayProgressNum_(prevMap.get(x.key).rate))*10)/10:null
+  }));
+  return {
+    ok:true,source:'google-sheet',sheet:THURSDAY_PROGRESS_SHEET,updatedAt:timestamp,
+    trend:snapshots.slice(-16).map(x=>({week:x.date,date:x.date,label:DateTime.fromISO(x.date,{zone:'Asia/Riyadh'}).toFormat('dd/LL'),overallRate:x.overallRate,totalOrders:x.totalOrders,completed:x.completed,sections:x.sections||[],summary:x.summary||{}})),
+    previousWeek:previous,baselineDate:previous?.date||null,snapshotToday:isThursday,
+    overallDelta:previous?Math.round((overallRate-previous.overallRate)*10)/10:null,sectionChanges
+  };
 }
 
 async function readUsers(){
@@ -685,6 +873,120 @@ async function buildDataCoalesced(force=false){
   return dataBuildInFlight;
 }
 
+const PROJECT_NEWS_RETENTION_MS=72*60*60*1000;
+const projectNewsState={snapshot:new Map(),events:new Map(),rowSnapshots:new Map()};
+
+function newsPriority_(count,total){
+  const rate=total?Number(count||0)/Number(total||1):0;
+  if(Number(count||0)>=20||rate>=0.20)return 'عاجل';
+  if(Number(count||0)>=5||rate>=0.08)return 'مهم';
+  return 'تحديث';
+}
+function newsEvent_(key,priority,category,title,summary,sourceSheet){
+  const date=DateTime.now().setZone('Asia/Riyadh').toISO();
+  projectNewsState.events.set(String(key),{
+    show:'نعم',date,priority,category,title,summary:summary||'',
+    source:'تحليل الشيتات',sourceSheet:clean(sourceSheet),eventKey:String(key)
+  });
+}
+function newsObserve_(o){
+  const value=Number(o.value||0),prev=projectNewsState.snapshot.get(o.key),unit=o.unit||'';
+  projectNewsState.snapshot.set(o.key,value);
+  if(o.silent)return;
+  if(prev===undefined){
+    if(o.kind==='issue'&&value>0)newsEvent_(o.key,newsPriority_(value,o.total),o.category,o.label+': '+formatNewsNumber_(value,unit),o.note||'',o.sourceSheet);
+    else if(o.kind==='progress'&&o.initialNews&&value>0)newsEvent_(o.key,'تحديث',o.category,o.label+': '+formatNewsNumber_(value,unit),o.note||'',o.sourceSheet);
+    return;
+  }
+  if(prev===value)return;
+  const delta=Math.round((value-Number(prev||0))*10)/10,word=delta>0?'ارتفع':'انخفض';
+  if(o.kind==='issue'){
+    if(value===0&&prev>0)newsEvent_(o.key,'تحسن',o.category,'تم إغلاق '+o.label,'القيمة السابقة '+formatNewsNumber_(prev,unit)+' وأصبحت صفرًا.',o.sourceSheet);
+    else if(value>0&&delta<0)newsEvent_(o.key,'تحسن',o.category,o.label+' '+word+' بمقدار '+formatNewsNumber_(Math.abs(delta),unit),'الحالي '+formatNewsNumber_(value,unit)+' مقابل '+formatNewsNumber_(prev,unit)+'.',o.sourceSheet);
+    else if(value>0)newsEvent_(o.key,newsPriority_(value,o.total),o.category,o.label+' '+word+' بمقدار '+formatNewsNumber_(Math.abs(delta),unit),'الحالي '+formatNewsNumber_(value,unit)+' مقابل '+formatNewsNumber_(prev,unit)+'.',o.sourceSheet);
+  }else{
+    const good=(o.goodUp&&delta>0)||(o.goodDown&&delta<0);
+    newsEvent_(o.key,good?'تحسن':'تحديث',o.category,o.label+' '+word+' بمقدار '+formatNewsNumber_(Math.abs(delta),unit),'الحالي '+formatNewsNumber_(value,unit)+' مقابل '+formatNewsNumber_(prev,unit)+'.',o.sourceSheet);
+  }
+}
+function formatNewsNumber_(v,unit=''){
+  const n=Number(v||0),x=Math.abs(n-Math.round(n))<0.0001?String(Math.round(n)):String(Math.round(n*10)/10);
+  return x+(unit||'');
+}
+function newsRowValue_(v){return clean(v).replace(/\s+/g,' ').slice(0,180)}
+function newsTrackRows_(pageKey,rows,idField,fields,category,sourceSheet){
+  const current=new Map();
+  for(const r of rows||[]){
+    const id=newsRowValue_(r[idField]||r.row);
+    if(!id)continue;
+    const snap={};for(const [field] of fields)snap[field]=newsRowValue_(r[field]);
+    current.set(id,snap);
+  }
+  const previous=projectNewsState.rowSnapshots.get(pageKey);
+  projectNewsState.rowSnapshots.set(pageKey,current);
+  if(!previous)return;
+  let emitted=0;
+  for(const [id,cur] of current){
+    if(emitted>=35)break;
+    const old=previous.get(id);
+    if(!old)continue;
+    for(const [field,label] of fields){
+      const before=newsRowValue_(old[field]),after=newsRowValue_(cur[field]);
+      if(before===after)continue;
+      const sig=crypto.createHash('sha1').update(before+'→'+after).digest('hex').slice(0,8);
+      const completed=/(منجز|مكتمل|معتمد|تم|ساري)/i.test(after);
+      const priority=completed?'إنجاز':'تحديث';
+      newsEvent_('row:change:'+pageKey+':'+id+':'+field+':'+sig,priority,category,
+        label+' للمشروع/السجل «'+id+'» تغيرت من «'+(before||'فارغ')+'» إلى «'+(after||'فارغ')+'».',
+        'تغيير مباشر تم رصده من بيانات Google Sheet.',sourceSheet);
+      emitted++;if(emitted>=35)break;
+    }
+  }
+}
+function buildProjectNewsObservations_(d){
+  const s=d.summaries||{},p=d.permitTiming||{},projects=d.projects||[],lines=d.lines||[],quality=d.quality||[],complaints=d.complaints||[];
+  const totalProjects=Math.max(1,Number(s.projects||projects.length)),totalPermits=Math.max(1,Number(s.actualPermits||0)),totalLines=Math.max(1,Number(s.lines||lines.length));
+  const riskyGuarantees=projects.filter(x=>/منتهي|اوشك|أوشك|حرج|بانتظار/.test(clean(x.guaranteeStatus))).length;
+  const complaintsNoStatus=complaints.filter(x=>!clean(x.status)).length;
+  const missingCoords=Math.max(0,Number(s.projects||0)-Number(s.mappedProjects||0));
+  return [
+    {key:'risk:high',kind:'issue',category:'مخاطر المشاريع',label:'المشاريع مرتفعة/حرجة المخاطر',value:s.highRiskProjects,total:totalProjects,sourceSheet:'vd projects',note:'المؤشر مشتق من التصاريح والضمانات والتسويات والعقد والإحداثيات وضغط التمديدات.'},
+    {key:'dq:all',kind:'issue',category:'جودة البيانات',label:'ملاحظات جودة البيانات',value:s.qualityIssues,total:Math.max(1,totalProjects+totalLines),sourceSheet:'vd projects',note:'يشمل التعارضات والحقول المفقودة والقيم غير الطبيعية.'},
+    {key:'permit:expired',kind:'issue',category:'التصاريح',label:'التصاريح المنتهية',value:p.expired,total:totalPermits,sourceSheet:'info. new'},
+    {key:'permit:expiring',kind:'issue',category:'التصاريح',label:'التصاريح التي تنتهي خلال 7 أيام',value:p.expiring,total:totalPermits,sourceSheet:'info. new'},
+    {key:'design:pending',kind:'issue',category:'الخطوط البديلة والتصميم',label:'التصاميم قيد المتابعة',value:s.designPending,total:totalLines,sourceSheet:'Alternative lines'},
+    {key:'design:conflict',kind:'issue',category:'الخطوط البديلة والتصميم',label:'تعارضات حالة التصميم',value:s.designStatusConflict,total:totalLines,sourceSheet:'Alternative lines'},
+    {key:'guarantee:risk',kind:'issue',category:'الضمانات',label:'مشروعات بضمان يحتاج متابعة',value:riskyGuarantees,total:totalProjects,sourceSheet:'vd projects'},
+    {key:'complaints:nostatus',kind:'issue',category:'الشكاوى',label:'شكاوى بدون حالة متابعة',value:complaintsNoStatus,total:Math.max(1,complaints.length),sourceSheet:'info. new'},
+    {key:'geo:missing',kind:'issue',category:'جودة البيانات',label:'مشروعات بدون إحداثيات صالحة',value:missingCoords,total:totalProjects,sourceSheet:'vd projects'},
+    {key:'progress:coverage',kind:'progress',category:'الأمتار والتسويات',label:'نسبة تغطية الأمتار',value:s.matchedCoveragePct,unit:'%',goodUp:true,initialNews:true,sourceSheet:'vd projects'},
+    {key:'progress:execution',kind:'progress',category:'التنفيذ والتسليم',label:'الخطوط ذات حالة تنفيذ مسجلة',value:s.executionReady,total:totalLines,goodUp:true,sourceSheet:'Alternative lines'},
+    {key:'progress:handover',kind:'progress',category:'التنفيذ والتسليم',label:'الخطوط ذات مستند/تاريخ تسليم',value:d.management?.handoverReadiness?.linesWithHandover,total:totalLines,goodUp:true,sourceSheet:'Alternative lines'}
+  ];
+}
+async function getProjectNews(){
+  const d=await buildDataCoalesced(false);
+  newsTrackRows_('projects',d.projects||[],'no',[
+    ['riskLevel','مستوى المخاطر'],['permitStatus','حالة التصريح'],['guaranteeStatus','حالة الضمان'],['contractStatus','حالة العقد']
+  ],'أخبار المشاريع','vd projects');
+  newsTrackRows_('lines',d.lines||[],'ref',[
+    ['designStatus','حالة التصميم'],['executionStatus','حالة التنفيذ'],['handoverDate','تاريخ التسليم']
+  ],'أخبار الخطوط البديلة','Alternative lines');
+  const observations=buildProjectNewsObservations_(d);observations.forEach(newsObserve_);
+  const activeIssueKeys=new Set(observations.filter(o=>o.kind==='issue'&&Number(o.value||0)>0).map(o=>o.key));
+  const cutoff=Date.now()-PROJECT_NEWS_RETENTION_MS;
+  for(const [key,event] of projectNewsState.events){
+    const ts=Date.parse(event.date)||0;if(ts<cutoff&&!activeIssueKeys.has(key))projectNewsState.events.delete(key);
+  }
+  const order={عاجل:0,مهم:1,إنجاز:2,تحسن:2,تحديث:3};
+  const rows=[...projectNewsState.events.values()]
+    .filter(r=>activeIssueKeys.has(r.eventKey)||(Date.parse(r.date)||0)>=cutoff)
+    .sort((a,b)=>(Date.parse(b.date)||0)-(Date.parse(a.date)||0)||(order[a.priority]??9)-(order[b.priority]??9))
+    .slice(0,180)
+    .map(r=>({...r,sheetUrl:d.sourceSheetLinks?.[r.sourceSheet]||''}));
+  return {ok:true,updatedAt:d.updatedAt,source:'live-sheet-analysis',retentionHours:72,rows};
+}
+
 app.get('/api/data',requireAuth,async(req,res)=>{
   try{
     const data=await buildDataCoalesced(req.query.refresh==='1');
@@ -804,11 +1106,14 @@ app.get('/api/monitor/full',requireAuth,async(req,res)=>{
 app.post('/api/rpc',requireAuth,async(req,res)=>{
   try{
     const method=clean(req.body?.method||req.body?.name),args=req.body?.args||req.body?.params||{};
+    const arg0=Array.isArray(args)?(args[0]||{}):(args?.payload||args||{});
     if(method==='clearDashboardCache'){cache={at:0,data:null};dataBuildInFlight=null;return res.json({ok:true})}
+    if(method==='saveSmartHistory')return res.json(await saveSmartHistory(arg0));
+    if(method==='syncThursdayProgressHistory')return res.json(await syncThursdayProgressHistory(arg0));
+    if(method==='getProjectNews')return res.json(await getProjectNews());
     const d=await buildDataCoalesced(false);
     if(method==='getMonitorData')return res.json({ok:true,updatedAt:d.updatedAt,summaries:d.summaries,permitTiming:d.permitTiming,distributions:d.distributions});
     if(method==='getFullMonitorData'||method==='getBootData')return res.json({ok:true,...d});
-    if(method==='getProjectNews')return res.json({ok:true,updatedAt:d.updatedAt,projects:d.projects,lines:d.lines,quality:d.quality,complaints:d.complaints,summaries:d.summaries,permitTiming:d.permitTiming});
     if(method==='getProject360'){const qv=norm(args.project||args.no||args.query||'');const rows=(d.projects||[]).filter(x=>!qv||[x.no,x.name,x.owner,x.contractor,x.municipality].some(v=>norm(v).includes(qv))).slice(0,50);return res.json({ok:true,rows})}
     return res.status(400).json({ok:false,error:'UNKNOWN_RPC_METHOD'});
   }catch(error){res.status(500).json({ok:false,error:'RPC_FAILED',message:error.message})}

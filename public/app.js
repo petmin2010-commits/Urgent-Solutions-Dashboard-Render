@@ -27,9 +27,9 @@ const PAGE_META={
  analytics:{title:'التحليل التنفيذي',sub:'قراءة إدارية مركزة لأبرز مؤشرات الأداء والمخاطر التشغيلية.',icon:'⌁',eye:'EXECUTIVE ANALYTICS'},
  smartCenter:{title:'مركز التحليل الذكي',sub:'قراءة ذكية موحدة للموقف الحالي والتغيرات والمخاطر والإجراءات ذات الأولوية.',icon:'◆',eye:'SMART INTELLIGENCE CENTER'},
  temporalMemory:{title:'ذاكرة المشروع الزمنية',sub:'حفظ ومقارنة لقطات المؤشرات لرصد بداية التدهور والتغيرات عبر الزمن.',icon:'◷',eye:'PROJECT TEMPORAL MEMORY'},
- investigationRoom:{title:'غرفة التدقيق الذكية',sub:'تحليل أسباب الظواهر والمخاطر واكتشاف مناطق التركّز والأنماط المؤثرة حسب البلدية والمقاول والمالك ومصادر البيانات.',icon:'◉',eye:'SMART AUDIT ROOM'},
- explainableDecision:{title:'مختبر القرار المتغير',sub:'اختبار أولوية الحالات تحت مستويات حساسية مختلفة مع شرح الأدلة وثقة التغطية والإجراء المقترح.',icon:'⌘',eye:'VARIABLE DECISION LAB'},
- smartThursday:{title:'التقرير الهندسي الذكي',sub:'تقرير هندسي أسبوعي الجمعة–الخميس يلخص الوضع الحالي والتغيرات والمخاطر والقرارات والأولويات القادمة.',icon:'▣',eye:'SMART ENGINEERING REPORT'},
+ investigationRoom:{title:'غرفة التحقيق الذكية',sub:'تحليل أسباب الظواهر والمخاطر واكتشاف مناطق التركّز والأنماط المؤثرة حسب البلدية والمقاول والمالك ومصادر البيانات.',icon:'⌕',eye:'SMART INVESTIGATION ROOM'},
+ explainableDecision:{title:'محرك القرار المفسر',sub:'ترتيب الحالات حسب الأولوية مع إظهار سبب الدرجة والأدلة وثقة التغطية والإجراء المقترح.',icon:'⚖',eye:'EXPLAINABLE DECISION ENGINE'},
+ smartThursday:{title:'تقرير الخميس الذكي',sub:'ملخص أسبوعي ذكي الجمعة–الخميس للتقدم والتغيرات والمؤشرات والقرارات المطلوبة.',icon:'▣',eye:'SMART THURSDAY REPORT'},
  reports:{title:'مركز التقارير',sub:'تصدير تقارير PDF وExcel بأسماء منظمة وفق الشاشة والفلاتر الحالية.',icon:'▦',eye:'REPORTS CENTER'},
  excelExport:{title:'تقارير الاكسيل',sub:'اختيار قاعدة البيانات والأعمدة والفلاتر ثم تصدير القيم النهائية فقط.',icon:'▧',eye:'EXCEL REPORTS'}
 };
@@ -1487,9 +1487,9 @@ function canAccess(item){
   excelExport:['تصدير تقرير Excel','تقارير الاكسيل','excelExport'],
   smartCenter:['مركز التحليل الذكي','التحليل الذكي و التقارير','analytics','risks'],
   temporalMemory:['ذاكرة المشروع الزمنية','التحليل الذكي و التقارير'],
-  investigationRoom:['غرفة التدقيق الذكية','غرفة التحقيق الذكية','التحليل الذكي و التقارير'],
-  explainableDecision:['مختبر القرار المتغير','محرك القرار المفسر','التحليل الذكي و التقارير'],
-  smartThursday:['التقرير الهندسي الذكي','تقرير الخميس الذكي','التحليل الذكي و التقارير']
+  investigationRoom:['غرفة التحقيق الذكية','غرفة التدقيق الذكية','التحليل الذكي و التقارير'],
+  explainableDecision:['محرك القرار المفسر','مختبر القرار المتغير','التحليل الذكي و التقارير'],
+  smartThursday:['تقرير الخميس الذكي','التقرير الهندسي الذكي','التحليل الذكي و التقارير']
  };
  const wanted=[key,label,...(aliases[key]||[])].map(norm);
  return p.some(x=>wanted.includes(norm(x)));

@@ -5,8 +5,11 @@ const labelOf=el=>String(el?.querySelector('b')?.textContent||el?.textContent||'
 const SMART_GROUP=norm('التحليل الذكي و التقارير');
 const SMART_KEYS=new Set(['smartcenter','temporalmemory','investigationroom','explainabledecision','smartthursday','reports','excelexport']);
 const ALIASES=new Map([
+ [norm('غرفة التحقيق الذكية'),[norm('غرفة التدقيق الذكية')]],
  [norm('غرفة التدقيق الذكية'),[norm('غرفة التحقيق الذكية')]],
+ [norm('محرك القرار المفسر'),[norm('مختبر القرار المتغير')]],
  [norm('مختبر القرار المتغير'),[norm('محرك القرار المفسر')]],
+ [norm('تقرير الخميس الذكي'),[norm('التقرير الهندسي الذكي')]],
  [norm('التقرير الهندسي الذكي'),[norm('تقرير الخميس الذكي')]],
  [norm('تقارير الاكسيل'),[norm('تصدير تقرير Excel'),norm('تقارير Excel')]]
 ]);

@@ -241,7 +241,6 @@ function render(){
   '<section class="dq-overview">'+
    sections.map((s,i)=>'<button class="dq-overview-card" type="button" data-dq-go="'+html(s.key)+'"><span>'+html(s.title)+'</span><strong>'+number(stats[i].issues)+'</strong><small>'+number(stats[i].affected)+' سجل متأثر</small></button>').join('')+
   '</section>'+
-  archiveBlock()+
   sections.map((section,si)=>
    '<section class="dq-section" id="udq-'+html(section.key)+'">'+
     '<div class="dq-section-head"><div><span>'+html(section.subtitle)+'</span><h3>'+html(section.title)+'</h3></div><div class="dq-section-metrics"><div><b>'+number(stats[si].issues)+'</b><small>ملاحظات جودة</small></div><div class="dq-quality-rate"><b>'+(stats[si].issues===0?'100.00':stats[si].completionRate.toFixed(2))+'%</b><small>نسبة جودة البيانات</small><em>'+number(stats[si].totalCells-stats[si].issues)+' / '+number(stats[si].totalCells)+' خلية مكتملة</em></div></div></div>'+
@@ -252,7 +251,8 @@ function render(){
    '<div class="dq-smart-head"><div><span>SMART DATA AUDIT</span><h3>التدقيق الذكي المتقدم</h3><p>فحوصات إضافية على الترابط والمنطق والتكرار والإحداثيات والتصميم، بنفس فكرة التدقيق المتقدم في داشبورد جدة.</p></div><div class="dq-smart-total"><b>'+number(smartTotal)+'</b><small>ملاحظة ذكية</small></div></div>'+
    '<div class="dq-smart-cards">'+advanced.map((check,i)=>'<button type="button" class="dq-smart-card '+(check.rows.length?'has-issue':'is-ok')+'" data-dq-ai="'+i+'" title="'+html(check.note)+'"><i>✦</i><span>'+html(check.label)+'</span><strong>'+number(check.rows.length)+'</strong><small>'+html(check.note)+'</small></button>').join('')+'</div>'+
   '</section>'+
-  '<section id="udqIssueDetails" class="dq-details"><div class="dq-detail-placeholder"><b>تفاصيل الحالات</b><span>اضغط على أي كارت أعلاه لعرض الصفوف التي تحتاج مراجعة.</span></div></section>';
+  '<section id="udqIssueDetails" class="dq-details"><div class="dq-detail-placeholder"><b>تفاصيل الحالات</b><span>اضغط على أي كارت أعلاه لعرض الصفوف التي تحتاج مراجعة.</span></div></section>'+
+  archiveBlock();
 
   host.querySelectorAll('[data-dq-si]').forEach(btn=>btn.addEventListener('click',()=>renderDetails(sections[Number(btn.dataset.dqSi)],Number(btn.dataset.dqCi))));
   host.querySelectorAll('[data-dq-go]').forEach(btn=>btn.addEventListener('click',()=>document.getElementById('udq-'+btn.dataset.dqGo)?.scrollIntoView({behavior:'smooth',block:'start'})));

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b5f7a">
+  <meta name="description" content="منصة مياه المدينة لإدارة الأعمال الميدانية">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+  <title>مياه المدينة</title>
+</head>
+<body>
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <section id="loginView" class="login-view">
+    <div class="login-bg"></div>
+    <div class="login-card">
+      <div class="brand-mark" aria-hidden="true">م</div>
+      <div>
+        <h1>مياه المدينة</h1>
+        <p>منصة إدارة أعمال المياه الميدانية</p>
+      </div>
+      <form id="loginForm" class="login-form">
+        <label>
+          البريد الإلكتروني
+          <input id="loginEmail" type="email" autocomplete="username" value="admin@madinah-water.local" required>
+        </label>
+        <label>
+          كلمة المرور
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="btn primary full" type="submit">تسجيل الدخول</button>
+        <div id="loginError" class="form-error"></div>
+      </form>
+      <small>نسخة تطوير محلية — قاعدة بيانات مستقلة</small>
+    </div>
+  </section>
+
+  <div id="appView" class="app hidden">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-head">
+        <div class="brand-mark small">م</div>
+        <div>
+          <strong>مياه المدينة</strong>
+          <small>إدارة الأعمال</small>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="entry"><span>＋</span><b>إدخال حالة</b></button>
+        <button class="nav-item" data-view="works"><span>▦</span><b>سجل الأعمال</b></button>
+        <button class="nav-item" data-view="dashboard"><span>◫</span><b>الرئيسية</b></button>
+        <button class="nav-item admin-only" data-view="settings"><span>⚙</span><b>الإعدادات</b></button>
+        <button class="nav-item audit-only" data-view="audit"><span>≡</span><b>سجل التدقيق</b></button>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="avatar" id="userAvatar">م</div>
+        <div>
+          <strong id="userName">المستخدم</strong>
+          <small id="userRole"></small>
+        </div>
+        <button id="logoutBtn" class="icon-btn" title="تسجيل الخروج">↪</button>
+      </div>
+    </aside>
+
+    <div class="shell">
+      <header class="topbar">
+        <button id="menuBtn" class="icon-btn mobile-only" aria-label="القائمة">☰</button>
+        <div>
+          <h2 id="pageTitle">إدخال حالة جديدة</h2>
+          <p id="pageSubtitle">شاشة موحدة لجميع بيانات الحالة</p>
+        </div>
+        <div class="top-actions">
+          <span id="connectionBadge" class="status-badge online">متصل</span>
+          <button id="installBtn" class="btn secondary hidden">تثبيت التطبيق</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="view-entry" class="view active">
+          <div class="entry-hero">
+            <div>
+              <span class="eyebrow">شاشة الإدخال الموحدة</span>
+              <h3 id="entryTitle">تسجيل حالة جديدة</h3>
+              <p>أدخل بيانات الحالة مرة واحدة، وسيقوم النظام بحفظها وربطها بالمراقب والمقاول والمنطقة وسجل التدقيق.</p>
+            </div>
+            <div class="draft-chip" id="draftChip">لا توجد مسودة</div>
+          </div>
+
+          <form id="workForm" class="work-form">
+            <input type="hidden" id="workId">
+
+            <fieldset>
+              <legend><span>1</span> بيانات الحالة الأساسية</legend>
+              <div class="form-grid">
+                <label>رقم الريكوست
+                  <input id="requestNo" name="requestNo" placeholder="اختياري">
+                </label>
+                <label>تاريخ تسجيل الحالة *
+                  <input id="registeredAt" name="registeredAt" type="datetime-local" required>
+                </label>
+                <label class="span-2">رقم بلاغ / أمر العمل WFM (CCB) *
+                  <input id="wfmNo" name="wfmNo" inputmode="numeric" placeholder="مثال: 97415150964441" required>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>2</span> الموقع والجهة</legend>
+              <div class="form-grid">
+                <label>المنطقة *
+                  <select id="regionId" name="regionId" required></select>
+                </label>
+                <label>اسم الحي
+                  <input id="neighborhood" name="neighborhood" placeholder="اسم الحي">
+                </label>
+                <label>اسم المراقب *
+                  <select id="inspectorId" name="inspectorId" required></select>
+                </label>
+                <label>المقاول *
+                  <select id="contractorId" name="contractorId" required></select>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>3</span> التصاريح والموقع الجغرافي</legend>
+              <div class="form-grid">
+                <label>رقم تصريح بلدي
+                  <input id="municipalityPermitNo" name="municipalityPermitNo" placeholder="لا يوجد / رقم التصريح">
+                </label>
+                <label class="switch-label">تصريح أمن وسلامة
+                  <span class="switch-row">
+                    <input id="hasHsePermit" name="hasHsePermit" type="checkbox">
+                    <span>يوجد تصريح</span>
+                  </span>
+                </label>
+                <label class="span-2">وصف / رابط الموقع
+                  <input id="locationText" name="locationText" placeholder="وصف الموقع أو رابط الخريطة">
+                </label>
+                <label>خط العرض
+                  <input id="latitude" name="latitude" type="number" inputmode="decimal" step="any" placeholder="24.000000">
+                </label>
+                <label>خط الطول
+                  <input id="longitude" name="longitude" type="number" inputmode="decimal" step="any" placeholder="39.000000">
+                </label>
+                <div class="field-actions span-2">
+                  <button id="gpsBtn" type="button" class="btn secondary">⌖ التقاط موقعي الحالي</button>
+                  <span id="gpsStatus" class="muted"></span>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>4</span> التنفيذ والزمن</legend>
+              <div class="form-grid">
+                <label>تاريخ ووقت مباشرة الموقع
+                  <input id="startedAt" name="startedAt" type="datetime-local">
+                </label>
+                <label>تاريخ ووقت انتهاء العمل
+                  <input id="finishedAt" name="finishedAt" type="datetime-local">
+                </label>
+                <label>العمق عند الحفر (متر)
+                  <input id="depthM" name="depthM" type="number" min="0" max="100" step="0.1" inputmode="decimal">
+                </label>
+                <label>وصف الانكسار *
+                  <select id="breakTypeId" name="breakTypeId" required></select>
+                </label>
+                <label>حالة الإصلاح *
+                  <select id="repairStatusId" name="repairStatusId" required></select>
+                </label>
+                <label class="span-2">الملاحظات
+                  <textarea id="notes" name="notes" rows="4" placeholder="تفاصيل الإصلاح، القطع المستخدمة، أو أي ملاحظات ميدانية"></textarea>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>5</span> الصور والفيديو والمرفقات</legend>
+              <div class="upload-box">
+                <input id="mediaFiles" type="file" multiple accept="image/*,video/*,.pdf">
+                <div>
+                  <strong>أرفق صور أو فيديو أو PDF</strong>
+                  <p>يمكن اختيار أكثر من ملف. سيتم ربط المرفقات بالحالة بعد حفظها.</p>
+                </div>
+              </div>
+              <div id="mediaPreview" class="media-preview"></div>
+            </fieldset>
+
+            <div id="workErrors" class="form-error"></div>
+            <div class="form-actions">
+              <button id="saveWorkBtn" class="btn primary large" type="submit">حفظ الحالة</button>
+              <button id="newWorkBtn" class="btn secondary large" type="button">حالة جديدة</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="view-works" class="view">
+          <div class="view-head">
+            <div>
+              <span class="eyebrow">قاعدة البيانات</span>
+              <h3>سجل الأعمال</h3>
+              <p>بحث ومراجعة وتعديل الحالات المسجلة.</p>
+            </div>
+            <button class="btn primary" data-open-entry>＋ إضافة حالة</button>
+          </div>
+
+          <div class="filters">
+            <input id="workSearch" type="search" placeholder="بحث برقم الحالة أو WFM أو الحي أو الملاحظات">
+            <select id="filterRegion"></select>
+            <select id="filterStatus"></select>
+            <button id="refreshWorks" class="btn secondary">تحديث</button>
+          </div>
+
+          <div class="table-card">
+            <div class="table-meta"><span id="worksCount">0 سجل</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>كود الحالة</th>
+                    <th>WFM</th>
+                    <th>التاريخ</th>
+                    <th>المنطقة</th>
+                    <th>الحي</th>
+                    <th>المراقب</th>
+                    <th>المقاول</th>
+                    <th>الحالة</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="worksBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-dashboard" class="view">
+          <div class="view-head">
+            <div>
+              <span class="eyebrow">نظرة تشغيلية</span>
+              <h3>الرئيسية</h3>
+              <p>مؤشرات مباشرة من قاعدة البيانات.</p>
+            </div>
+            <button id="refreshStats" class="btn secondary">تحديث المؤشرات</button>
+          </div>
+          <div id="statsGrid" class="stats-grid"></div>
+          <div class="info-panel">
+            <h4>تصميم النظام</h4>
+            <p>هذه النسخة تعمل بدون Google Sheets. كل حالة تحفظ مباشرة في قاعدة البيانات مع تسجيل المستخدم والوقت وسجل التعديلات.</p>
+          </div>
+        </section>
+
+        <section id="view-settings" class="view">
+          <div class="view-head">
+            <div>
+              <span class="eyebrow">بدون تعديل كود</span>
+              <h3>إدارة القوائم</h3>
+              <p>إضافة منطقة أو مراقب أو مقاول أو وصف انكسار أو حالة إصلاح جديدة.</p>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <form class="lookup-card" data-lookup="regions"><h4>المناطق</h4><input name="name" placeholder="منطقة جديدة" required><button class="btn primary">إضافة</button></form>
+            <form class="lookup-card" data-lookup="inspectors"><h4>المراقبون</h4><input name="name" placeholder="اسم المراقب" required><button class="btn primary">إضافة</button></form>
+            <form class="lookup-card" data-lookup="contractors"><h4>المقاولون</h4><input name="name" placeholder="اسم المقاول" required><button class="btn primary">إضافة</button></form>
+            <form class="lookup-card" data-lookup="breakTypes"><h4>أوصاف الانكسار</h4><input name="name" placeholder="وصف جديد" required><button class="btn primary">إضافة</button></form>
+            <form class="lookup-card" data-lookup="repairStatuses"><h4>حالات الإصلاح</h4><input name="name" placeholder="حالة جديدة" required><label class="mini-check"><input name="isClosed" type="checkbox"> تعتبر حالة مغلقة</label><button class="btn primary">إضافة</button></form>
+          </div>
+        </section>
+
+        <section id="view-audit" class="view">
+          <div class="view-head">
+            <div>
+              <span class="eyebrow">الحوكمة</span>
+              <h3>سجل التدقيق</h3>
+              <p>آخر عمليات الدخول والإضافة والتعديل والحذف.</p>
+            </div>
+            <button id="refreshAudit" class="btn secondary">تحديث</button>
+          </div>
+          <div class="table-card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>الوقت</th><th>المستخدم</th><th>العملية</th><th>النوع</th><th>المعرف</th></tr></thead>
+                <tbody id="auditBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-nav">
+      <button class="active" data-view="entry"><span>＋</span>إدخال</button>
+      <button data-view="works"><span>▦</span>السجل</button>
+      <button data-view="dashboard"><span>◫</span>الرئيسية</button>
+    </nav>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

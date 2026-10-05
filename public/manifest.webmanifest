@@ -1,0 +1,19 @@
+{
+  "name": "مياه المدينة",
+  "short_name": "مياه المدينة",
+  "description": "منصة إدارة أعمال المياه الميدانية",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f8fa",
+  "theme_color": "#0b5f7a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

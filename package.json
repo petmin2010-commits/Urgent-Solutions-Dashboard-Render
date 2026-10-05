@@ -1,0 +1,17 @@
+{
+  "name": "madinah-water-business",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PWA business application for Madinah Water operations",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.1.0",
+    "luxon": "^3.7.1",
+    "multer": "^2.0.2"
+  }
+}

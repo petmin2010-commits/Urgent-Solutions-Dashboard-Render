@@ -82,132 +82,137 @@
 
       <main class="content">
         <section id="view-entry" class="view active">
-          <div class="entry-hero">
+          <div class="entry-simple-head">
             <div>
-              <span class="eyebrow">شاشة الإدخال الموحدة</span>
               <h3 id="entryTitle">تسجيل حالة جديدة</h3>
-              <p>أدخل بيانات الحالة مرة واحدة، وسيقوم النظام بحفظها وربطها بالمراقب والمقاول والمنطقة وسجل التدقيق.</p>
+              <p>أدخل البيانات ثم اضغط حفظ الحالة.</p>
             </div>
-            <div class="draft-chip" id="draftChip">لا توجد مسودة</div>
+            <div class="draft-chip simple" id="draftChip">لا توجد مسودة</div>
           </div>
 
-          <form id="workForm" class="work-form">
+          <form id="workForm" class="work-form simple-entry-form">
             <input type="hidden" id="workId">
 
-            <fieldset>
-              <legend><span>1</span> بيانات الحالة الأساسية</legend>
-              <div class="form-grid">
-                <label>رقم الريكوست
-                  <input id="requestNo" name="requestNo" placeholder="اختياري">
-                </label>
-                <label>تاريخ تسجيل الحالة *
-                  <input id="registeredAt" name="registeredAt" type="datetime-local" required>
-                </label>
-                <label class="span-2">رقم بلاغ / أمر العمل WFM (CCB) *
-                  <input id="wfmNo" name="wfmNo" inputmode="numeric" placeholder="مثال: 97415150964441" required>
-                  <span id="wfmHint" class="field-hint"></span>
-                </label>
-              </div>
-            </fieldset>
+            <label class="simple-field">
+              <span class="inside-label">رقم الريكوست</span>
+              <input id="requestNo" name="requestNo" placeholder="اختياري">
+            </label>
 
-            <fieldset>
-              <legend><span>2</span> الموقع والجهة</legend>
-              <div class="form-grid">
-                <label>المنطقة *
-                  <select id="regionId" name="regionId" required></select>
-                </label>
-                <label>اسم الحي
-                  <input id="neighborhood" name="neighborhood" placeholder="اسم الحي">
-                </label>
-                <label>اسم المراقب *
-                  <select id="inspectorId" name="inspectorId" required></select>
-                </label>
-                <label>المقاول *
-                  <select id="contractorId" name="contractorId" required></select>
-                </label>
-              </div>
-            </fieldset>
+            <label class="simple-field">
+              <span class="inside-label">تاريخ تسجيل الحالة *</span>
+              <input id="registeredAt" name="registeredAt" type="datetime-local" required>
+            </label>
 
-            <fieldset>
-              <legend><span>3</span> التصاريح والموقع الجغرافي</legend>
-              <div class="form-grid">
-                <label>رقم تصريح بلدي
-                  <input id="municipalityPermitNo" name="municipalityPermitNo" placeholder="لا يوجد / رقم التصريح">
-                </label>
-                <label class="switch-label">تصريح أمن وسلامة
-                  <span class="switch-row">
-                    <input id="hasHsePermit" name="hasHsePermit" type="checkbox">
-                    <span>يوجد تصريح</span>
-                  </span>
-                </label>
-                <label class="span-2">وصف / رابط الموقع
-                  <input id="locationText" name="locationText" placeholder="وصف الموقع أو رابط الخريطة">
-                </label>
-                <label>خط العرض
-                  <input id="latitude" name="latitude" type="number" inputmode="decimal" step="any" placeholder="24.000000">
-                </label>
-                <label>خط الطول
-                  <input id="longitude" name="longitude" type="number" inputmode="decimal" step="any" placeholder="39.000000">
-                </label>
-                <div class="field-actions span-2">
-                  <button id="gpsBtn" type="button" class="btn secondary">⌖ التقاط موقعي الحالي</button>
-                  <span id="gpsStatus" class="muted"></span>
-                </div>
-              </div>
-            </fieldset>
+            <label class="simple-field">
+              <span class="inside-label">رقم بلاغ / أمر العمل WFM (CCB) *</span>
+              <input id="wfmNo" name="wfmNo" inputmode="numeric" placeholder="14 رقم أو لايوجد" required>
+              <span id="wfmHint" class="field-hint"></span>
+            </label>
 
-            <fieldset>
-              <legend><span>4</span> التنفيذ والزمن</legend>
-              <div class="form-grid">
-                <label>تاريخ ووقت مباشرة الموقع
-                  <input id="startedAt" name="startedAt" type="datetime-local">
-                </label>
-                <label>تاريخ ووقت انتهاء العمل
-                  <input id="finishedAt" name="finishedAt" type="datetime-local">
-                </label>
-                <label>العمق عند الحفر (متر)
-                  <input id="depthM" name="depthM" type="number" min="0" max="100" step="0.1" inputmode="decimal">
-                </label>
-                <label>وصف الانكسار *
-                  <select id="breakTypeId" name="breakTypeId" required></select>
-                </label>
-                <label>حالة الإصلاح *
-                  <select id="repairStatusId" name="repairStatusId" required></select>
-                </label>
-                <label class="span-2">الملاحظات
-                  <textarea id="notes" name="notes" rows="4" placeholder="تفاصيل الإصلاح، القطع المستخدمة، أو أي ملاحظات ميدانية"></textarea>
-                </label>
-              </div>
-            </fieldset>
+            <label class="simple-field">
+              <span class="inside-label">المنطقة *</span>
+              <select id="regionId" name="regionId" required></select>
+            </label>
 
-            <fieldset>
-              <legend><span>5</span> الصور والفيديو والمرفقات</legend>
-              <div class="upload-box">
-                <div class="upload-actions">
-                  <label class="btn secondary file-btn">اختيار ملفات
-                    <input id="mediaFiles" type="file" multiple accept="image/*,video/*,.pdf">
-                  </label>
-                  <label class="btn secondary file-btn">فتح الكاميرا
-                    <input id="cameraFile" type="file" accept="image/*" capture="environment">
-                  </label>
-                </div>
-                <div>
-                  <strong>أرفق صور أو فيديو أو PDF</strong>
-                  <p>يمكن الاختيار من الجهاز أو التصوير مباشرة من كاميرا الجوال.</p>
-                </div>
+            <label class="simple-field">
+              <span class="inside-label">اسم الحي</span>
+              <input id="neighborhood" name="neighborhood" placeholder="اكتب اسم الحي">
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">اسم المراقب *</span>
+              <select id="inspectorId" name="inspectorId" required></select>
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">المقاول *</span>
+              <select id="contractorId" name="contractorId" required></select>
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">رقم تصريح بلدي</span>
+              <input id="municipalityPermitNo" name="municipalityPermitNo" placeholder="رقم التصريح أو لا يوجد">
+            </label>
+
+            <label class="simple-toggle-field">
+              <span>تصريح أمن وسلامة</span>
+              <span class="simple-toggle-control">
+                <input id="hasHsePermit" name="hasHsePermit" type="checkbox">
+                <b>يوجد تصريح</b>
+              </span>
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">وصف / رابط الموقع</span>
+              <input id="locationText" name="locationText" placeholder="وصف الموقع أو رابط الخريطة">
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">خط العرض</span>
+              <input id="latitude" name="latitude" type="number" inputmode="decimal" step="any" placeholder="24.000000">
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">خط الطول</span>
+              <input id="longitude" name="longitude" type="number" inputmode="decimal" step="any" placeholder="39.000000">
+            </label>
+
+            <div class="simple-action-row">
+              <button id="gpsBtn" type="button" class="btn secondary full">⌖ التقاط موقعي الحالي</button>
+              <span id="gpsStatus" class="muted"></span>
+            </div>
+
+            <label class="simple-field">
+              <span class="inside-label">تاريخ ووقت مباشرة الموقع</span>
+              <input id="startedAt" name="startedAt" type="datetime-local">
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">تاريخ ووقت انتهاء العمل</span>
+              <input id="finishedAt" name="finishedAt" type="datetime-local">
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">العمق عند الحفر (متر)</span>
+              <input id="depthM" name="depthM" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="0.0">
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">وصف الانكسار *</span>
+              <select id="breakTypeId" name="breakTypeId" required></select>
+            </label>
+
+            <label class="simple-field">
+              <span class="inside-label">حالة الإصلاح *</span>
+              <select id="repairStatusId" name="repairStatusId" required></select>
+            </label>
+
+            <label class="simple-field simple-textarea">
+              <span class="inside-label">الملاحظات</span>
+              <textarea id="notes" name="notes" rows="4" placeholder="اكتب الملاحظات الميدانية"></textarea>
+            </label>
+
+            <div class="simple-media-row">
+              <label class="btn secondary file-btn full">＋ اختيار صور / فيديو / PDF
+                <input id="mediaFiles" type="file" multiple accept="image/*,video/*,.pdf">
+              </label>
+              <label class="btn secondary file-btn full">📷 فتح الكاميرا
+                <input id="cameraFile" type="file" accept="image/*" capture="environment">
+              </label>
+            </div>
+
+            <div id="mediaPreview" class="media-preview"></div>
+
+            <div id="workHistoryPanel" class="history-panel hidden">
+              <div class="history-head">
+                <strong>سجل الحالة</strong>
+                <span>إنشاء وتعديلات ومرفقات</span>
               </div>
-              <div id="mediaPreview" class="media-preview"></div>
-              <div id="workHistoryPanel" class="history-panel hidden">
-                <div class="history-head">
-                  <strong>سجل الحالة</strong>
-                  <span>إنشاء وتعديلات ومرفقات</span>
-                </div>
-                <div id="workHistoryList" class="history-list"></div>
-              </div>
-            </fieldset>
+              <div id="workHistoryList" class="history-list"></div>
+            </div>
 
             <div id="workErrors" class="form-error"></div>
-            <div class="form-actions">
+            <div class="form-actions simple-save-actions">
               <button id="saveWorkBtn" class="btn primary large" type="submit">حفظ الحالة</button>
               <button id="newWorkBtn" class="btn secondary large" type="button">حالة جديدة</button>
             </div>
@@ -283,7 +288,7 @@
           </div>
           <div class="info-panel">
             <h4>تصميم النظام</h4>
-            <p>هذه النسخة تعمل بدون Google Sheets. كل حالة تحفظ مباشرة في قاعدة البيانات مع تسجيل المستخدم والوقت وسجل التعديلات.</p>
+            <p>كل حالة تحفظ أولًا في PostgreSQL ثم تتم مزامنتها تلقائيًا إلى Google Sheets مع تسجيل المستخدم والوقت وسجل التعديلات.</p>
           </div>
         </section>
 

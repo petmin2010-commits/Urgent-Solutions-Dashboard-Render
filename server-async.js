@@ -23,6 +23,9 @@ const {
  usePostgres,pool,all,get,run,initDatabase,nowIso,id,
  hashPassword,verifyPassword,getPermissionsForRole,audit
 }=require('./src/db');
+const {
+ enqueueWorkSync,startGoogleSyncWorker,getGoogleSyncStatus
+}=require('./src/google-sync');
 
 const app=express();
 const PORT=Number(process.env.PORT||3035);
@@ -179,6 +182,7 @@ async function validateWork(payload){
  if(!out.inspectorId)errors.push('اسم المراقب مطلوب');
  if(!out.contractorId)errors.push('المقاول مطلوب');
  if(!out.wfmNo)errors.push('رقم بلاغ / أمر العمل WFM مطلوب');
+ if(out.wfmNo && out.wfmNo!=='لايوجد' && !/^\d{14}$/.test(out.wfmNo))errors.push('رقم WFM يجب أن يكون 14 رقمًا أو لايوجد');
  if(!out.breakTypeId)errors.push('وصف الانكسار مطلوب');
  if(!out.repairStatusId)errors.push('حالة الإصلاح مطلوبة');
  const st=out.repairStatusId?await get('SELECT name,is_closed FROM repair_statuses WHERE repair_status_id=? AND active=1',[out.repairStatusId]):null;
@@ -240,7 +244,11 @@ app.get('/api/bootstrap',async(req,res,next)=>{
  }catch(e){next(e);}
 });
 app.get('/api/stats',requireAuth,requirePermission('DASHBOARD_VIEW'),async(_req,res,next)=>{
- try{res.json({ok:true,stats:await stats()});}catch(e){next(e);}
+ try{res.json({ok:true,stats:await stats(),googleSync:await getGoogleSyncStatus()});}catch(e){next(e);}
+});
+
+app.get('/api/google-sync/status',requireAuth,requirePermission('AUDIT_VIEW'),async(_req,res,next)=>{
+ try{res.json({ok:true,sync:await getGoogleSyncStatus()});}catch(e){next(e);}
 });
 
 app.get('/api/works',requireAuth,requirePermission('WORK_VIEW'),async(req,res,next)=>{
@@ -326,6 +334,7 @@ app.post('/api/works',requireAuth,requirePermission('WORK_CREATE'),async(req,res
   ]);
   const created=rowToWork(await get(workSelect+' WHERE w.work_id=?',[workId]));
   await audit(req.user.user_id,'CREATE','WORK',workId,null,created);
+  await enqueueWorkSync(workId,'UPSERT');
   res.status(201).json({ok:true,work:created});
  }catch(e){next(e);}
 });
@@ -348,6 +357,7 @@ app.put('/api/works/:id',requireAuth,requirePermission('WORK_EDIT'),async(req,re
   ]);
   const updated=rowToWork(await get(workSelect+' WHERE w.work_id=?',[req.params.id]));
   await audit(req.user.user_id,'UPDATE','WORK',req.params.id,rowToWork(existingRaw),updated);
+  await enqueueWorkSync(req.params.id,'UPSERT');
   res.json({ok:true,work:updated});
  }catch(e){next(e);}
 });
@@ -360,6 +370,7 @@ app.delete('/api/works/:id',requireAuth,requirePermission('WORK_DELETE'),async(r
   const now=nowIso();
   await run('UPDATE works SET deleted_at=?,updated_by=?,updated_at=? WHERE work_id=?',[now,req.user.user_id,now,req.params.id]);
   await audit(req.user.user_id,'DELETE','WORK',req.params.id,rowToWork(existing),null);
+  await enqueueWorkSync(req.params.id,'DELETE');
   res.json({ok:true});
  }catch(e){next(e);}
 });
@@ -380,6 +391,7 @@ app.post('/api/works/:id/media',requireAuth,requirePermission('MEDIA_ADD'),uploa
    inserted.push({id:mediaId,originalName:file.originalname,mimeType:file.mimetype,sizeBytes:file.size,url:relativeUrl,uploadedAt});
   }
   await audit(req.user.user_id,'MEDIA_ADD','WORK',req.params.id,null,inserted.map(x=>({id:x.id,name:x.originalName})));
+  await enqueueWorkSync(req.params.id,'UPSERT');
   res.status(201).json({ok:true,media:inserted});
  }catch(e){next(e);}
 });
@@ -519,6 +531,7 @@ async function start(){
   throw new Error('DATABASE_URL is required in production. Refusing to start with ephemeral SQLite storage.');
  }
  await initDatabase();
+ startGoogleSyncWorker().catch(err=>console.error('Google Sheets sync startup failed:',err.message||err));
  app.listen(PORT,'0.0.0.0',()=>console.log('Madinah Water Business running on http://localhost:'+PORT+' ['+(usePostgres?'postgres':'sqlite')+']'));
 }
 start().catch(err=>{console.error('Startup failed',err);process.exit(1);});

@@ -389,6 +389,8 @@ async function loadStats() {
   try {
     const data = await api('/api/stats');
     const s = data.stats;
+    const gs = data.googleSync || {};
+    const gsLabel = !gs.configured ? 'غير مفعّل' : gs.errors ? 'خطأ ' + gs.errors : gs.pending ? 'قيد المزامنة ' + gs.pending : 'متزامن';
     $('statsGrid').innerHTML =
       statCard('إجمالي الحالات', s.total) +
       statCard('حالات اليوم', s.today) +
@@ -397,7 +399,8 @@ async function loadStats() {
       statCard('نسبة الإغلاق', s.completionRate, '%') +
       statCard('بيانات موقع GPS', s.locationRate, '%') +
       statCard('حالات بمرفقات', s.mediaRate, '%') +
-      statCard('بتصريح أمن وسلامة', s.hsePermit);
+      statCard('بتصريح أمن وسلامة', s.hsePermit) +
+      statCard('Google Sheets', gsLabel);
     renderMiniBars('regionBars', s.topRegions || []);
     renderMiniBars('statusBars', s.byStatus || [], true);
   } catch (e) {
@@ -573,6 +576,8 @@ async function bootstrap() {
     clearForm({ keepDraft: true });
     restoreDraft();
     await loadStats();
+    const linkedWork = new URLSearchParams(window.location.search).get('work');
+    if (linkedWork) await loadWorkForEdit(linkedWork);
   } catch (e) {
     showLogin();
   }

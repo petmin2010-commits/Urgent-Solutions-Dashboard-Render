@@ -11,6 +11,7 @@
     "connect-pg-simple": "^10.0.0",
     "express": "^5.1.0",
     "express-session": "^1.19.0",
+    "googleapis": "^183.0.0",
     "helmet": "^8.1.0",
     "luxon": "^3.7.1",
     "multer": "^2.0.2",

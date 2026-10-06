@@ -71,6 +71,18 @@ CREATE TABLE IF NOT EXISTS work_media(media_id TEXT PRIMARY KEY,work_id TEXT NOT
 CREATE TABLE IF NOT EXISTS audit_log(audit_id TEXT PRIMARY KEY,user_id TEXT REFERENCES users(user_id),action TEXT NOT NULL,entity_type TEXT NOT NULL,entity_id TEXT,old_data TEXT,new_data TEXT,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS notifications(notification_id TEXT PRIMARY KEY,user_id TEXT REFERENCES users(user_id),title TEXT NOT NULL,message TEXT NOT NULL,read_at TEXT,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS app_settings(setting_key TEXT PRIMARY KEY,setting_value TEXT,updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS sheet_sync_queue(
+  sync_id TEXT PRIMARY KEY,
+  work_id TEXT NOT NULL UNIQUE,
+  operation TEXT NOT NULL DEFAULT 'UPSERT',
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  next_attempt_at TEXT,
+  last_error TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sheet_sync_status ON sheet_sync_queue(status,next_attempt_at);
 `);
   }else{
     await exec(`
@@ -92,6 +104,18 @@ CREATE TABLE IF NOT EXISTS work_media(media_id TEXT PRIMARY KEY,work_id TEXT NOT
 CREATE TABLE IF NOT EXISTS audit_log(audit_id TEXT PRIMARY KEY,user_id TEXT,action TEXT NOT NULL,entity_type TEXT NOT NULL,entity_id TEXT,old_data TEXT,new_data TEXT,created_at TEXT NOT NULL,FOREIGN KEY(user_id) REFERENCES users(user_id));
 CREATE TABLE IF NOT EXISTS notifications(notification_id TEXT PRIMARY KEY,user_id TEXT,title TEXT NOT NULL,message TEXT NOT NULL,read_at TEXT,created_at TEXT NOT NULL,FOREIGN KEY(user_id) REFERENCES users(user_id));
 CREATE TABLE IF NOT EXISTS app_settings(setting_key TEXT PRIMARY KEY,setting_value TEXT,updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS sheet_sync_queue(
+  sync_id TEXT PRIMARY KEY,
+  work_id TEXT NOT NULL UNIQUE,
+  operation TEXT NOT NULL DEFAULT 'UPSERT',
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  next_attempt_at TEXT,
+  last_error TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sheet_sync_status ON sheet_sync_queue(status,next_attempt_at);
 `);
     const cols=await all('PRAGMA table_info(work_media)');
     if(!cols.some(c=>c.name==='file_data'))await exec('ALTER TABLE work_media ADD COLUMN file_data BLOB');

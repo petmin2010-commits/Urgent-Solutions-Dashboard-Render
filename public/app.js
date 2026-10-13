@@ -516,17 +516,32 @@ function handleChartClick(id,label,index,opts={}){
  const rule=chartRule(id,label,index,opts);if(!rule)return;
  toggleInteractiveFilter('chart:'+id,rule);
 }
+// Display the numeric permit-count rule on a second X-axis line without changing
+// the original category labels used by Chart.js, tooltips or interactive filters.
+const PERMIT_COUNT_AXIS_BANDS=Object.freeze({
+ 'لا يوجد':'0 تصريح',
+ 'منخفض':'1 تصريح',
+ 'متوسط':'2–4 تصاريح',
+ 'مرتفع':'5–9 تصاريح',
+ 'مرتفع جدًا':'10 تصاريح فأكثر'
+});
 function makeChart(id,type,labels,values,opts={}){
  if(!window.Chart)return;
  const canvas=document.getElementById(id);if(!canvas)return;
  const colors=labels.map((_,i)=>COLORS[i%COLORS.length]);
+ const permitCountAxis=type==='bar'&&!opts.horizontal&&['cExt','pExt','rExt'].includes(id);
  const chart=new Chart(canvas,{
   type,data:{labels,datasets:[{label:opts.label||'',data:values,backgroundColor:type==='line'?'rgba(8,121,165,.14)':colors,borderColor:type==='line'?'#0879a5':colors,borderWidth:type==='line'?2:1,tension:.32,fill:type==='line'}]},
   options:{responsive:true,maintainAspectRatio:false,indexAxis:opts.horizontal?'y':'x',
    onHover:(event,elements)=>{if(event?.native?.target)event.native.target.style.cursor=(elements.length&&(CHART_FILTERS[state.page]?.[id]||opts.filterRules?.length))?'pointer':'default'},
    onClick:(event,elements)=>{if(!elements.length)return;const idx=elements[0].index;if(!CHART_FILTERS[state.page]?.[id]&&!opts.filterRules?.[idx])return;handleChartClick(id,labels[idx],idx,opts)},
    plugins:{legend:{display:type==='doughnut',position:'bottom',labels:{font:{family:'Cairo',size:10},boxWidth:10}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}},
-   scales:type==='doughnut'?{}:{x:{ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{color:'rgba(0,0,0,.04)'}}}},
+   scales:type==='doughnut'?{}:{x:{ticks:{font:{family:'Cairo',size:9},color:'#000000',
+    ...(permitCountAxis?{autoSkip:false,minRotation:0,maxRotation:0,callback:function(value){
+     const category=this.getLabelForValue(value);
+     const band=PERMIT_COUNT_AXIS_BANDS[category];
+     return band?[category,band]:category;
+    }}:{})},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{family:'Cairo',size:9},color:'#000000'},grid:{color:'rgba(0,0,0,.04)'}}}},
   plugins:[]
  });
  state.charts.push(chart);

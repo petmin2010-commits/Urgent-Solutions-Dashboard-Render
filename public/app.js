@@ -1108,7 +1108,7 @@ function renderProjectsV2(){
  const multi=rows.filter(x=>n(x.permitCount)>1).length,avgExt=rows.length?Math.round(rows.reduce((a,x)=>a+n(x.permitCount),0)/rows.length*100)/100:0;
  $('#pageHost').innerHTML='<div class="kpi-grid">'+
   kpi('إجمالي المشاريع',rows.length)+kpi('أمتار التصاريح',fmt(meters),'متر')+
-  kpi('متعدد التصاريح/التمديدات',multi,'أكثر من تصريح واحد','warn')+
+  kpi('عدد المشاريع متعددة التصاريح',multi,'أكثر من تصريح واحد','warn')+
   kpi('متوسط التصاريح للمشروع',avgExt,'تصريح/تمديد')+
   kpi('أعلى عدد تصاريح لمشروع واحد',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+
  '</div><div class="chart-grid">'+

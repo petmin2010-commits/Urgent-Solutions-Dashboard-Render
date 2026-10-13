@@ -52,7 +52,7 @@ const METRICS={
  },
  projects:{
   'إجمالي المشاريع':P,'أمتار التصاريح':'Σ permitMeters من vd projects، لا تجمع هنا حقل meters من info. new.',
-  'متعدد التصاريح/التمديدات':'COUNT(projects WHERE permitCount > 1). يُحسب المشروع مرة واحدة مهما كان عدد التصاريح.',
+  'عدد المشاريع متعددة التصاريح':'COUNT(projects WHERE permitCount > 1). يُحسب المشروع مرة واحدة مهما كان عدد التصاريح.',
   'متوسط التصاريح للمشروع':'ROUND(Σ permitCount ÷ COUNT(projects), 2). القيمة صفر عند خلو القائمة.',
   'أعلى عدد تصاريح لمشروع واحد':'MAX(permitCount) بين المشاريع المطابقة؛ صفر إذا لا توجد مشاريع.',
   'مخاطر مرتفعة/حرجة':'COUNT(projects WHERE riskLevel ∈ {مرتفع، حرج}) وفق معادلة الخادم. '+RISK,

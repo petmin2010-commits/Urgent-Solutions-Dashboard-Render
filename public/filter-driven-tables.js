@@ -73,10 +73,21 @@ const PAGE_DATA_SUMS={
 const currentDatasetByPage=new Map();
 function rawModels(page){
  const api=window.VDUrgent,st=api?.getState?.(),data=st?.data||{};
+ const smartScoped=['smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].includes(page)
+  &&typeof window.VDUrgentSmartScope==='function'?window.VDUrgentSmartScope(data):null;
  return (PAGE_DATASETS[page]||[]).filter(key=>Array.isArray(data[key])).map(key=>{
   const original=data[key],spec=SOURCE_FIELDS[key];
   let scoped=[];
   try{scoped=api?.filterRows?.(original)||[];}catch(e){console.error('[VD TABLES] scoped filter',key,e);}
+  if(smartScoped&&Array.isArray(smartScoped[key]))scoped=smartScoped[key];
+  // Respect the three in-map filter bars for both geographical layers and the appended source tables.
+  const mapSelection=page==='map'?st?.mapLocalFilters?.[key]:null;
+  if(mapSelection){
+   scoped=scoped.filter(row=>Object.entries(mapSelection).every(([field,selected])=>{
+    const value=String(row?.[field]??'').replace(/\s+/g,' ').trim()||'غير محدد';
+    return selected.has(value);
+   }));
+  }
   const fields=spec.fields.filter(([k])=>scoped.some(r=>Object.prototype.hasOwnProperty.call(r,k)));
   const headers=fields.length?fields.map(x=>x[1]):spec.fields.slice(0,6).map(x=>x[1]);
   const selected=fields.length?fields:spec.fields.slice(0,6);
@@ -239,5 +250,6 @@ function render(){
 let timer=0;
 function schedule(){clearTimeout(timer);timer=setTimeout(render,40)}
 window.addEventListener('vd:page-rendered',schedule);
+window.addEventListener('vd:urgent-map-local-filter',schedule);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(render,700));
 })();

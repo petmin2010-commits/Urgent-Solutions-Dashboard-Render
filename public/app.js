@@ -274,7 +274,9 @@ function selectedFor(field){
  if(!state.filters.has(key))state.filters.set(key,new Set(values));
  const set=state.filters.get(key);
  if(set.__optionsRef!==values){
-  if(set.__initialized!==true)values.forEach(v=>set.add(v));
+  const previousValues=set.__optionsRef;
+  const allPreviouslySelected=Array.isArray(previousValues)&&previousValues.every(v=>set.has(v));
+  if(set.__initialized!==true||allPreviouslySelected)values.forEach(v=>set.add(v));
   set.__initialized=true;
   const valueSet=new Set(values);
   [...set].forEach(v=>{if(!valueSet.has(v))set.delete(v)});
@@ -297,7 +299,8 @@ function rulePass(row,rule){
   if(band==='>60 يوم')return days>60;
   return true;
  }
- if(!rule.field||!Object.prototype.hasOwnProperty.call(row,rule.field))return false;
+ // A chart rule is scoped to records carrying its source field; do not erase unrelated KPIs.
+ if(!rule.field||!Object.prototype.hasOwnProperty.call(row,rule.field))return true;
  const raw=row[rule.field],v=clean(raw);
  if(rule.mode==='blank')return !v;
  if(rule.mode==='notblank')return !!v;
@@ -857,6 +860,7 @@ function renderMap(){
  const optionSet=(rows,key)=>new Set(rows.map(r=>clean(r[key])||'غير محدد'));
  const projectFilterState={municipality:optionSet(projectAll,'municipality'),contractor:optionSet(projectAll,'contractor'),owner:optionSet(projectAll,'owner')};
  const lineFilterState={municipality:optionSet(lineAll,'municipality'),contractor:optionSet(lineAll,'contractor'),owner:optionSet(lineAll,'owner'),type:optionSet(lineAll,'type'),designStatus:optionSet(lineAll,'designStatus')};
+ state.mapLocalFilters={projects:projectFilterState,lines:lineFilterState};
  let bounds=[],searchItems=[],kmzManager=null,visibleProjectCount=projects.length,visibleLineCount=lines.length;
  const matchesMapFilters=(r,kind)=>{
   const filterState=kind==='project'?projectFilterState:lineFilterState;
@@ -904,6 +908,7 @@ function renderMap(){
   trs.forEach((tr,i)=>{const visible=i<projects.length?projectVisible.has(projects[i]):lineVisible.has(lines[i-projects.length]);tr.dataset.vdMapFiltered=visible?'1':'0';tr.style.display=visible&&(!searchQuery||norm(tr.textContent).includes(searchQuery))?'':'none'});
   const pc=$('#mapProjectCount'),lc=$('#mapLineCount'),summary=$('#mapVisibleSummary'),kmzVisible=(window.VDKMZ?.uploads||[]).filter(x=>x.visible).length;
   if(pc)pc.textContent=fp.length;if(lc)lc.textContent=fl.length;if(summary)summary.textContent=fp.length+' مشروع • '+fl.length+' خط'+(kmzVisible?' • '+kmzVisible+' KMZ':'');
+  window.dispatchEvent(new CustomEvent('vd:urgent-map-local-filter',{detail:{page:'map'}}));
  };
  renderFeatures();
  const fitVisible=()=>{

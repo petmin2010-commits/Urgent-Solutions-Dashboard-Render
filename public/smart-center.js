@@ -30,14 +30,29 @@ function scopedData(raw=rawData()){
  const projects=filterRows(raw.projects||[]);
  const projectNos=new Set(projects.map(x=>clean(x.no)).filter(Boolean));
  const projectPairs=new Set(projects.map(x=>clean(x.owner)+'||'+clean(x.contractor)).filter(x=>x!=='||'));
+ const projectScopeRequired=(window.VDUrgent?.activeFilterCount?.()||0)>0;
  const inProjectScope=r=>{
+  // When the project filter excludes all projects, related permit/line data must not reappear.
+  if(projectScopeRequired&&!projects.length)return false;
   const no=clean(r.projectNo||r.no),pair=clean(r.owner||r.projectOwner)+'||'+clean(r.contractor||r.helperContractor);
   if(no&&projectNos.size)return projectNos.has(no);
   if(pair!=='||'&&projectPairs.size)return projectPairs.has(pair);
-  return true;
+  return !projectScopeRequired;
  };
  const permits=filterRows(raw.actualPermits||[]).filter(inProjectScope),lines=filterRows(raw.lines||[]).filter(inProjectScope),settlements=filterRows(raw.settlements||[]).filter(inProjectScope);
- const quality=filterRows(raw.quality||[]),complaints=filterRows(raw.complaints||[]);
+ const matchingLineRefs=new Set(lines.map(x=>clean(x.ref)).filter(Boolean));
+ const complaints=filterRows(raw.complaints||[]).filter(c=>!projectScopeRequired||
+  (clean(c.link)&&[...matchingLineRefs].some(ref=>clean(c.link).includes(ref))));
+ const linkedRowNumbers=records=>new Set(records.map(x=>Number(x.row||x._row)).filter(Number.isFinite));
+ const projectRows=linkedRowNumbers(projects),permitRows=linkedRowNumbers(permits),lineRows=linkedRowNumbers(lines),complaintRows=linkedRowNumbers(complaints);
+ const quality=filterRows(raw.quality||[]).filter(q=>{
+  if(!projectScopeRequired)return true;
+  const source=norm(q.source),row=Number(q.row);
+  if(source.includes('vd projects'))return projectRows.has(row);
+  if(source.includes('alternative lines'))return lineRows.has(row);
+  if(source.includes('info. new'))return permitRows.has(row)||complaintRows.has(row);
+  return false;
+ });
  const permitMeters=permits.reduce((a,x)=>a+num(x.meters),0),lineMeters=lines.reduce((a,x)=>a+num(x.length),0),due=settlements.reduce((a,x)=>a+num(x.dueMeters),0),done=settlements.reduce((a,x)=>a+num(x.executedMeters),0);
  const highRiskProjects=projects.filter(x=>['حرج','مرتفع'].includes(clean(x.riskLevel))).length,designPending=lines.filter(x=>/جاري|قيد/i.test(clean(x.designStatus))&&!x.approvalDate).length;
  let expired=0,expiring=0,valid=0,unknown=0;
@@ -368,6 +383,7 @@ function renderSmartPage(page,hydrated=false){
 }
 function onPage(){const page=state().page||'';updateFilterVisibility(page);if(SMART_PAGES.has(page))requestAnimationFrame(()=>renderSmartPage(page))}
 window.addEventListener('vd:urgent-data',()=>{captureLocal(false);centralSyncAt=0;thursdaySyncAt=0;syncCentralHistory(false);syncThursday(false)});
+window.VDUrgentSmartScope=scopedData;
 window.addEventListener('vd:page-rendered',onPage);
 document.addEventListener('DOMContentLoaded',onPage);
 })();

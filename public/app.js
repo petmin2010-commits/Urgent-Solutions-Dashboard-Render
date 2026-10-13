@@ -1317,7 +1317,7 @@ function renderSettlementsV2(){
   kpi('له أمتار',credit.length,fmt(Math.abs(sum(credit,'balance')))+' م','info')+
   kpi('مستوفي',settled.length,'رصيد صفر')+
  '</div><div class="chart-grid">'+
-  chartPanel('sStatus','حالة التسويات')+chartPanel('sCoverage','نطاق نسبة التغطية')+
+  chartPanel('sStatus','حالة التسويات')+chartPanel('sCoverage','نسبة التغطية من امتار الخطوط البديلة المكلفه الي امتار التصاريح المستحقة')+
   chartPanel('sContractor','صافي الرصيد حسب المقاول')+chartPanel('sDueDone','المستحق مقابل الخطوط حسب المقاول')+
   chartPanel('sGaps','أكبر فجوات المالك + المقاول')+
  '</div>'+tablePanel('تسويات الملاك والمقاولين',[

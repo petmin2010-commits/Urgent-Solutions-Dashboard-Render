@@ -1110,7 +1110,7 @@ function renderProjectsV2(){
   kpi('إجمالي المشاريع',rows.length)+kpi('أمتار التصاريح',fmt(meters),'متر')+
   kpi('متعدد التصاريح/التمديدات',multi,'أكثر من تصريح واحد','warn')+
   kpi('متوسط التصاريح للمشروع',avgExt,'تصريح/تمديد')+
-  kpi('أعلى عدد تمديدات',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+
+  kpi('أعلى عدد تصاريح لمشروع واحد',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+
  '</div><div class="chart-grid">'+
   chartPanel('pRisk','مستوى المخاطر')+chartPanel('pExt','ضغط التمديدات')+
   chartPanel('pStatus','حالة العقود')+chartPanel('pPermit','حالة التصاريح')+

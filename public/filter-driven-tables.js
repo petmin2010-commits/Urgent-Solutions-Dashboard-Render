@@ -32,7 +32,7 @@ const PAGE_SUMS={
  analytics:['تغطية مطابقة %']
 };
 
-const EXCLUDED=new Set(['reports','excelExport']);
+const EXCLUDED=new Set(['reports','excelExport','lines']);
 
 const PAGE_DATASETS={
  master:['projects','actualPermits','lines','settlements'],

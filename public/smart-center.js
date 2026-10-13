@@ -143,7 +143,7 @@ function wireSmartTabs(){
   const k=b.dataset.smartTab;if(k==='project360')window.VDUrgentParity?.open360?.();else openPage(k);
  }));
 }
-function updateFilterVisibility(page){const bar=document.getElementById('filterBar');if(bar&&SMART_PAGES.has(page))bar.style.display='none'}
+function updateFilterVisibility(page){/* Keep smart page manual filters visible; main renderer owns visibility. */}
 
 function riskScore(p,d=data()){
  let score=0,reasons=[];const level=norm(p.riskLevel);

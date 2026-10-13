@@ -206,6 +206,7 @@ const CARD_RULES={
  }
 };
 
+let filterPopover=null;
 const state={data:null,user:null,page:'master',filters:new Map(),filterOptionsCache:new Map(),interactiveFilters:new Map(),periods:new Map(),charts:[],map:null,theme:0,export:{sheet:'vd projects',source:null,cache:new Map(),columns:new Set(),filters:new Map(),initializedSheet:null}};
 
 const COLORS=['#0879a5','#19a5c8','#5bc6de','#83d9e8','#2f73b7','#79a8d8','#d0a351','#d36d56','#7d70b4','#69a99b'];
@@ -264,7 +265,7 @@ function primaryRows(){
 function optionsFor(field){
  const key=filterKey(field);
  if(state.filterOptionsCache.has(key))return state.filterOptionsCache.get(key);
- const values=[...new Set(filterSource().map(r=>clean(r[field])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+ const values=[...new Set(filterSource().filter(r=>Object.prototype.hasOwnProperty.call(r,field)).map(r=>clean(r[field])||'غير محدد'))].sort((a,b)=>a.localeCompare(b,'ar'));
  state.filterOptionsCache.set(key,values);
  return values;
 }
@@ -296,7 +297,7 @@ function rulePass(row,rule){
   if(band==='>60 يوم')return days>60;
   return true;
  }
- if(!rule.field||!Object.prototype.hasOwnProperty.call(row,rule.field))return true;
+ if(!rule.field||!Object.prototype.hasOwnProperty.call(row,rule.field))return false;
  const raw=row[rule.field],v=clean(raw);
  if(rule.mode==='blank')return !v;
  if(rule.mode==='notblank')return !!v;
@@ -315,11 +316,11 @@ function rulePass(row,rule){
 }
 function rowPasses(row,defs=pageFilterDefs()){
  const manual=defs.every(def=>{
-  if(!Object.prototype.hasOwnProperty.call(row,def.field))return true;
-  const {values,set}=selectedFor(def.field);
-  if(!values.length||set.size===values.length)return true;
-  return set.has(clean(row[def.field]));
- });
+   const {values,set}=selectedFor(def.field);
+   if(!values.length||set.size===values.length)return true;
+   if(!Object.prototype.hasOwnProperty.call(row,def.field))return false;
+   return set.has(clean(row[def.field])||'غير محدد');
+  });
  if(!manual)return false;
  return [...interactiveStore().values()].every(rule=>rulePass(row,rule));
 }
@@ -430,6 +431,7 @@ function toggleInteractiveFilter(key,rule){
  renderPage();
 }
 function clearAllFilters(){
+ filterPopover=null;
  pageFilterDefs().forEach(d=>state.filters.delete(filterKey(d.field)));
  interactiveStore().clear();
  const st=periodState();st.from='';st.to='';st.preset='all';
@@ -455,19 +457,29 @@ function renderFilterSummary(){
 
 function renderFilters(){
  const bar=$('#filterBar'),host=$('#filtersHost'),defs=pageFilterDefs();if(!bar||!host)return;
- if(['reports','followup','master','quality','smartCenter','temporalMemory','investigationRoom','explainableDecision','smartThursday'].includes(state.page)){bar.style.display='none';host.innerHTML='';return;}
+ if(['reports','followup'].includes(state.page)){bar.style.display='none';host.innerHTML='';return;}
  bar.style.display='block';bar.classList.toggle('no-manual-filters',!defs.length);
  host.innerHTML=defs.map(def=>{
   const {values,set}=selectedFor(def.field),label=!values.length?'لا توجد قيم':set.size===values.length?'الكل':set.size+'/'+values.length;
   return '<div class="multi-filter" data-field="'+esc(def.field)+'"><button class="mf-trigger" type="button"><b>'+esc(def.label)+'</b><span>'+esc(label)+' ▾</span></button><div class="mf-pop"><input class="mf-search" type="search" placeholder="بحث داخل '+esc(def.label)+'..."><div class="mf-actions"><button data-act="all" type="button">تحديد الكل</button><button data-act="none" type="button">إلغاء الكل</button></div><div class="mf-options">'+values.map(v=>'<label class="mf-option" data-text="'+esc(norm(v))+'"><input type="checkbox" value="'+esc(v)+'" '+(set.has(v)?'checked':'')+'><span>'+esc(v)+'</span></label>').join('')+'</div></div></div>';
  }).join('');
- $$('.mf-trigger',host).forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const box=btn.closest('.multi-filter');$$('.multi-filter',host).forEach(x=>{if(x!==box)x.classList.remove('open')});box.classList.toggle('open')}));
- $$('.mf-search',host).forEach(inp=>inp.addEventListener('input',()=>{const q=norm(inp.value);$$('.mf-option',inp.closest('.mf-pop')).forEach(x=>x.style.display=!q||x.dataset.text.includes(q)?'flex':'none')}));
- $$('.mf-actions button',host).forEach(btn=>btn.addEventListener('click',()=>{const box=btn.closest('.multi-filter'),field=box.dataset.field,{values,set}=selectedFor(field);set.clear();if(btn.dataset.act==='all')values.forEach(v=>set.add(v));renderPage()}));
- $$('.mf-option input',host).forEach(inp=>inp.addEventListener('change',()=>{const field=inp.closest('.multi-filter').dataset.field,{set}=selectedFor(field);inp.checked?set.add(inp.value):set.delete(inp.value);renderPage()}));
+ if(filterPopover?.page===state.page){
+  const box=$$('.multi-filter',host).find(x=>x.dataset.field===filterPopover.field);
+  if(box){
+   box.classList.add('open');
+   const search=box.querySelector('.mf-search'),opts=box.querySelector('.mf-options');
+   if(search){search.value=filterPopover.search||'';const q=norm(search.value);$$('.mf-option',box).forEach(x=>x.style.display=!q||x.dataset.text.includes(q)?'flex':'none')}
+   if(opts)opts.scrollTop=filterPopover.scrollTop||0;
+  }
+ }
+ const remember=box=>{filterPopover={page:state.page,field:box.dataset.field,search:box.querySelector('.mf-search')?.value||'',scrollTop:box.querySelector('.mf-options')?.scrollTop||0}};
+ $$('.mf-trigger',host).forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const box=btn.closest('.multi-filter'),willOpen=!box.classList.contains('open');$$('.multi-filter',host).forEach(x=>x.classList.remove('open'));if(willOpen){box.classList.add('open');remember(box)}else filterPopover=null}));
+ $$('.mf-search',host).forEach(inp=>inp.addEventListener('input',()=>{const q=norm(inp.value);$$('.mf-option',inp.closest('.mf-pop')).forEach(x=>x.style.display=!q||x.dataset.text.includes(q)?'flex':'none');remember(inp.closest('.multi-filter'))}));
+ $$('.mf-actions button',host).forEach(btn=>btn.addEventListener('click',()=>{const box=btn.closest('.multi-filter'),field=box.dataset.field,{values,set}=selectedFor(field);remember(box);set.clear();if(btn.dataset.act==='all')values.forEach(v=>set.add(v));renderPage()}));
+ $$('.mf-option input',host).forEach(inp=>inp.addEventListener('change',()=>{const box=inp.closest('.multi-filter'),field=box.dataset.field,{set}=selectedFor(field);remember(box);inp.checked?set.add(inp.value):set.delete(inp.value);renderPage()}));
  // Summary and period controls are rendered once after the page body is ready.
 }
-document.addEventListener('click',e=>{if(!e.target.closest('.multi-filter'))$$('.multi-filter').forEach(x=>x.classList.remove('open'))});
+document.addEventListener('click',e=>{if(!e.target.closest('.multi-filter')){filterPopover=null;$$('.multi-filter').forEach(x=>x.classList.remove('open'))}});
 
 function kpi(label,value,note='',cls=''){
  return '<article class="kpi-card '+cls+'"><span>'+esc(label)+'</span><strong data-count>'+esc(value)+'</strong><small>'+esc(note)+'</small></article>';
@@ -560,7 +572,7 @@ function tablePanel(title,columns,rows){
 function wireTableSearch(){
  $$('.table-search','#pageHost').forEach(inp=>inp.addEventListener('input',()=>{
   const q=norm(inp.value),table=document.getElementById(inp.dataset.table);if(!table)return;
-  $$('tbody tr',table).forEach(tr=>tr.style.display=!q||norm(tr.textContent).includes(q)?'':'none');
+  $$('tbody tr',table).forEach(tr=>tr.style.display=(tr.dataset.vdMapFiltered==='0'||(q&&!norm(tr.textContent).includes(q)))?'none':'');
  }));
 }
 function wireInteractiveCards(){
@@ -729,13 +741,13 @@ function renderMap(){
   ...lines.map(r=>({itemType:'خط بديل',ref:r.ref,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.executionStatus||r.designStatus||'',lat:r.lat,lon:r.lon}))
  ];
  const checkFilter=(rows,key,label,scope)=>{
-  const vals=[...new Set(rows.map(r=>clean(r[key])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+  const vals=[...new Set(rows.map(r=>clean(r[key])||'غير محدد'))].sort((a,b)=>a.localeCompare(b,'ar'));
   return '<div class="map-check-filter" data-map-filter-box="'+scope+':'+key+'">'+
    '<button type="button" class="map-check-trigger" data-map-filter-trigger><span>'+esc(label)+'</span><b data-map-filter-count>0</b><i>⌄</i></button>'+
    '<div class="map-check-menu">'+
     '<div class="map-check-search"><input type="search" data-map-filter-search autocomplete="off" placeholder="بحث في '+esc(label)+'..."></div>'+
     '<div class="map-check-menu-head"><span>'+vals.length+' خيار</span><button type="button" data-map-filter-clear>مسح الاختيار</button></div>'+
-    '<div class="map-check-options">'+vals.map(v=>'<label data-map-filter-option data-search="'+esc(norm(v))+'"><input type="checkbox" data-map-filter-check data-map-scope="'+scope+'" data-map-key="'+key+'" value="'+esc(v)+'"><span>'+esc(v)+'</span></label>').join('')+'</div>'+
+    '<div class="map-check-options">'+vals.map(v=>'<label data-map-filter-option data-search="'+esc(norm(v))+'"><input type="checkbox" data-map-filter-check data-map-scope="'+scope+'" data-map-key="'+key+'" value="'+esc(v)+'" checked><span>'+esc(v)+'</span></label>').join('')+'</div>'+
    '</div>'+
   '</div>';
  };
@@ -761,19 +773,19 @@ function renderMap(){
      '<div class="map-filter-bar map-filter-bar-projects">'+
       '<div class="map-filter-bar-head"><button type="button" class="map-layer-btn active" data-map-layer="projects"><span class="map-symbol project-symbol"></span>المشاريع <b id="mapProjectCount">'+projects.length+'</b></button><span>فلاتر المشاريع</span></div>'+
       '<div class="map-filter-bar-fields">'+
-       checkFilter(projects,'municipality','البلدية','project')+
-       checkFilter(projects,'contractor','المقاول','project')+
-       checkFilter(projects,'owner','المالك','project')+
+       checkFilter(projectAll,'municipality','البلدية','project')+
+       checkFilter(projectAll,'contractor','المقاول','project')+
+       checkFilter(projectAll,'owner','المالك','project')+
       '</div>'+
      '</div>'+
      '<div class="map-filter-bar map-filter-bar-lines">'+
       '<div class="map-filter-bar-head"><button type="button" class="map-layer-btn active" data-map-layer="lines"><span class="map-symbol line-symbol"></span>الخطوط البديلة <b id="mapLineCount">'+lines.length+'</b></button><span>فلاتر الخطوط البديلة</span></div>'+
       '<div class="map-filter-bar-fields map-filter-bar-fields-lines">'+
-       checkFilter(lines,'municipality','البلدية','line')+
-       checkFilter(lines,'contractor','المقاول','line')+
-       checkFilter(lines,'owner','المالك','line')+
-       checkFilter(lines,'type','نوع الخط','line')+
-       checkFilter(lines,'designStatus','حالة التصميم','line')+
+       checkFilter(lineAll,'municipality','البلدية','line')+
+       checkFilter(lineAll,'contractor','المقاول','line')+
+       checkFilter(lineAll,'owner','المالك','line')+
+       checkFilter(lineAll,'type','نوع الخط','line')+
+       checkFilter(lineAll,'designStatus','حالة التصميم','line')+
       '</div>'+
      '</div>'+
      '<div class="map-filter-bar map-filter-bar-kmz">'+
@@ -827,13 +839,14 @@ function renderMap(){
  street.addTo(state.map);
  const projectLayer=L.layerGroup().addTo(state.map),lineLayer=L.layerGroup().addTo(state.map);
  L.control.layers({'خريطة الشوارع':street,'صور جوية':satellite},{},{position:'bottomright',collapsed:true}).addTo(state.map);
- const projectFilterState={municipality:new Set(),contractor:new Set(),owner:new Set()};
- const lineFilterState={municipality:new Set(),contractor:new Set(),owner:new Set(),type:new Set(),designStatus:new Set()};
+ const optionSet=(rows,key)=>new Set(rows.map(r=>clean(r[key])||'غير محدد'));
+ const projectFilterState={municipality:optionSet(projectAll,'municipality'),contractor:optionSet(projectAll,'contractor'),owner:optionSet(projectAll,'owner')};
+ const lineFilterState={municipality:optionSet(lineAll,'municipality'),contractor:optionSet(lineAll,'contractor'),owner:optionSet(lineAll,'owner'),type:optionSet(lineAll,'type'),designStatus:optionSet(lineAll,'designStatus')};
  let bounds=[],searchItems=[],kmzManager=null,visibleProjectCount=projects.length,visibleLineCount=lines.length;
  const matchesMapFilters=(r,kind)=>{
   const filterState=kind==='project'?projectFilterState:lineFilterState;
   for(const [key,selected] of Object.entries(filterState)){
-   if(selected.size&&!selected.has(clean(r[key])))return false;
+   if(!selected.has(clean(r[key])||'غير محدد'))return false;
   }
   return true;
  };
@@ -843,6 +856,8 @@ function renderMap(){
  };
  const renderFeatures=()=>{
   projectLayer.clearLayers();lineLayer.clearLayers();bounds=[];searchItems=[];
+  const scopedProjects=projectAll.filter(r=>matchesMapFilters(r,'project'));
+  const scopedLines=lineAll.filter(r=>matchesMapFilters(r,'line'));
   const fp=projects.filter(r=>matchesMapFilters(r,'project'));
   const fl=lines.filter(r=>matchesMapFilters(r,'line'));
   fp.forEach(r=>{
@@ -862,6 +877,16 @@ function renderMap(){
    searchItems.push({kind:'خط بديل',label:(r.ref||'')+(r.name?' — '+r.name:''),search:norm([r.ref,r.name,r.municipality,r.district,r.street,r.owner,r.contractor,r.designer,r.type,r.designStatus,r.executionStatus].join(' ')),marker,lat,lon,layer:'lines'});
   });
   visibleProjectCount=fp.length;visibleLineCount=fl.length;
+  const mapCards=$$('.map-kpis .kpi-card','#pageHost'),setCard=(i,value,note)=>{const card=mapCards[i];if(!card)return;const strong=card.querySelector('strong'),small=card.querySelector('small');if(strong)strong.textContent=String(value);if(small&&note!==undefined)small.textContent=note};
+  setCard(0,fp.length,scopedProjects.length-fp.length+' موقع بدون إحداثيات صحيحة');
+  setCard(1,fl.length,scopedLines.length-fl.length+' خط بدون إحداثيات صحيحة');
+  setCard(2,pct(fp.length,scopedProjects.length)+'%','مشاريع بإحداثيات صحيحة • '+fp.length+' من '+scopedProjects.length);
+  setCard(3,pct(fl.length,scopedLines.length)+'%','خطوط بإحداثيات صحيحة • '+fl.length+' من '+scopedLines.length);
+  setCard(5,fmt(sum(fl,'length')),'متر من الخطوط المعروضة');
+  const mapTable=$('#pageHost .table-panel table'),trs=mapTable?$$('tbody tr',mapTable):[];
+  const projectVisible=new Set(fp),lineVisible=new Set(fl),tableSearch=$('#pageHost .table-panel .table-search');
+  const searchQuery=norm(tableSearch?.value||'');
+  trs.forEach((tr,i)=>{const visible=i<projects.length?projectVisible.has(projects[i]):lineVisible.has(lines[i-projects.length]);tr.dataset.vdMapFiltered=visible?'1':'0';tr.style.display=visible&&(!searchQuery||norm(tr.textContent).includes(searchQuery))?'':'none'});
   const pc=$('#mapProjectCount'),lc=$('#mapLineCount'),summary=$('#mapVisibleSummary'),kmzVisible=(window.VDKMZ?.uploads||[]).filter(x=>x.visible).length;
   if(pc)pc.textContent=fp.length;if(lc)lc.textContent=fl.length;if(summary)summary.textContent=fp.length+' مشروع • '+fl.length+' خط'+(kmzVisible?' • '+kmzVisible+' KMZ':'');
  };
@@ -884,12 +909,14 @@ function renderMap(){
   box.classList.toggle('has-selection',count>0);
  };
  const clearAllCheckFilters=()=>{
-  for(const stateObj of [projectFilterState,lineFilterState])Object.values(stateObj).forEach(set=>set.clear());
-  $$('[data-map-filter-check]','#pageHost').forEach(c=>{c.checked=false});
+  for(const [key,set] of Object.entries(projectFilterState)){set.clear();projectAll.forEach(r=>set.add(clean(r[key])||'غير محدد'))}
+  for(const [key,set] of Object.entries(lineFilterState)){set.clear();lineAll.forEach(r=>set.add(clean(r[key])||'غير محدد'))}
+  $$('[data-map-filter-check]','#pageHost').forEach(c=>{c.checked=true});
   $$('[data-map-filter-search]','#pageHost').forEach(s=>{s.value=''});
   $$('[data-map-filter-option]','#pageHost').forEach(o=>{o.hidden=false});
   $$('.map-check-filter','#pageHost').forEach(updateCheckFilterBox);
  };
+ $$('.map-check-filter','#pageHost').forEach(updateCheckFilterBox);
  fitVisible();
  if(fitBtn)fitBtn.addEventListener('click',fitVisible);
  if(resetBtn)resetBtn.addEventListener('click',()=>{
@@ -1586,7 +1613,7 @@ function applyPermissions(){
 }
 function openPage(page){
  const item=$('.nav-item[data-page="'+page+'"]');if(item&&!canAccess(item))return toast('لا توجد صلاحية لهذه الشاشة');
- state.page=page;$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+ if(page!==state.page)filterPopover=null;state.page=page;$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
  const group=item?.closest('.nav-group');if(group){$$('.nav-group').forEach(g=>g.classList.toggle('is-open',g===group))}
  renderPage();window.scrollTo({top:0,behavior:'smooth'});
 }

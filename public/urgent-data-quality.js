@@ -221,8 +221,24 @@ function archiveBlock(){
    '<small>إذا منع pCloud العرض المدمج استخدم زر الفتح في نافذة مستقلة.</small>'+
   '</section>';
 }
+function renderFilteredQuality(host,data){
+ const rows=window.VDUrgent?.filterRows?.(data.quality||[])||[];
+ const severity={high:'مرتفعة',medium:'متوسطة',low:'منخفضة'};
+ const group=field=>Object.entries(rows.reduce((out,r)=>{const val=txt(r[field])||'غير محدد';out[val]=(out[val]||0)+1;return out},{})).sort((a,b)=>b[1]-a[1]);
+ const severityRows=group('severity'),categoryRows=group('category'),sourceRows=group('source');
+ const panel=(title,items)=>'<section class="dq-section"><div class="dq-section-head"><h3>'+html(title)+'</h3></div><div class="dq-cards">'+(items.length?items.map(([name,count])=>'<div class="dq-card has-issue"><span>'+html(severity[name]||name)+'</span><strong>'+number(count)+'</strong><small>من النتائج المطابقة للفلاتر</small></div>').join(''):'<div class="dq-detail-placeholder">لا توجد نتائج مطابقة</div>')+'</div></section>';
+ host.innerHTML='<section class="dq-hero"><div><span>FILTERED QUALITY ISSUES</span><h2>نتائج جودة البيانات حسب الفلاتر</h2><p>القيم أدناه من سجل الملاحظات المصنفة، بعد تطبيق مستوى الأهمية والتصنيف والمصدر المحددة. لم تُستخدم فحوصات الحقول المستقلة في احتساب هذه النتائج.</p></div><div class="dq-hero-score"><div class="dq-hero-score-main"><strong>'+number(rows.length)+'</strong></div><span>ملاحظة مطابقة</span><small>من '+number((data.quality||[]).length)+' إجمالي ملاحظة</small></div></section>'+
+ panel('التوزيع حسب الأهمية',severityRows)+panel('التوزيع حسب التصنيف',categoryRows)+panel('التوزيع حسب المصدر',sourceRows)+
+ '<section class="table-panel wide"><div class="table-tools"><b>سجل الملاحظات المطابق <span>('+rows.length+')</span></b><input class="table-search" type="search" placeholder="بحث داخل الملاحظات..."></div><div class="table-scroll"><table><thead><tr><th>الأهمية</th><th>التصنيف</th><th>المصدر</th><th>رقم الصف</th><th>الملاحظة</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+html(severity[txt(r.severity)]||r.severity)+'</td><td>'+html(r.category)+'</td><td>'+html(r.source)+'</td><td>'+html(r.row)+'</td><td>'+html(r.message)+'</td></tr>').join('')+'</tbody></table></div></section>'+
+ '<section class="dq-details"><b>التدقيق التفصيلي متعدد القواعد</b><p>تظهر كروت الفحوصات التفصيلية للحقول مجددًا عند مسح الفلاتر، حتى لا تُخلط نتائجها المستقلة بملاحظات السجل المصنفة.</p></section>'+archiveBlock();
+ const input=host.querySelector('.table-search');input?.addEventListener('input',()=>{const k=normal(input.value);host.querySelectorAll('tbody tr').forEach(tr=>tr.style.display=!k||normal(tr.textContent).includes(k)?'':'none')});
+ const frame=document.getElementById('qualityArchiveFrame');if(frame&&!frame.src)frame.src=frame.dataset.src||archiveUrl;
+}
+
 function render(){
   const host=document.getElementById('pageHost');if(!host)return;
+  const state=window.VDUrgent;const fullData=state?.getState?.()?.data||window.__urgentDashboardData||{};
+  if(state?.activeFilterCount?.()>0){renderFilteredQuality(host,fullData);return;}
   const data=window.VDUrgent?.getState?.()?.data||window.__urgentDashboardData||{};
   const sections=definitions(data);DQ.sections=sections;
   const stats=sections.map(sectionStats);

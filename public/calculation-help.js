@@ -174,7 +174,6 @@ const CHARTS={
  cLineType:['Alternative lines','COUNT(lines) GROUP BY type.'],cDesign:['Alternative lines','COUNT(lines) GROUP BY designStatus.'],
  cYears:['info. new','COUNT(actualPermits) GROUP BY year؛ السنة من تاريخ التصريح.'],
  cMun:['vd projects','COUNT(projects) GROUP BY municipality؛ أعلى 12 بلدية.'],
- pRisk:['vd projects','COUNT(projects) GROUP BY riskLevel وفق درجة المخاطر المركبة.'],
  pExt:['vd projects — العمود AE',PERMIT_COUNT_CHART],
  pStatus:['vd projects','COUNT(projects) GROUP BY contractStatus.'],
  pType:['vd projects','COUNT(projects) GROUP BY projectType.'],

@@ -147,7 +147,7 @@ const PAGE_SOURCES={
 };
 const CHART_FILTERS={
  master:{cPermitStatus:['permitStatus','حالة التصريح'],cLineType:['type','نوع الخط'],cDesign:['designStatus','حالة التصميم'],cGuarantee:['guaranteeStatus','حالة الضمان'],cYears:['year','السنة'],cMun:['municipality','البلدية'],cRisk:['riskLevel','مستوى المخاطر'],cExt:['extensionPressure','ضغط التمديدات']},
- projects:{pStatus:['contractStatus','حالة العقد'],pType:['projectType','نوع المشروع'],pPermit:['permitStatus','حالة التصريح'],pMun:['municipality','البلدية'],pRisk:['riskLevel','مستوى المخاطر'],pExt:['extensionPressure','ضغط التمديدات']},
+ projects:{pStatus:['contractStatus','حالة العقد'],pType:['projectType','نوع المشروع'],pPermit:['permitStatus','حالة التصريح'],pMun:['municipality','البلدية'],pExt:['extensionPressure','ضغط التمديدات']},
  permits:{peYear:['year','السنة'],peMun:['municipality','البلدية'],peCon:['contractor','المقاول'],peOwner:['owner','المالك'],peExpiry:['expiryBand','نافذة الانتهاء'],peMetersYear:['year','السنة']},
  lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم'],lApproval:['approvalBand','مدة الاعتماد'],lAging:['designAgeBand','عمر المتابعة'],lDiameter:['diameter','قطر التصميم'],lDiff:['ref','مرجع الخط']},
  settlements:{sStatus:['status','حالة التسوية'],sContractor:['contractor','المقاول'],sCoverage:['coverageBand','نسبة التغطية'],sDueDone:['contractor','المقاول']},
@@ -1112,7 +1112,7 @@ function renderProjectsV2(){
   kpi('متوسط التصاريح للمشروع',avgExt,'تصريح/تمديد')+
   kpi('أعلى عدد تصاريح لمشروع واحد',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+
  '</div><div class="chart-grid">'+
-  chartPanel('pRisk','مستوى المخاطر')+chartPanel('pExt','تصنيف المشاريع حسب عدد التصاريح')+
+  chartPanel('pExt','تصنيف المشاريع حسب عدد التصاريح')+
   chartPanel('pStatus','حالة العقود')+chartPanel('pPermit','حالة التصاريح')+
   chartPanel('pMun','المشاريع حسب البلدية')+chartPanel('pMeters','أعلى المشاريع في أمتار التصاريح')+
  '</div>'+tablePanel('تفاصيل المشاريع ومؤشر المخاطر',[
@@ -1124,8 +1124,7 @@ function renderProjectsV2(){
   {key:'matchedCoveragePct',label:'تغطية مطابقة %'},{key:'matchedBalance',label:'فجوة مطابقة'},
   {key:'riskReasons',label:'أسباب المخاطر',html:r=>esc((r.reasons||[]).join(' • '))}
  ],rows.sort((a,b)=>n(b.riskScore)-n(a.riskScore)));
- let x=topEntries(countBy(rows,'riskLevel'));makeChart('pRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
- x=topEntries(countBy(rows,'extensionPressure'));makeChart('pExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
+ let x=topEntries(countBy(rows,'extensionPressure'));makeChart('pExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'contractStatus'));makeChart('pStatus','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'permitStatus'));makeChart('pPermit','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'municipality'),12);makeChart('pMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});

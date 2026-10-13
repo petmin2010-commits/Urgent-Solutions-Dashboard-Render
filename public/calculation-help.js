@@ -29,6 +29,8 @@ const P='عدد سجلات المشاريع الداخلة بعد الفلاتر
 const PE='عدد التصاريح الفعلية: COUNT(actualPermits)؛ يستبعد السجل دون تاريخ بداية أو نهاية، وتستبعد حالات تحت الإصدار والمشروع الملغي من مجموعة التصاريح المؤرخة.';
 const LI='عدد سجلات الخطوط البديلة: COUNT(lines) بعد الفلاتر؛ كل سجل يمثل خطًا مستقلًا.';
 const GROSS='التغطية الإجمالية (%) = ROUND((Σ طول الخطوط البديلة length ÷ Σ أمتار التصاريح الفعلية meters) × 100, 1). إذا كان المقام صفرًا تعرض 0. قد تتجاوز 100% ولا تدل بذاتها على تنفيذ مشروع بعينه.';
+const MAP_PROJECT_COVERAGE='تغطية خريطة المشاريع (%) = ROUND((عدد مشاريع vd projects ذات إحداثيات صحيحة ÷ إجمالي المشاريع ضمن الفلاتر الحالية) ×100, 1). تُقرأ الإحداثيات من Z وAA وتصحح عند تبادل ترتيب خط العرض والطول. الصالح: 20 < lat < 23 و38 < lon < 41، كلاهما رقم محدود. تُستبعد الإحداثيات الفارغة والخارجة عن الحدود من البسط، وتبقى في المقام. عند عدم وجود مشاريع تعرض 0%.';
+const MAP_LINE_COVERAGE='تغطية خريطة الخطوط البديلة (%) = ROUND((عدد سجلات Alternative lines ذات إحداثيات صحيحة ÷ إجمالي سجلات الخطوط البديلة ضمن الفلاتر الحالية) ×100, 1). تُقرأ الإحداثيات من G وH وتصحح عند تبادل ترتيب خط العرض والطول. الصالح: 20 < lat < 23 و38 < lon < 41، كلاهما رقم محدود. تُستبعد الإحداثيات الفارغة والخارجة عن الحدود من البسط، وتبقى في المقام؛ لا تدخل المشاريع أو ملفات KMZ في الحساب. عند عدم وجود خطوط تعرض 0%.';
 const MATCH='التغطية المطابقة (%) = ROUND((Σ executedMeters ÷ Σ dueMeters) × 100, 1) لعلاقات التسوية المجمعة بمفتاح (المالك + المقاول). المستحق من permitMeters في vd projects، والمنفذ هو Σ length من Alternative lines. تستبعد السجلات الناقصة لمفتاح المطابقة وفق منطق الخادم؛ المقام صفر يعرض 0.';
 const GAP='الفجوة (متر) = Σ الأمتار المستحقة − Σ أطوال الخطوط المقابلة؛ القيمة الموجبة نقص، والصفر توازن، والسالبة زيادة في الخطوط. لا يتم إخفاء القيم السالبة.';
 const RISK='مؤشر مخاطر المشروع في server.js: التصريح تحت الإصدار +15، منتهي +30، خلال 7 أيام +25، خلال 30 +18، خلال 60 +10، بيانات تصريح مفقودة +12؛ الضمان منتهي +25، أوشك/بانتظار +15، تعهد +4؛ نسبة التغطية المطابقة 0% +20، أقل من 50% +15، أقل من 80% +10، أقل من 100% +5؛ حالة العقد غير محددة أو متوقف +8؛ إحداثيات خارج نطاق جدة أو ناقصة +5؛ عدد التصاريح ≥10 +7، ≥5 +5، ≥2 +3. حد الدرجة 100، والتصنيف: حرج ≥60، مرتفع ≥40، متوسط ≥20، طبيعي أقل من 20. تطبق البنود الشرطية بترتيب if/else ولا تجمع مستويات البند الواحد.';
@@ -42,7 +44,8 @@ const METRICS={
   'الخطوط البديلة':LI,'أطوال الخطوط':'Σ length من Alternative lines بوحدة متر.',
   'التغطية الإجمالية':GROSS,'التغطية المطابقة':MATCH,
   'فجوة التسوية المطابقة':GAP+' هنا يستخدم dueMeters و executedMeters بعد المطابقة (المالك + المقاول).',
-  'تغطية الخريطة':'عدد المشاريع ذات lat >20 و <23 و lon >38 و <41 ÷ جميع مشاريع النطاق × 100، مقربة لمنزلة عشرية. هذه إحداثيات ضمن حدود العرض المعتمدة للخريطة.',
+  'تغطية خريطة المشاريع':MAP_PROJECT_COVERAGE,
+  'تغطية خريطة الخطوط البديلة':MAP_LINE_COVERAGE,
   'تصاميم معتمدة':'COUNT(lines WHERE designStatus يحتوي «معتمد» أو «حزمة مصممة»).',
   'تصاميم تحتاج مراجعة':'COUNT(حالة جاري/قيد بلا تاريخ اعتماد) + COUNT(حالة جاري/قيد مع تاريخ اعتماد) + COUNT(بدون حالة تصميم). الحالات الثلاث غير متداخلة.',
   'فجوة الأمتار':GAP,'تحت الإصدار':'COUNT(projects WHERE permitRefs يساوي حرفيًا «تحت الاصدار»).','تصاريح أوشكت':'COUNT(التصاريح ذات أيام متبقية من 0 إلى 7 شاملة).','تحتاج متابعة':'عدد المشاريع التي تتضمن حالة ضمان «منتهي/أوشك/بانتظار» أو حالة تصريح «منتهي/أوشك»؛ كل مشروع مرة واحدة.'
@@ -58,7 +61,8 @@ const METRICS={
  map:{
   'مواقع المشاريع':'COUNT(projects WHERE lat بين 20 و23 حصريًا و lon بين 38 و41 حصريًا).',
   'الخطوط البديلة':'COUNT(lines WHERE نفس شروط صلاحية الإحداثيات) وليس كل الخطوط الموجودة في الشيت.',
-  'تغطية الإحداثيات':'ROUND((عدد المشاريع والخطوط ذات الإحداثيات الصالحة ÷ إجمالي المشاريع والخطوط بعد الفلاتر) ×100, 0).',
+  'تغطية خريطة المشاريع':MAP_PROJECT_COVERAGE,
+  'تغطية خريطة الخطوط البديلة':MAP_LINE_COVERAGE,
   'طبقات KMZ من الشيت':'عدد روابط kmzUrl من Alternative lines (عمود AL) التي تبدأ http:// أو https:// مع إزالة تكرار الرابط.',
   'إجمالي أطوال الخطوط':'Σ length للخطوط التي اجتازت التحقق من الإحداثيات فقط في الخريطة.'
  },
@@ -320,9 +324,13 @@ function dynamicExample(el,p,title,kind){
   return 'من علاقات التسوية الحالية: المنفذ المطابق = '+fmt(sum(s,'executedMeters'))+' م، المستحق المطابق = '+fmt(sum(s,'dueMeters'))+' م؛ الناتج '+pct(sum(s,'executedMeters'),sum(s,'dueMeters'))+'%.';
  if(['فجوة التسوية المطابقة'].includes(title)|| (p==='settlements'&&title==='فجوة الأمتار'))
   return 'من علاقات التسوية الحالية: '+fmt(sum(s,'dueMeters'))+' − '+fmt(sum(s,'executedMeters'))+' = '+fmt(Math.round((sum(s,'dueMeters')-sum(s,'executedMeters'))*10)/10)+' متر.';
- if(p==='master'&&title==='تغطية الخريطة'){
-  const mapped=pr.filter(r=>num(r.lat)>20&&num(r.lat)<23&&num(r.lon)>38&&num(r.lon)<41).length;
-  return mapped+' مشروعًا بإحداثيات صالحة ÷ '+pr.length+' مشروعًا = '+pct(mapped,pr.length)+'%.';
+ if(title==='تغطية خريطة المشاريع'||title==='تغطية خريطة الخطوط البديلة'){
+  const isProject=title==='تغطية خريطة المشاريع',rows=isProject?pr:l;
+  // The card subtitle exposes its exact post-filter scope on both the master and map pages.
+  const shown=clean(el.querySelector(':scope > small')?.textContent).match(/(\d+)\s+من\s+(\d+)/);
+  const valid=r=>Number.isFinite(Number(r?.lat))&&Number.isFinite(Number(r?.lon))&&Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41;
+  const mapped=shown?Number(shown[1]):rows.filter(valid).length,total=shown?Number(shown[2]):rows.length;
+  return mapped+' '+(isProject?'مشروعًا':'خطًا بديلًا')+' بإحداثيات صالحة ÷ '+total+' '+(isProject?'مشروعًا':'خطًا بديلًا')+' ضمن الفلاتر = '+pct(mapped,total)+'%.';
  }
  if(kind==='table'){
   const tbody=el.querySelector('table tbody'),thead=el.querySelector('table thead'),count=tbody?.rows?.length||0;
@@ -400,6 +408,8 @@ function infoFor(el){
   if(known[name])formula=known[name];
  }
  if(p==='smartThursday'&&THURSDAY[label])formula=THURSDAY[label];
+ if(label==='تغطية خريطة المشاريع')dataSource='Google Sheets: vd projects؛ عمودا الإحداثيات Z وAA (الصفوف المفلترة)';
+ if(label==='تغطية خريطة الخطوط البديلة')dataSource='Google Sheets: Alternative lines؛ عمودا الإحداثيات G وH (الصفوف المفلترة)';
  const active=window.VDUrgent?.getState?.(),period=active?.periods?.get?.(p);
  const periodText=period?.from||period?.to?'الفترة: '+(period.from||'بداية البيانات')+' إلى '+(period.to||'نهاية البيانات')+'. ':'';
  const filterText=(p==='followup'||p==='quality')?'هذه الشاشة تقرأ مجموعة الفحص/نتائج Pivot وفق مصدرها، ولا تفترض أن فلاتر المؤشرات الأخرى تعيد حساب Pivot الورقة.':FILTER;

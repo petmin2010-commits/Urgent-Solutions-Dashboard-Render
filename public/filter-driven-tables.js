@@ -220,7 +220,7 @@ function render(){
  const groups=(PAGE_DATA_GROUPS[page]||PAGE_GROUPS[page]||['البلدية','المقاول','المالك']).filter(k=>chosen.headers.includes(k)).slice(0,3);
  const metrics=(PAGE_DATA_SUMS[page]||PAGE_SUMS[page]||[]).filter(k=>chosen.headers.includes(k)).slice(0,2);
  const blocks=groups.map(g=>pivotPanel(g,chosen.rows,metrics));
- if(page!=='projects'){
+ if(page!=='projects'&&page!=='permits'){
   const priority=priorityPanel(chosen);if(priority)blocks.push(priority);
  }
  const wrap=document.createElement('section');
@@ -231,7 +231,7 @@ function render(){
   '<span>'+fmt(chosen.rows.length)+' سجل مطابق من '+fmt(chosen.allCount)+' — يتم احتساب كامل المصدر بعد فلاتر الصفحة والفترة الزمنية</span></div></section>';
  wrap.innerHTML=introHtml+
   '<div class="vdft-source-selector">'+models.map(m=>'<button type="button" data-vdft-dataset="'+esc(m.key)+'" class="'+(m.key===chosen.key?'active':'')+'">'+esc(m.title)+' <b>'+fmt(m.rows.length)+'</b></button>').join('')+'</div>'+
-  (page==='projects'?'':detailPanel(chosen))+(blocks.length?'<div class="vd-filter-driven-grid">'+blocks.join('')+'</div>':'');
+  ((page==='projects'||page==='permits')?'':detailPanel(chosen))+(blocks.length?'<div class="vd-filter-driven-grid">'+blocks.join('')+'</div>':'');
  host.appendChild(wrap);
  wrap.querySelectorAll('[data-vdft-dataset]').forEach(btn=>btn.addEventListener('click',()=>{currentDatasetByPage.set(page,btn.dataset.vdftDataset);render()}));
  wireDetail(wrap,chosen);wireSearch(wrap);

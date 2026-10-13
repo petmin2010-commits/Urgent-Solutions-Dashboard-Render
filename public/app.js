@@ -835,7 +835,7 @@ function renderMap(){
  };
  $('#pageHost').innerHTML='<div class="kpi-grid map-kpis">'+
   kpi('مواقع المشاريع',projects.length,missingProjects?'مفقود '+missingProjects+' موقع':'جميع المواقع المتاحة')+
-  kpi('الخطوط البديلة',lines.length,missingLines?'مفقود '+missingLines+' إحداثية':'إحداثيات الخطوط المتاحة')+
+  kpi('مواقع الخطوط البديلة',lines.length,missingLines?'مفقود '+missingLines+' إحداثية':'إحداثيات الخطوط المتاحة')+
   kpi('تغطية خريطة المشاريع',projectCoverage,'% مشاريع بإحداثيات صحيحة • '+projects.length+' من '+projectAll.length,'info')+
   kpi('تغطية خريطة الخطوط البديلة',lineCoverage,'% خطوط بإحداثيات صحيحة • '+lines.length+' من '+lineAll.length,'info')+
   kpi('طبقات KMZ من الشيت',linkedKmzSources.length,'روابط العمود AL')+

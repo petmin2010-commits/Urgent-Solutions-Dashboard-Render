@@ -166,15 +166,16 @@ const METRICS={
   'الخطوط البديلة':'Grand Total من Pivot الخطوط حسب السنة (reports N:Q).'
  }
 };
+const PERMIT_COUNT_CHART='المعادلة: COUNT(projects) GROUP BY extensionPressure بعد تطبيق الفلاتر التفاعلية. مصدر العدد لكل مشروع: ورقة vd projects، العمود AE (permitCount). التصنيف الرقمي: لا يوجد = 0 تصريح؛ منخفض = 1 تصريح؛ متوسط = 2 إلى 4 تصاريح؛ مرتفع = 5 إلى 9 تصاريح؛ مرتفع جدًا = 10 تصاريح فأكثر. كل مشروع يُحتسب مرة واحدة في فئة واحدة؛ ارتفاع العمود عدد المشاريع وليس مجموع التصاريح.';
 const CHARTS={
  cRisk:['vd projects','COUNT(projects) GROUP BY riskLevel؛ تصنيف الدرجة المركبة بحسب قواعد الخادم. '+RISK],
  cPermitStatus:['vd projects','COUNT(projects) GROUP BY permitStatus، وليس تصاريح info. new.'],
- cGuarantee:['vd projects','COUNT(projects) GROUP BY guaranteeStatus.'], cExt:['vd projects','COUNT(projects) GROUP BY extensionPressure؛ 0/1/2–4/5–9/≥10 تصاريح في المستويات المقابلة.'],
+ cGuarantee:['vd projects','COUNT(projects) GROUP BY guaranteeStatus.'], cExt:['vd projects — العمود AE',PERMIT_COUNT_CHART],
  cLineType:['Alternative lines','COUNT(lines) GROUP BY type.'],cDesign:['Alternative lines','COUNT(lines) GROUP BY designStatus.'],
  cYears:['info. new','COUNT(actualPermits) GROUP BY year؛ السنة من تاريخ التصريح.'],
  cMun:['vd projects','COUNT(projects) GROUP BY municipality؛ أعلى 12 بلدية.'],
  pRisk:['vd projects','COUNT(projects) GROUP BY riskLevel وفق درجة المخاطر المركبة.'],
- pExt:['vd projects','COUNT(projects) GROUP BY extensionPressure.'],
+ pExt:['vd projects — العمود AE',PERMIT_COUNT_CHART],
  pStatus:['vd projects','COUNT(projects) GROUP BY contractStatus.'],
  pType:['vd projects','COUNT(projects) GROUP BY projectType.'],
  pPermit:['vd projects','COUNT(projects) GROUP BY permitStatus.'],
@@ -208,7 +209,7 @@ const CHARTS={
  paCon:['vd projects + Alternative lines','لكل مقاول شريطان: SUM(permitMeters) من المشاريع وSUM(length) من الخطوط؛ أعلى 10 مقاولين مرتبّين حسب المستحق.'],
  paOwner:['vd projects + Alternative lines','لكل مالك شريطان: SUM(permitMeters) من المشاريع وSUM(length) من الخطوط؛ أعلى 10 ملاك مرتّبين حسب المستحق.'],
  rLevel:['vd projects','COUNT(projects) GROUP BY riskLevel. '+RISK],
- rExt:['vd projects','COUNT(projects) GROUP BY extensionPressure.'],
+ rExt:['vd projects — العمود AE',PERMIT_COUNT_CHART],
  rMun:['vd projects','AVG(riskScore) GROUP BY municipality؛ ترتيب تنازلي لأعلى 12 بلدية. هذه متوسطات وليست مجموع درجات أو أعداد مشاريع.'],
  rTop:['vd projects','عرض أعلى 12 مشروعًا حسب riskScore تنازليًا؛ قيمة العمود درجة المشروع (0–100).'],
  muProjects:['ملخص البلديات','عدد المشاريع لكل بلدية؛ ترتيب تنازلي.'],
@@ -313,7 +314,14 @@ function dynamicExample(el,p,title,kind){
  if(kind==='chart'){
   const canvas=el.querySelector('canvas'),chart=canvas&&window.Chart?.getChart?.(canvas);
   if(chart){
-   const labels=chart.data.labels||[],ds=chart.data.datasets||[],pair=labels.length?ds.map(set=>clean(set.label||'السلسلة')+' = '+fmt(set.data?.[0])).join(' ؛ '):'لا توجد قيم';
+   const labels=chart.data.labels||[],ds=chart.data.datasets||[];
+   if(['cExt','pExt','rExt'].includes(canvas.id)){
+    const groups=['لا يوجد','منخفض','متوسط','مرتفع','مرتفع جدًا'];
+    const values=new Map(labels.map((label,i)=>[clean(label),num(ds[0]?.data?.[i])]));
+    const total=groups.reduce((n,label)=>n+(values.get(label)||0),0);
+    return 'من البيانات المفلترة حاليًا: '+groups.map(label=>label+' = '+fmt(values.get(label)||0)+' مشروع').join('؛ ')+'؛ الإجمالي = '+fmt(total)+' مشروع.';
+   }
+   const pair=labels.length?ds.map(set=>clean(set.label||'السلسلة')+' = '+fmt(set.data?.[0])).join(' ؛ '):'لا توجد قيم';
    return 'الفئات المعروضة: '+labels.length+'؛ السلاسل: '+ds.length+'. مثال حي من الرسم: '+(labels.length?'«'+clean(labels[0])+'»: '+pair:'لا توجد فئات بعد الفلترة')+'.';
   }
   return 'لا يوجد رسم مرسوم حاليًا؛ يعاد حسابه عند توفر بيانات.';
@@ -370,6 +378,9 @@ function infoFor(el){
   formula=rule?.[1]||'يُعرض تسلسل البيانات الحالي كما يحسبه مصدر الرسم. القيم لا تُعدّ تلقائيًا أرقامًا للمشاريع ما لم تكن وحدة الرسم «عدد المشاريع».';
   if(rule)dataSource=rule[0];
   condition='تظهر الفئات الفارغة غالبًا بوصف «غير محدد». الرسوم من نوع أعلى N تخفي بقية الفئات دون حذفها من المصدر؛ والرسوم ذات السلاسل المتعددة لا تخلط الأمتار مع الأعداد.';
+  if(['cExt','pExt','rExt'].includes(chartId)){
+   condition='التصنيف يعتمد فقط على عدد التصاريح المسجل في AE، ولا يقيس مدد التصاريح أو مرات التجديد الفعلية. الخلية الفارغة أو القيمة غير الرقمية تتحول حاليًا إلى 0 وفق دالة num في الخادم، فتُحسب ضمن «لا يوجد»؛ وهذا لا يثبت بالضرورة عدم وجود تصريح. يتم احتساب مشروع واحد لكل سجل مطابق بعد الفلاتر.';
+  }
  }else if(isTable){
   const tableName=el.getAttribute('data-report-table-title')||label;
   formula=TABLES[tableName]|| (el.matches('.sheet-report-table,.sheet-contractor-report')?

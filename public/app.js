@@ -1089,7 +1089,7 @@ function renderMasterV2(){
  '</div><div class="chart-grid">'+
   chartPanel('cPermitStatus','حالة التصاريح','مفصولة عن حالة الضمان')+
   chartPanel('cGuarantee','حالة الضمانات والتعهدات')+
-  chartPanel('cExt','ضغط تمديدات التصاريح')+
+  chartPanel('cExt','تصنيف المشاريع حسب عدد التصاريح')+
   chartPanel('cLineType','أنواع الخطوط البديلة')+
   chartPanel('cDesign','حالة التصميم والاعتماد')+
   chartPanel('cYears','التصاريح حسب السنة')+
@@ -1112,7 +1112,7 @@ function renderProjectsV2(){
   kpi('متوسط التصاريح للمشروع',avgExt,'تصريح/تمديد')+
   kpi('أعلى عدد تصاريح لمشروع واحد',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+
  '</div><div class="chart-grid">'+
-  chartPanel('pRisk','مستوى المخاطر')+chartPanel('pExt','ضغط التمديدات')+
+  chartPanel('pRisk','مستوى المخاطر')+chartPanel('pExt','تصنيف المشاريع حسب عدد التصاريح')+
   chartPanel('pStatus','حالة العقود')+chartPanel('pPermit','حالة التصاريح')+
   chartPanel('pMun','المشاريع حسب البلدية')+chartPanel('pMeters','أعلى المشاريع في أمتار التصاريح')+
  '</div>'+tablePanel('تفاصيل المشاريع ومؤشر المخاطر',[
@@ -1296,7 +1296,7 @@ function renderRisks(){
   kpi('متوسط',counts['متوسط']||0,'متابعة','warn')+kpi('طبيعي',counts['طبيعي']||0,'مخاطر أقل')+
   kpi('ضغط تمديدات مرتفع',extHigh,'5 تصاريح/تمديدات فأكثر',extHigh?'warn':'')+
  '</div><div class="chart-grid">'+
-  chartPanel('rLevel','توزيع مستوى المخاطر')+chartPanel('rExt','ضغط تمديدات التصاريح')+
+  chartPanel('rLevel','توزيع مستوى المخاطر')+chartPanel('rExt','تصنيف المشاريع حسب عدد التصاريح')+
   chartPanel('rMun','المخاطر حسب البلدية')+chartPanel('rTop','أعلى المشاريع في درجة المخاطر')+
  '</div>'+tablePanel('سجل مخاطر المشاريع',[
   {key:'riskLevel',label:'المستوى',html:r=>pill(r.riskLevel)},{key:'riskScore',label:'الدرجة'},

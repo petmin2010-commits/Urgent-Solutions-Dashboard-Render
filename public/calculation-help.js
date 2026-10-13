@@ -189,7 +189,6 @@ const CHARTS={
  lType:['Alternative lines','COUNT(lines) GROUP BY type.'],
  lDesign:['Alternative lines','COUNT(lines) GROUP BY designStatus.'],
  lApproval:['Alternative lines','COUNT(lines) GROUP BY approvalBand؛ الفئات من submissionDate إلى approvalDate؛ '+DESIGN],
- lAging:['Alternative lines','COUNT(lines WHERE designAgeDays >0) GROUP BY designAgeBand. '+DESIGN],
  lContractor:['Alternative lines','SUM(length) GROUP BY contractor؛ أعلى 12 مقاول بالأمتار.'],
  lDesigner:['Alternative lines','COUNT(lines) GROUP BY designer؛ أعلى 10 مهندسين من حيث عدد الخطوط.'],
  lDiameter:['Alternative lines','COUNT(lines) GROUP BY diameter؛ أعلى 12 قطرًا.'],

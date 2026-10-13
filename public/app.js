@@ -149,7 +149,7 @@ const CHART_FILTERS={
  master:{cPermitStatus:['permitStatus','حالة التصريح'],cLineType:['type','نوع الخط'],cDesign:['designStatus','حالة التصميم'],cGuarantee:['guaranteeStatus','حالة الضمان'],cYears:['year','السنة'],cMun:['municipality','البلدية'],cRisk:['riskLevel','مستوى المخاطر'],cExt:['extensionPressure','ضغط التمديدات']},
  projects:{pStatus:['contractStatus','حالة العقد'],pType:['projectType','نوع المشروع'],pPermit:['permitStatus','حالة التصريح'],pMun:['municipality','البلدية'],pExt:['extensionPressure','ضغط التمديدات']},
  permits:{peYear:['year','السنة'],peMun:['municipality','البلدية'],peCon:['contractor','المقاول'],peOwner:['owner','المالك'],peExpiry:['expiryBand','نافذة الانتهاء'],peMetersYear:['year','السنة']},
- lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم'],lApproval:['approvalBand','مدة الاعتماد'],lAging:['designAgeBand','عمر المتابعة'],lDiameter:['diameter','قطر التصميم'],lDiff:['ref','مرجع الخط']},
+ lines:{lType:['type','نوع الخط'],lDesign:['designStatus','حالة التصميم'],lContractor:['contractor','المقاول'],lDesigner:['designer','المصمم'],lApproval:['approvalBand','مدة الاعتماد'],lDiameter:['diameter','قطر التصميم'],lDiff:['ref','مرجع الخط']},
  settlements:{sStatus:['status','حالة التسوية'],sContractor:['contractor','المقاول'],sCoverage:['coverageBand','نسبة التغطية'],sDueDone:['contractor','المقاول']},
  guarantees:{gStatus:['guaranteeStatus','حالة الضمان'],gContractor:['contractor','المقاول'],gWindow:['guaranteeDays','نافذة الأيام','guaranteeWindow']},
  complaints:{coStatus:['status','حالة الشكوى']},
@@ -1286,7 +1286,7 @@ function renderLinesV2(){
   kpi('مشاكل تسلسل زمني',chronology,'رفع التصميم قبل التكليف',chronology?'danger':'')+
  '</div><div class="chart-grid">'+
   chartPanel('lType','أنواع الخطوط')+chartPanel('lDesign','حالة التصميم')+
-  chartPanel('lApproval','مدة اعتماد التصميم')+chartPanel('lAging','عمر التصاميم غير المعتمدة')+
+  chartPanel('lApproval','مدة اعتماد التصميم')+
   chartPanel('lContractor','أطوال الخطوط حسب المقاول')+chartPanel('lDesigner','الخطوط حسب المصمم')+
   chartPanel('lDiameter','توزيع أقطار التصميم')+chartPanel('lDiff','أكبر فروقات طول التصميم مقابل الخط')+
  '</div>'+tablePanel('تفاصيل الخطوط ودورة التصميم',[
@@ -1301,7 +1301,6 @@ function renderLinesV2(){
  let x=topEntries(countBy(rows,'type'));makeChart('lType','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'designStatus'));makeChart('lDesign','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(rows,'approvalBand'));makeChart('lApproval','bar',x.map(a=>a[0]),x.map(a=>a[1]));
- x=topEntries(countBy(rows.filter(r=>r.designAgeDays>0),'designAgeBand'));makeChart('lAging','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  const cm={};rows.forEach(r=>{const k=r.contractor||'غير محدد';cm[k]=(cm[k]||0)+n(r.length)});x=topEntries(cm,12);makeChart('lContractor','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
  x=topEntries(countBy(rows,'designer'),10);makeChart('lDesigner','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
  x=topEntries(countBy(rows,'diameter'),12);makeChart('lDiameter','bar',x.map(a=>a[0]),x.map(a=>a[1]));

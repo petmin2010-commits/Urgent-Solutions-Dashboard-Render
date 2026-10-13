@@ -223,8 +223,11 @@ function render(){
  const priority=priorityPanel(chosen);if(priority)blocks.push(priority);
  const wrap=document.createElement('section');
  wrap.className='vd-filter-driven-tables';
- wrap.innerHTML='<section class="panel wide vd-filter-table-intro"><div class="panel-head"><div><b>جداول تفصيلية وتحليلية حسب الفلاتر الحالية</b><small>FILTER-DRIVEN TABLES • LIVE SOURCE</small></div>'+
-  '<span>'+fmt(chosen.rows.length)+' سجل مطابق من '+fmt(chosen.allCount)+' — يتم احتساب كامل المصدر بعد فلاتر الصفحة والفترة الزمنية</span></div></section>'+
+ // Keep the filtered tables; hide only their introductory banner on the Projects tab.
+ const introHtml=page==='projects'?'':
+  '<section class="panel wide vd-filter-table-intro"><div class="panel-head"><div><b>جداول تفصيلية وتحليلية حسب الفلاتر الحالية</b><small>FILTER-DRIVEN TABLES • LIVE SOURCE</small></div>'+
+  '<span>'+fmt(chosen.rows.length)+' سجل مطابق من '+fmt(chosen.allCount)+' — يتم احتساب كامل المصدر بعد فلاتر الصفحة والفترة الزمنية</span></div></section>';
+ wrap.innerHTML=introHtml+
   '<div class="vdft-source-selector">'+models.map(m=>'<button type="button" data-vdft-dataset="'+esc(m.key)+'" class="'+(m.key===chosen.key?'active':'')+'">'+esc(m.title)+' <b>'+fmt(m.rows.length)+'</b></button>').join('')+'</div>'+
   detailPanel(chosen)+(blocks.length?'<div class="vd-filter-driven-grid">'+blocks.join('')+'</div>':'');
  host.appendChild(wrap);

@@ -163,41 +163,77 @@ const CHART_FILTERS={
 };
 const CARD_RULES={
  master:{
-  'تحت الإصدار':{field:'permitRefs',mode:'exact',value:'تحت الاصدار',label:'حالة التصريح'},
-  'تصاريح أوشكت':{field:'end',mode:'permitTiming',value:'expiring',label:'صلاحية التصريح'}
+  'تصاميم معتمدة':{field:'designStatus',mode:'regex',value:'معتمد|حزمة مصممة',label:'حالة التصميم'},
+  'تصاميم تحتاج مراجعة':{field:'designStatus',mode:'designReview',label:'حالة التصميم'}
  },
  projects:{
+  'عدد المشاريع متعددة التصاريح':{field:'permitCount',mode:'gt',value:1,label:'عدد التصاريح'},
   'تحت الإصدار':{field:'permitRefs',mode:'exact',value:'تحت الاصدار',label:'حالة التصريح'},
   'مشاريع ملغاة':{field:'permitRefs',mode:'exact',value:'مشروع ملغي',label:'حالة المشروع'}
  },
  permits:{
+  'منتهية':{field:'expiryBand',mode:'exact',value:'منتهي',label:'انتهاء التصريح'},
+  'تنتهي خلال 30 يوم':{field:'expiryBand',mode:'oneOf',values:['0–7 أيام','8–30 يوم'],label:'نافذة الانتهاء'},
+  'مشاريع مرتبطة':{field:'projectNo',mode:'notblank',label:'الربط بالمشروع'},
+  'غير مرتبطة بمشروع':{field:'projectNo',mode:'blank',label:'الربط بالمشروع'},
   'سارية':{field:'end',mode:'permitTiming',value:'valid',label:'صلاحية التصريح'},
-  'أوشكت':{field:'end',mode:'permitTiming',value:'expiring',label:'صلاحية التصريح'},
-  'منتهية':{field:'end',mode:'permitTiming',value:'expired',label:'صلاحية التصريح'},
-  'تاريخ غير قابل للقراءة':{field:'end',mode:'permitTiming',value:'unknown',label:'صلاحية التصريح'}
+  'أوشكت':{field:'end',mode:'permitTiming',value:'expiring',label:'صلاحية التصريح'}
  },
  lines:{
+  'تصميم معتمد':{field:'designStatus',mode:'regex',value:'معتمد|حزمة مصممة',label:'حالة التصميم'},
+  'قيد الاعتماد فعليًا':{field:'designStatus',mode:'designPendingActual',label:'حالة التصميم'},
+  'تعارض حالة/تاريخ':{field:'designStatus',mode:'designConflict',label:'حالة التصميم'},
+  'بدون حالة تصميم':{field:'designStatus',mode:'blank',label:'حالة التصميم'},
+  'مشاكل تسلسل زمني':{field:'chronologyIssue',mode:'exact',value:true,label:'التسلسل الزمني'},
   'معتمد PMO':{field:'designStatus',mode:'contains',value:'معتمد',label:'حالة التصميم'},
-  'قيد التصميم/الاعتماد':{field:'designStatus',mode:'pendingDesign',value:'1',label:'حالة التصميم'}
+  'قيد التصميم/الاعتماد':{field:'designStatus',mode:'pendingDesign',label:'حالة التصميم'}
  },
  settlements:{
-  'عليه أمتار':{field:'status',mode:'exact',value:'عليه أمتار',label:'حالة التسوية'},
-  'له أمتار':{field:'status',mode:'exact',value:'له أمتار',label:'حالة التسوية'},
-  'مستوفي الأمتار':{field:'status',mode:'exact',value:'مستوفي الأمتار',label:'حالة التسوية'}
+  'عليه أمتار':{field:'balance',mode:'gt',value:0,label:'رصيد التسوية'},
+  'له أمتار':{field:'balance',mode:'lt',value:0,label:'رصيد التسوية'},
+  'مستوفي':{field:'balance',mode:'eq',value:0,label:'رصيد التسوية'},
+  'مستوفي الأمتار':{field:'balance',mode:'eq',value:0,label:'رصيد التسوية'}
  },
  guarantees:{
   'ضمان منتهي':{field:'guaranteeStatus',mode:'contains',value:'منتهي',label:'حالة الضمان'},
   'أوشك على الانتهاء':{field:'guaranteeStatus',mode:'contains',value:'أوشك',label:'حالة الضمان'},
-  'بانتظار إصدار':{field:'guaranteeStatus',mode:'contains',value:'بانتظار',label:'حالة الضمان'}
+  'بانتظار إصدار':{field:'guaranteeStatus',mode:'contains',value:'بانتظار',label:'حالة الضمان'},
+  'تعهدات قائمة':{field:'guaranteeStatus',mode:'contains',value:'تعهد',label:'حالة الضمان'},
+  'ضمانات سارية':{field:'guaranteeStatus',mode:'contains',value:'ساري',label:'حالة الضمان'}
  },
  complaints:{
-  'بحالة مسجلة':{field:'status',mode:'notblank',value:'',label:'حالة الشكوى'},
-  'بدون حالة':{field:'status',mode:'blank',value:'',label:'حالة الشكوى'}
+  'بحالة مسجلة':{field:'status',mode:'notblank',label:'حالة الشكوى'},
+  'بدون حالة':{field:'status',mode:'blank',label:'حالة الشكوى'},
+  'مرتبطة بحل/خط':{field:'link',mode:'notblank',label:'الربط بالحل'},
+  'بدون ربط':{field:'link',mode:'blank',label:'الربط بالحل'}
  },
  execution:{
-  'حالة تنفيذ مسجلة':{field:'executionStatus',mode:'notblank',value:'',label:'حالة التنفيذ'},
-  'منجز/مكتمل':{field:'executionStatus',mode:'completeExecution',value:'1',label:'حالة التنفيذ'},
-  'بدون حالة تنفيذ':{field:'executionStatus',mode:'blank',value:'',label:'حالة التنفيذ'}
+  'حالة تنفيذ مسجلة':{field:'executionStatus',mode:'notblank',label:'حالة التنفيذ'},
+  'بدون حالة تنفيذ':{field:'executionStatus',mode:'blank',label:'حالة التنفيذ'},
+  'بيانات إتمام':{field:'completion',mode:'anyFieldPresent',fields:['completion','completionReport'],label:'بيانات الإتمام'},
+  'بيانات تسليم':{field:'handoverLetter',mode:'anyFieldPresent',fields:['handoverDate','handoverLetter'],label:'بيانات التسليم'},
+  'منجز/مكتمل':{field:'executionStatus',mode:'completeExecution',label:'حالة التنفيذ'}
+ },
+ risks:{
+  'حرج':{field:'riskLevel',mode:'exact',value:'حرج',label:'مستوى المخاطر'},
+  'مرتفع':{field:'riskLevel',mode:'exact',value:'مرتفع',label:'مستوى المخاطر'},
+  'متوسط':{field:'riskLevel',mode:'exact',value:'متوسط',label:'مستوى المخاطر'},
+  'طبيعي':{field:'riskLevel',mode:'exact',value:'طبيعي',label:'مستوى المخاطر'},
+  'ضغط تمديدات مرتفع':{field:'extensionPressure',mode:'oneOf',values:['مرتفع','مرتفع جدًا'],label:'ضغط التمديدات'}
+ },
+ municipalities:{
+  'مخاطر مرتفعة/حرجة':{field:'criticalProjects',mode:'gt',value:0,label:'مشاريع عالية المخاطر'},
+  'تصاميم تحتاج متابعة':{field:'pendingDesign',mode:'gt',value:0,label:'تصاميم تحتاج متابعة'}
+ },
+ traceability:{
+  'مرتبطة بخطوط':{field:'matchMethod',mode:'notExact',value:'لا يوجد ربط مطابق',label:'طريقة الربط'},
+  'بدون ربط مطابق':{field:'matchMethod',mode:'exact',value:'لا يوجد ربط مطابق',label:'طريقة الربط'},
+  'مخاطر مرتفعة/حرجة':{field:'riskLevel',mode:'oneOf',values:['مرتفع','حرج'],label:'مستوى المخاطر'}
+ },
+ analytics:{
+  'مشاريع عالية المخاطر':{field:'riskLevel',mode:'oneOf',values:['مرتفع','حرج'],label:'مستوى المخاطر'},
+  'تصاريح منتهية':{field:'expiryBand',mode:'exact',value:'منتهي',label:'نافذة انتهاء التصاريح'},
+  'تصاميم متقادمة >60 يوم':{field:'designAgeDays',mode:'gt',value:60,label:'عمر التصميم'}
  },
  quality:{
   'مرتفعة':{field:'severity',mode:'exact',value:'high',label:'الأهمية'},
@@ -287,6 +323,12 @@ function selectedFor(field){
 function rulePass(row,rule){
  if(!rule)return true;
  if(rule.mode==='allOf')return (rule.rules||[]).every(r=>rulePass(row,r));
+ if(rule.mode==='anyOf')return (rule.rules||[]).some(r=>rulePass(row,r));
+ if(rule.mode==='anyFieldPresent'){
+  const fields=rule.fields||[];
+  if(!fields.some(f=>Object.prototype.hasOwnProperty.call(row,f)))return true;
+  return fields.some(f=>!!clean(row[f]));
+ }
  if(rule.mode==='projectRef')return norm(row?.no)===norm(rule.value)||norm(row?.name)===norm(rule.value);
  if(rule.mode==='guaranteeWindow'){
   const status=clean(row?.guaranteeStatus),expiry=clean(row?.guaranteeExpiry),days=n(row?.guaranteeDays),band=clean(rule.value);
@@ -305,6 +347,17 @@ function rulePass(row,rule){
  if(rule.mode==='blank')return !v;
  if(rule.mode==='notblank')return !!v;
  if(rule.mode==='contains')return norm(v).includes(norm(rule.value));
+ if(rule.mode==='notExact')return norm(v)!==norm(rule.value);
+ if(rule.mode==='oneOf')return (rule.values||[]).some(x=>norm(v)===norm(x));
+ if(rule.mode==='gt'||rule.mode==='lt'||rule.mode==='eq'){
+  const numeric=Number(raw),threshold=Number(rule.value);
+  if(!v||!Number.isFinite(numeric)||!Number.isFinite(threshold))return false;
+  return rule.mode==='gt'?numeric>threshold:rule.mode==='lt'?numeric<threshold:numeric===threshold;
+ }
+ if(rule.mode==='regex')return new RegExp(rule.value,'i').test(v);
+ if(rule.mode==='designReview')return !v||/جاري|قيد/i.test(v);
+ if(rule.mode==='designPendingActual')return /جاري|قيد/i.test(v)&&!clean(row.approvalDate);
+ if(rule.mode==='designConflict')return /جاري|قيد/i.test(v)&&!!clean(row.approvalDate);
  if(rule.mode==='permitTiming'){
   const days=dateDaysLeft(raw);
   if(rule.value==='unknown')return days===null;
@@ -601,21 +654,27 @@ function wireTableSearch(){
 function wireInteractiveCards(){
  const rules=CARD_RULES[state.page]||{};
  $$('.kpi-card','#pageHost').forEach(card=>{
-  const label=clean(card.querySelector(':scope > span')?.textContent);
+  const label=clean(card.querySelector(':scope > span:not(.vd-card-icon)')?.textContent);
   const rule=rules[label];
   if(!rule)return;
   card.classList.add('vd-clickable');
+  card.setAttribute('role','button');card.tabIndex=0;
   const active=interactiveStore().has('card:'+label);
   card.classList.toggle('vd-filtered',active);
+  card.setAttribute('aria-pressed',String(active));
   card.title='اضغط لتطبيق/إلغاء هذا الفلتر';
   card.addEventListener('click',e=>{
    if(e.target.closest('.vd-info-btn'))return;
    toggleInteractiveFilter('card:'+label,{...rule,displayValue:label});
   });
+  card.addEventListener('keydown',e=>{
+   if(e.target!==card||!['Enter',' '].includes(e.key))return;
+   e.preventDefault();card.click();
+  });
  });
 }
 function elementInfoTitle(el){
- return clean(el.querySelector(':scope > span')?.textContent||
+ return clean(el.querySelector(':scope > span:not(.vd-card-icon)')?.textContent||
   el.querySelector('.panel-head b')?.textContent||
   el.querySelector('.table-tools b')?.childNodes?.[0]?.textContent||
   el.querySelector('.map-legend span')?.textContent||
@@ -624,7 +683,7 @@ function elementInfoTitle(el){
 }
 function elementCalcText(el){
  if(el.classList.contains('kpi-card')){
-  const label=clean(el.querySelector(':scope > span')?.textContent);
+  const label=clean(el.querySelector(':scope > span:not(.vd-card-icon)')?.textContent);
   if(label==='تغطية خريطة المشاريع')return 'النسبة = (عدد المشاريع ذات الإحداثيات الصحيحة ÷ إجمالي المشاريع في نطاق الفلاتر الحالية) × 100. مصدر المشاريع: ورقة vd projects؛ الإحداثيات من العمودين Z وAA بعد تصحيح ترتيب خط العرض والطول عند الحاجة. الإحداثيات الصحيحة هي خط عرض أكبر من 20 وأقل من 23 وخط طول أكبر من 38 وأقل من 41، وكلاهما أرقام صالحة. الصفوف الفارغة أو خارج الحدود غير مغطاة. النتيجة مقربة إلى منزلة عشرية واحدة؛ وعند عدم وجود مشاريع تكون القيمة 0%.';
   if(label==='تغطية خريطة الخطوط البديلة')return 'النسبة = (عدد الخطوط البديلة ذات الإحداثيات الصحيحة ÷ إجمالي الخطوط البديلة في نطاق الفلاتر الحالية) × 100. مصدر الخطوط: ورقة Alternative lines؛ الإحداثيات من العمودين G وH بعد تصحيح ترتيب خط العرض والطول عند الحاجة. الإحداثيات الصحيحة هي خط عرض أكبر من 20 وأقل من 23 وخط طول أكبر من 38 وأقل من 41، وكلاهما أرقام صالحة. لا تدخل المشاريع في هذا المؤشر، وتعد الخطوط ذات الإحداثيات الفارغة أو خارج الحدود غير مغطاة. النتيجة مقربة إلى منزلة عشرية واحدة؛ وعند عدم وجود خطوط تكون القيمة 0%.';
   return 'تُعاد قيمة الكارت من الصفوف المطابقة لكل الفلاتر اليدوية والتفاعلية النشطة في هذه الشاشة.';

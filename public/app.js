@@ -1059,13 +1059,11 @@ function renderMasterV2(){
  const d=state.data,projects=commonFiltered(d.projects),permits=commonFiltered(d.actualPermits),lines=commonFiltered(d.lines),sett=commonFiltered(d.settlements||[]);
  const permitMeters=sum(permits,'meters'),lineMeters=sum(lines,'length'),gross=pct(lineMeters,permitMeters);
  const matchedDue=sum(sett,'dueMeters'),matchedDone=sum(sett,'executedMeters'),matched=pct(matchedDone,matchedDue),matchedGap=Math.round((matchedDue-matchedDone)*10)/10;
- const risks=countBy(projects,'riskLevel');
  const mapped=projects.filter(r=>Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41).length;
  const designApproved=lines.filter(x=>/معتمد|حزمة مصممة/i.test(x.designStatus)).length;
  const designPending=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!x.approvalDate).length;
  const designConflict=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!!x.approvalDate).length;
  const designMissing=lines.filter(x=>!x.designStatus).length;
- const alerts=buildOperationalAlerts(projects,permits,lines);
  $('#pageHost').innerHTML='<div class="kpi-grid">'+
   kpi('المشاريع',projects.length,'مشروع ضمن نطاق الفلاتر')+
   kpi('التصاريح الفعلية',permits.length,'تصاريح مؤرخة فعليًا')+
@@ -1079,7 +1077,6 @@ function renderMasterV2(){
   kpi('تصاميم معتمدة',designApproved,'حزم/تصاميم معتمدة')+
   kpi('تصاميم تحتاج مراجعة',designPending+designConflict+designMissing,'قيد اعتماد أو تعارض أو حالة مفقودة',(designPending+designConflict+designMissing)?'warn':'')+
  '</div><div class="chart-grid">'+
-  chartPanel('cRisk','مستوى مخاطر المشاريع','مؤشر مركب للتصريح والضمان والتسوية والعقد والبيانات')+
   chartPanel('cPermitStatus','حالة التصاريح','مفصولة عن حالة الضمان')+
   chartPanel('cGuarantee','حالة الضمانات والتعهدات')+
   chartPanel('cExt','ضغط تمديدات التصاريح')+
@@ -1087,12 +1084,8 @@ function renderMasterV2(){
   chartPanel('cDesign','حالة التصميم والاعتماد')+
   chartPanel('cYears','التصاريح حسب السنة')+
   chartPanel('cMun','المشاريع حسب البلدية')+
- '</div>'+tablePanel('تنبيهات المتابعة الذكية',[
-  {key:'severity',label:'الأهمية',html:r=>pill(r.severity==='high'?'مرتفعة':r.severity==='medium'?'متوسطة':'منخفضة')},
-  {key:'type',label:'نوع التنبيه'},{key:'item',label:'المرجع'},{key:'details',label:'التفاصيل'}
- ],alerts);
- let x=topEntries(risks);makeChart('cRisk','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
- x=topEntries(countBy(projects,'permitStatus'));makeChart('cPermitStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
+ '</div>';
+ let x=topEntries(countBy(projects,'permitStatus'));makeChart('cPermitStatus','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(projects,'guaranteeStatus'));makeChart('cGuarantee','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(projects,'extensionPressure'));makeChart('cExt','bar',x.map(a=>a[0]),x.map(a=>a[1]));
  x=topEntries(countBy(lines,'type'));makeChart('cLineType','doughnut',x.map(a=>a[0]),x.map(a=>a[1]));

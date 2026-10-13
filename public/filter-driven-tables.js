@@ -236,8 +236,8 @@ function render(){
  }
  const wrap=document.createElement('section');
  wrap.className='vd-filter-driven-tables';
- // Hide the introductory banner on Projects and Permits while preserving the existing tables and filters.
- const introHtml=(page==='projects'||page==='permits')?'':
+ // Hide the introductory banner on Projects, Permits and Map while preserving the existing tables and filters.
+ const introHtml=(page==='projects'||page==='permits'||page==='map')?'':
   '<section class="panel wide vd-filter-table-intro"><div class="panel-head"><div><b>جداول تفصيلية وتحليلية حسب الفلاتر الحالية</b><small>FILTER-DRIVEN TABLES • LIVE SOURCE</small></div>'+
   '<span>'+fmt(chosen.rows.length)+' سجل مطابق من '+fmt(chosen.allCount)+' — يتم احتساب كامل المصدر بعد فلاتر الصفحة والفترة الزمنية</span></div></section>';
  wrap.innerHTML=introHtml+

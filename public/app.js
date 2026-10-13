@@ -485,7 +485,12 @@ function renderFilters(){
 document.addEventListener('click',e=>{if(!e.target.closest('.multi-filter')){filterPopover=null;$$('.multi-filter').forEach(x=>x.classList.remove('open'))}});
 
 function kpi(label,value,note='',cls=''){
- return '<article class="kpi-card '+cls+'"><span>'+esc(label)+'</span><strong data-count>'+esc(value)+'</strong><small>'+esc(note)+'</small></article>';
+ // Show percentage units alongside the numeric value, not in the explanatory caption.
+ const isPercentage=/(?:نسبة|التغطية|[%٪])/i.test(String(label))||/^\s*[%٪]/.test(String(note));
+ const numeric=String(value??'').trim();
+ const shown=isPercentage&&/^[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?$/.test(numeric)?numeric+'%':value;
+ const caption=isPercentage?String(note).replace(/^\s*[%٪]\s*/,''):note;
+ return '<article class="kpi-card '+cls+'"><span>'+esc(label)+'</span><strong data-count'+(isPercentage?' dir="ltr" style="text-align:right"':'')+'>'+esc(shown)+'</strong><small>'+esc(caption)+'</small></article>';
 }
 function animateCounts(){
  if(window.VDCountUp){window.VDCountUp.refresh();return;}

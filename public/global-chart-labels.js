@@ -110,7 +110,7 @@ const plugin={
         const value=n(ds.data?.[pi],type);
         if(value==null)return;
 
-        const text=fmt(value);
+        const text=fmt(value)+(/(?:نسبة|التغطية|مئوية|percent(?:age)?|[%٪])/i.test(String(ds.label||''))?'%':'');
 
         if(type==='doughnut'||type==='pie'||type==='polarArea'){
           if(value===0)return;

@@ -1,0 +1,110 @@
+/* Actual calculation methodology for Urgent Solutions dashboard, 2026-10-13 */
+#vdInfoModal .vd-info-dialog {
+  width:min(880px,96vw);
+  max-height:min(90vh,900px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#vdInfoModal .vd-info-head {flex:0 0 auto;gap:12px}
+#vdInfoModal .vd-info-head h3 {font-size:19px;line-height:1.65;color:#102f40}
+#vdInfoModal .vd-info-body {
+  flex:1 1 auto;
+  overflow-y:auto;
+  min-height:0;
+  padding:18px 22px 25px;
+  display:block;
+  direction:rtl;
+  background:#fff;
+}
+#vdInfoModal .vd-help-detail-row {
+  display:grid;
+  grid-template-columns:minmax(132px,182px) minmax(0,1fr);
+  align-items:start;
+  gap:14px;
+  padding:13px 4px;
+  border-bottom:1px solid #dfebf0;
+}
+#vdInfoModal .vd-help-detail-row:first-child {
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:5px;
+  background:#f4f9fc;
+  border:1px solid #e1eef4;
+}
+#vdInfoModal .vd-help-detail-row b {
+  font-size:12px;
+  font-weight:800;
+  color:#165a74;
+  line-height:1.9;
+}
+#vdInfoModal .vd-help-detail-row span {
+  color:#1a2d39!important;
+  line-height:2;
+  font-size:12px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  unicode-bidi:plaintext;
+}
+#pageHost .vd-info-btn,
+#pageHost .vd-info-btn.vd-detail-info {
+  display:grid;
+  place-items:center;
+  width:26px;
+  height:26px;
+  line-height:1;
+  font-family:Cairo,sans-serif;
+  font-weight:900;
+  font-size:15px;
+  border-radius:50%;
+  background:#eaf8fc;
+  color:#095b77;
+  border:1.5px solid #71bdd2;
+  box-shadow:0 2px 7px rgba(7,87,115,.13);
+  cursor:pointer;
+  z-index:15;
+}
+#pageHost .vd-info-btn:hover,
+#pageHost .vd-info-btn:focus-visible {
+  background:#0b789c;
+  color:#fff;
+  border-color:#0b789c;
+  outline:2px solid #a7e0f0;
+  outline-offset:2px;
+}
+#pageHost .vd-info-host {position:relative!important}
+#pageHost .us-kpi,
+#pageHost .stp-section-card,
+#pageHost .dq-card,
+#pageHost .dq-smart-card,
+#pageHost .dq-overview-card,
+#pageHost .dq-hero-score,
+#pageHost .dq-smart-total,
+#pageHost .dq-section-metrics {
+  position:relative;
+}
+#pageHost .dq-card .vd-info-btn,
+#pageHost .dq-smart-card .vd-info-btn,
+#pageHost .dq-overview-card .vd-info-btn {
+  left:6px;
+  top:6px;
+}
+#pageHost .stp-panel .vd-info-btn,
+#pageHost .us-panel .vd-info-btn {
+  top:11px;
+  left:11px;
+}
+@media(max-width:650px){
+ #vdInfoModal {padding:9px}
+ #vdInfoModal .vd-info-dialog {max-height:92vh;width:100%}
+ #vdInfoModal .vd-info-body {padding:10px 14px}
+ #vdInfoModal .vd-help-detail-row {display:block;padding:12px 2px}
+ #vdInfoModal .vd-help-detail-row b {display:block;margin-bottom:5px}
+ #vdInfoModal .vd-help-detail-row span {display:block}
+ #vdInfoModal .vd-info-head h3 {font-size:16px}
+}
+@media print {
+ #pageHost .vd-info-btn,
+ #vdInfoModal {display:none!important}
+}

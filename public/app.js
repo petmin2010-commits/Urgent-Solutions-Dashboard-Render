@@ -594,6 +594,7 @@ function elementCalcText(el){
  return 'عنصر تحليلي يتحدث تلقائيًا مع الفلاتر النشطة.';
 }
 function openInfo(el){
+ if(window.VDUrgentHelp?.open)return window.VDUrgentHelp.open(el);
  const modal=$('#vdInfoModal'),title=$('#vdInfoTitle'),body=$('#vdInfoBody');if(!modal||!title||!body)return;
  const canvas=el.querySelector('canvas'),cfg=canvas?CHART_FILTERS[state.page]?.[canvas.id]:null;
  title.textContent=elementInfoTitle(el);
@@ -606,7 +607,7 @@ function openInfo(el){
 function decorateInfo(){
  $$('.kpi-card,.panel,.table-panel,.map-panel,.insight-card','#pageHost').forEach(el=>{
   if(el.dataset.vdInfo==='1')return;el.dataset.vdInfo='1';el.classList.add('vd-info-host');
-  const b=document.createElement('button');b.type='button';b.className='vd-info-btn';b.textContent='i';b.title='كيفية ومصدر الاحتساب';
+  const b=document.createElement('button');b.type='button';b.className='vd-info-btn';b.textContent='!';b.title='المعادلة الفعلية التفصيلية ومصدر البيانات';
   b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openInfo(el)});
   el.appendChild(b);
  });

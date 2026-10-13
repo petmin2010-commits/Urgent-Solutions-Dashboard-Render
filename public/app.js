@@ -1058,7 +1058,7 @@ function renderMasterV2(){
  const d=state.data,projects=commonFiltered(d.projects),permits=commonFiltered(d.actualPermits),lines=commonFiltered(d.lines),sett=commonFiltered(d.settlements||[]);
  const permitMeters=sum(permits,'meters'),lineMeters=sum(lines,'length'),gross=pct(lineMeters,permitMeters);
  const matchedDue=sum(sett,'dueMeters'),matchedDone=sum(sett,'executedMeters'),matched=pct(matchedDone,matchedDue),matchedGap=Math.round((matchedDue-matchedDone)*10)/10;
- const risks=countBy(projects,'riskLevel'),high=(risks['حرج']||0)+(risks['مرتفع']||0);
+ const risks=countBy(projects,'riskLevel');
  const mapped=projects.filter(r=>Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41).length;
  const designApproved=lines.filter(x=>/معتمد|حزمة مصممة/i.test(x.designStatus)).length;
  const designPending=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!x.approvalDate).length;
@@ -1067,7 +1067,6 @@ function renderMasterV2(){
  const alerts=buildOperationalAlerts(projects,permits,lines);
  $('#pageHost').innerHTML='<div class="kpi-grid">'+
   kpi('المشاريع',projects.length,'مشروع ضمن نطاق الفلاتر')+
-  kpi('المخاطر المرتفعة/الحرجة',high,'مشاريع تحتاج تدخلًا إداريًا',high?'danger':'')+
   kpi('التصاريح الفعلية',permits.length,'تصاريح مؤرخة فعليًا')+
   kpi('أمتار التصاريح',fmt(permitMeters),'متر مستحق')+
   kpi('الخطوط البديلة',lines.length,'خط تشغيلي')+

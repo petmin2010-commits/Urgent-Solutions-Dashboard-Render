@@ -1104,12 +1104,10 @@ function renderMasterV2(){
  x=topEntries(countBy(projects,'municipality'),12);makeChart('cMun','bar',x.map(a=>a[0]),x.map(a=>a[1]),{horizontal:true});
 }
 function renderProjectsV2(){
- const rows=filtered(state.data.projects),meters=sum(rows,'permitMeters'),risks=countBy(rows,'riskLevel');
+ const rows=filtered(state.data.projects),meters=sum(rows,'permitMeters');
  const multi=rows.filter(x=>n(x.permitCount)>1).length,avgExt=rows.length?Math.round(rows.reduce((a,x)=>a+n(x.permitCount),0)/rows.length*100)/100:0;
- const high=(risks['حرج']||0)+(risks['مرتفع']||0);
  $('#pageHost').innerHTML='<div class="kpi-grid">'+
   kpi('إجمالي المشاريع',rows.length)+kpi('أمتار التصاريح',fmt(meters),'متر')+
-  kpi('مخاطر مرتفعة/حرجة',high,'حسب مؤشر المخاطر المركب',high?'danger':'')+
   kpi('متعدد التصاريح/التمديدات',multi,'أكثر من تصريح واحد','warn')+
   kpi('متوسط التصاريح للمشروع',avgExt,'تصريح/تمديد')+
   kpi('أعلى عدد تمديدات',rows.length?Math.max(...rows.map(x=>n(x.permitCount))):0,'أقصى عدد مسجل','info')+

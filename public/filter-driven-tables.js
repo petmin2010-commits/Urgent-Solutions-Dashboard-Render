@@ -220,7 +220,9 @@ function render(){
  const groups=(PAGE_DATA_GROUPS[page]||PAGE_GROUPS[page]||['البلدية','المقاول','المالك']).filter(k=>chosen.headers.includes(k)).slice(0,3);
  const metrics=(PAGE_DATA_SUMS[page]||PAGE_SUMS[page]||[]).filter(k=>chosen.headers.includes(k)).slice(0,2);
  const blocks=groups.map(g=>pivotPanel(g,chosen.rows,metrics));
- const priority=priorityPanel(chosen);if(priority)blocks.push(priority);
+ if(page!=='projects'){
+  const priority=priorityPanel(chosen);if(priority)blocks.push(priority);
+ }
  const wrap=document.createElement('section');
  wrap.className='vd-filter-driven-tables';
  // Keep the filtered tables; hide only their introductory banner on the Projects tab.

@@ -544,6 +544,8 @@ function avg(rows,field){
  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
 }
 function pct(a,b){return b?Math.round((a/b)*1000)/10:0}
+// Use one map-validity rule for projects and alternative lines, including all dashboard KPI cards.
+function hasMapCoordinates(r){return Number.isFinite(Number(r?.lat))&&Number.isFinite(Number(r?.lon))&&Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41}
 
 function chartPanel(id,title,sub=''){
  return '<section class="panel"><div class="panel-head"><b>'+esc(title)+'</b><span>'+esc(sub)+'</span></div><div class="chart-wrap"><canvas id="'+id+'"></canvas></div></section>';
@@ -586,7 +588,12 @@ function elementInfoTitle(el){
   'عنصر تحليلي');
 }
 function elementCalcText(el){
- if(el.classList.contains('kpi-card'))return 'تُعاد قيمة الكارت من الصفوف المطابقة لكل الفلاتر اليدوية والتفاعلية النشطة في هذه الشاشة.';
+ if(el.classList.contains('kpi-card')){
+  const label=clean(el.querySelector(':scope > span')?.textContent);
+  if(label==='تغطية خريطة المشاريع')return 'النسبة = (عدد المشاريع ذات الإحداثيات الصحيحة ÷ إجمالي المشاريع في نطاق الفلاتر الحالية) × 100. مصدر المشاريع: ورقة vd projects؛ الإحداثيات من العمودين Z وAA بعد تصحيح ترتيب خط العرض والطول عند الحاجة. الإحداثيات الصحيحة هي خط عرض أكبر من 20 وأقل من 23 وخط طول أكبر من 38 وأقل من 41، وكلاهما أرقام صالحة. الصفوف الفارغة أو خارج الحدود غير مغطاة. النتيجة مقربة إلى منزلة عشرية واحدة؛ وعند عدم وجود مشاريع تكون القيمة 0%.';
+  if(label==='تغطية خريطة الخطوط البديلة')return 'النسبة = (عدد الخطوط البديلة ذات الإحداثيات الصحيحة ÷ إجمالي الخطوط البديلة في نطاق الفلاتر الحالية) × 100. مصدر الخطوط: ورقة Alternative lines؛ الإحداثيات من العمودين G وH بعد تصحيح ترتيب خط العرض والطول عند الحاجة. الإحداثيات الصحيحة هي خط عرض أكبر من 20 وأقل من 23 وخط طول أكبر من 38 وأقل من 41، وكلاهما أرقام صالحة. لا تدخل المشاريع في هذا المؤشر، وتعد الخطوط ذات الإحداثيات الفارغة أو خارج الحدود غير مغطاة. النتيجة مقربة إلى منزلة عشرية واحدة؛ وعند عدم وجود خطوط تكون القيمة 0%.';
+  return 'تُعاد قيمة الكارت من الصفوف المطابقة لكل الفلاتر اليدوية والتفاعلية النشطة في هذه الشاشة.';
+ }
  if(el.querySelector('canvas'))return 'يتم تجميع الصفوف المطابقة للفلاتر حسب البعد الظاهر في الشارت. الضغط على أي فئة يضيف فلترًا تفاعليًا ويعيد احتساب بقية العناصر.';
  if(el.classList.contains('table-panel'))return 'يعرض الجدول الصفوف المطابقة للفلاتر الحالية، ويعمل مربع البحث داخل النتائج الظاهرة دون تغيير مصدر البيانات.';
  if(el.classList.contains('map-panel'))return 'تعرض الخريطة المشاريع التي تحتوي على إحداثيات صحيحة بعد تطبيق الفلاتر الحالية.';
@@ -705,7 +712,7 @@ function renderProjects(){
  }
 }
 function renderMap(){
- const validCoord=r=>Number.isFinite(Number(r?.lat))&&Number.isFinite(Number(r?.lon))&&Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41;
+ const validCoord=hasMapCoordinates;
  const projectAll=filtered(state.data.projects||[]);
  const lineDefs=pageFilterDefs().filter(d=>(state.data.lines||[]).some(r=>Object.prototype.hasOwnProperty.call(r,d.field)));
  const lineAll=(state.data.lines||[]).filter(r=>rowPasses(r,lineDefs)&&rowPassesPeriod(r));
@@ -715,8 +722,8 @@ function renderMap(){
   return [url,{id:'sheet-kmz-'+r.row,row:r.row,name:label,sourceUrl:'/api/map/kmz/'+r.row,originalUrl:url,contractor:r.contractor,owner:r.owner,municipality:r.municipality}];
  })).values()];
  const missingProjects=projectAll.length-projects.length,missingLines=lineAll.length-lines.length;
- const coverageTotal=projectAll.length+lineAll.length,coverageMapped=projects.length+lines.length;
- const pctMapped=coverageTotal?Math.round(coverageMapped/coverageTotal*100):0;
+ const projectCoverage=pct(projects.length,projectAll.length);
+ const lineCoverage=pct(lines.length,lineAll.length);
  const combinedRows=[
   ...projects.map(r=>({itemType:'مشروع',ref:r.no,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.contractStatus||r.permitStatus||'',lat:r.lat,lon:r.lon})),
   ...lines.map(r=>({itemType:'خط بديل',ref:r.ref,name:r.name,municipality:r.municipality,district:r.district,street:r.street,owner:r.owner,contractor:r.contractor,status:r.executionStatus||r.designStatus||'',lat:r.lat,lon:r.lon}))
@@ -735,7 +742,8 @@ function renderMap(){
  $('#pageHost').innerHTML='<div class="kpi-grid map-kpis">'+
   kpi('مواقع المشاريع',projects.length,missingProjects?'مفقود '+missingProjects+' موقع':'جميع المواقع المتاحة')+
   kpi('الخطوط البديلة',lines.length,missingLines?'مفقود '+missingLines+' إحداثية':'إحداثيات الخطوط المتاحة')+
-  kpi('تغطية الإحداثيات',pctMapped+'%','من '+coverageTotal+' عنصرًا جغرافيًا')+
+  kpi('تغطية خريطة المشاريع',projectCoverage,'% مشاريع بإحداثيات صحيحة • '+projects.length+' من '+projectAll.length,'info')+
+  kpi('تغطية خريطة الخطوط البديلة',lineCoverage,'% خطوط بإحداثيات صحيحة • '+lines.length+' من '+lineAll.length,'info')+
   kpi('طبقات KMZ من الشيت',linkedKmzSources.length,'روابط العمود AL')+
   kpi('إجمالي أطوال الخطوط',fmt(sum(lines,'length')),'متر')+
  '</div>'+
@@ -1059,7 +1067,8 @@ function renderMasterV2(){
  const d=state.data,projects=commonFiltered(d.projects),permits=commonFiltered(d.actualPermits),lines=commonFiltered(d.lines),sett=commonFiltered(d.settlements||[]);
  const permitMeters=sum(permits,'meters'),lineMeters=sum(lines,'length'),gross=pct(lineMeters,permitMeters);
  const matchedDue=sum(sett,'dueMeters'),matchedDone=sum(sett,'executedMeters'),matched=pct(matchedDone,matchedDue),matchedGap=Math.round((matchedDue-matchedDone)*10)/10;
- const mapped=projects.filter(r=>Number(r.lat)>20&&Number(r.lat)<23&&Number(r.lon)>38&&Number(r.lon)<41).length;
+ const mappedProjects=projects.filter(hasMapCoordinates).length;
+ const mappedLines=lines.filter(hasMapCoordinates).length;
  const designApproved=lines.filter(x=>/معتمد|حزمة مصممة/i.test(x.designStatus)).length;
  const designPending=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!x.approvalDate).length;
  const designConflict=lines.filter(x=>/جاري|قيد/i.test(x.designStatus)&&!!x.approvalDate).length;
@@ -1073,7 +1082,8 @@ function renderMasterV2(){
   kpi('التغطية الإجمالية',gross,'% = إجمالي الخطوط ÷ إجمالي أمتار التصاريح','info')+
   kpi('التغطية المطابقة',matched,'% وفق تطابق المالك + المقاول',matched<80?'warn':'info')+
   kpi('فجوة التسوية المطابقة',fmt(matchedGap),'متر غير مغطى بالمطابقة',matchedGap>0?'danger':'')+
-  kpi('تغطية الخريطة',pct(mapped,projects.length),'% مشاريع بإحداثيات صحيحة','info')+
+  kpi('تغطية خريطة المشاريع',pct(mappedProjects,projects.length),'% مشاريع بإحداثيات صحيحة • '+mappedProjects+' من '+projects.length,'info')+
+  kpi('تغطية خريطة الخطوط البديلة',pct(mappedLines,lines.length),'% خطوط بإحداثيات صحيحة • '+mappedLines+' من '+lines.length,'info')+
   kpi('تصاميم معتمدة',designApproved,'حزم/تصاميم معتمدة')+
   kpi('تصاميم تحتاج مراجعة',designPending+designConflict+designMissing,'قيد اعتماد أو تعارض أو حالة مفقودة',(designPending+designConflict+designMissing)?'warn':'')+
  '</div><div class="chart-grid">'+
